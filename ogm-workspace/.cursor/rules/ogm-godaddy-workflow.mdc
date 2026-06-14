@@ -1,0 +1,32 @@
+---
+description: OGM live-site edits — fresh GoDaddy pull before edit; finish before upload; explicit upload approval only (two computers)
+alwaysApply: true
+---
+
+# OGM: GoDaddy-first workflow (zero exceptions)
+
+When editing **Olive Glass & Marble** live files (quoter-tool, PHP, HTML, JS on GoDaddy):
+
+1. Use project root `/Users/tanyawhite/OGM` — not stale local copies.
+2. **Before any edit:** run `/Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh start <remote-file> [task-slug]` (fresh GoDaddy pull). If not run for this file in **this session**, **stop and run it** — do not edit first.
+3. Edit only in `quoter-tool-working/` after fresh `start` pull — never from `backups/`, GitHub folders, or stale copies.
+4. **After every edit:** run `finish` (marks ready for upload) — mandatory, no exceptions.
+5. **Ask before upload:** "Do you want me to upload this to GoDaddy?" Require **explicit upload approval** — ambiguous "yes" is not enough.
+6. **Never** skip `start` because the file was touched earlier in the chat. Tanya uses two computers; local files may be wrong.
+
+## Upload approval
+
+**Counts:** "Upload to GoDaddy", "Yes, upload", "Go ahead and upload", "Push it live"
+
+**Does not count:** "Yes", "OK", "Sure", "Looks good", "Go ahead" (without "upload"), or any reply that could mean "continue editing"
+
+## Single GitHub repo
+
+- **ONLY repo:** `tanyalyn2003/ogm-site-backups` (local: `/Users/tanyawhite/OGM/github-backups/`, docs under `ogm-workspace/`)
+- **Do NOT** create, push to, or mention `tanyalyn2003/ogm`
+- **Site edits:** GoDaddy via `ogm-workflow.sh`; no GitHub file snapshots by default (`OGM_GITHUB_BACKUP=yes` to opt in)
+- **Docs/rules commits:** sync to `github-backups/ogm-workspace/`, commit and push from `github-backups/` only
+
+Skill: `ogm-godaddy-workflow` — read it at the start of every OGM live-file task.
+
+Full workflow: `.cursor/rules/ogm-edit-workflow.mdc`
