@@ -258,6 +258,8 @@ function ogm_qs_parse_text_measurements(string $description): array
         if (preg_match('/^([a-z0-9][a-z0-9 \\/\-]{1,40}):\s*(.+)$/i', $line, $labelMatch)) {
             $currentLabel = trim($labelMatch[1]);
             $line = trim($labelMatch[2]);
+        } elseif (preg_match('/^((?:master\s+)?(?:kitchen|bath|powder(?:\s+bath)?|laundry|bar|outdoor(?:\s+kitchen)?))(?:\s|$)/i', $line, $roomLead)) {
+            $currentLabel = trim($roomLead[1]);
         }
 
         if (!preg_match_all('/(\d+(?:\.\d+)?|\d+\'(?:\d+(?:\.\d+)?)?)\s*[x×]\s*(\d+(?:\.\d+)?|\d+\'(?:\d+(?:\.\d+)?)?)/i', $line, $pairs, PREG_SET_ORDER)) {
