@@ -1,0 +1,6 @@
+phase: post-edit
+task: email-center-resize
+file: email-center.php
+remote_path: public_html/quoter-tool/email-center.php
+source: /Users/tanyawhite/OGM/quoter-tool-working/email-center.php
+timestamp: 20260613-232109
