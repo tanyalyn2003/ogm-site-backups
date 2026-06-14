@@ -26,6 +26,9 @@ Usage:
   $0 start <remote-file> [task-slug]     Pull fresh from GoDaddy, copy to working dir, pre-edit GitHub backup
   $0 finish <filename> [task-slug]       Post-edit GitHub backup (after you edit in quoter-tool-working)
   $0 upload <filename> [task-slug]       Upload to GoDaddy ONLY when OGM_CONFIRM_UPLOAD=yes is set
+  $0 prune [--dry-run]                   Prune old dated workflow folders in github-backups/
+  $0 prune-local [--dry-run]             Prune old fresh-godaddy-pulls/ (keep latest 3; >7 days)
+  $0 snapshot                            Full GoDaddy snapshot (planned — not implemented)
 
 Examples:
   $0 start email-center.php email-ai-draft
@@ -33,15 +36,23 @@ Examples:
   $0 finish email-center.php email-ai-draft
   OGM_CONFIRM_UPLOAD=yes $0 upload email-center.php email-ai-draft
 
+  $0 prune --dry-run
+  OGM_CONFIRM_PRUNE=yes $0 prune
+  $0 prune-local --dry-run
+  OGM_CONFIRM_PRUNE_LOCAL=yes $0 prune-local
+
 Rules enforced:
   - Always fresh-pull before editing
   - Pre-edit and post-edit backups pushed to $GITHUB_BACKUPS
   - Never uploads to GoDaddy without OGM_CONFIRM_UPLOAD=yes AND a GitHub post-edit backup
   - GoDaddy upload creates a remote backup before overwrite (via godaddy-ftps.sh)
+  - Prune defaults to dry-run; set OGM_CONFIRM_PRUNE=yes (or OGM_CONFIRM_PRUNE_LOCAL=yes) to delete
 
 Environment:
   OGM_FTPS_PASS          GoDaddy FTPS password (or set in $ENV_FILE)
   OGM_CONFIRM_UPLOAD     Must be "yes" to run upload
+  OGM_CONFIRM_PRUNE      Must be "yes" to execute github-backups prune (not dry-run)
+  OGM_CONFIRM_PRUNE_LOCAL Must be "yes" to execute fresh-godaddy-pulls prune (or use OGM_CONFIRM_PRUNE=yes)
   OGM_GITHUB_REMOTE      Git remote name (default: origin)
 EOF
 }
@@ -197,10 +208,266 @@ cmd_upload() {
   printf 'Upload complete: %s\n' "$filename"
 }
 
+# --- Prune helpers ---
+
+date_days_ago() {
+  local days="$1"
+  date -v-"${days}"d +%Y-%m-%d
+}
+
+cmd_prune() {
+  local dry_run=1
+  local arg
+
+  for arg in "$@"; do
+    if [[ "$arg" == "--dry-run" ]]; then
+      dry_run=1
+    fi
+  done
+  if [[ "${OGM_CONFIRM_PRUNE:-}" == "yes" ]] && [[ "$*" != *"--dry-run"* ]]; then
+    dry_run=0
+  fi
+
+  local cutoff_90 cutoff_30
+  cutoff_90="$(date_days_ago 90)"
+  cutoff_30="$(date_days_ago 30)"
+
+  printf '=== GitHub backup prune (%s) ===\n' "$([[ "$dry_run" -eq 1 ]] && echo 'dry-run' || echo 'EXECUTE')"
+  printf 'Repo: %s\n' "$GITHUB_BACKUPS"
+  printf 'Keep all folders since: %s | pre-edit drop when post exists since: %s\n' "$cutoff_90" "$cutoff_30"
+
+  local result
+  result="$(python3 - "$GITHUB_BACKUPS" "$cutoff_90" "$cutoff_30" <<'PY'
+import os, re, sys
+from datetime import datetime
+
+repo = sys.argv[1]
+cutoff_90 = sys.argv[2]
+cutoff_30 = sys.argv[3]
+
+protected_prefixes = ("migrated-local-backups-", "godaddy-full-snapshot-")
+protected_exact = {"ogm-workspace", "README.md"}
+pat = re.compile(
+    r"^(\d{4}-\d{2}-\d{2})-(\d{4})-(.*)-(pre-edit|post-edit.*)$"
+)
+
+def is_workflow(name):
+    if name in protected_exact:
+        return None
+    for p in protected_prefixes:
+        if name.startswith(p):
+            return None
+    m = pat.match(name)
+    if not m:
+        return None
+    date_s, time_s, task, phase = m.groups()
+    return {
+        "name": name,
+        "date": date_s,
+        "stamp": f"{date_s}-{time_s}",
+        "month": date_s[:7],
+        "task": task,
+        "phase": phase,
+        "is_pre": phase == "pre-edit",
+        "is_post": phase.startswith("post-edit"),
+    }
+
+folders = []
+for entry in os.listdir(repo):
+    path = os.path.join(repo, entry)
+    if not os.path.isdir(path) and not os.path.isfile(path):
+        continue
+    info = is_workflow(entry)
+    if info:
+        folders.append(info)
+
+keep = set()
+for f in folders:
+    if f["date"] >= cutoff_90:
+        keep.add(f["name"])
+
+old_by_month = {}
+for f in folders:
+    if f["date"] < cutoff_90:
+        key = f["month"]
+        if key not in old_by_month or f["stamp"] > old_by_month[key]["stamp"]:
+            old_by_month[key] = f
+for f in old_by_month.values():
+    keep.add(f["name"])
+
+tasks_with_post = {f["task"] for f in folders if f["is_post"]}
+for f in folders:
+    if f["is_pre"] and f["date"] < cutoff_30 and f["task"] in tasks_with_post:
+        keep.discard(f["name"])
+
+to_delete = sorted(f["name"] for f in folders if f["name"] not in keep)
+to_keep = sorted(keep)
+print(f"STATS:{len(folders)}:{len(to_keep)}:{len(to_delete)}")
+for name in to_delete:
+    print(f"DELETE:{name}")
+PY
+)"
+
+  local stats_line delete_count=0
+  stats_line="$(printf '%s\n' "$result" | grep '^STATS:' | head -1)"
+  if [[ -z "$stats_line" ]]; then
+    printf 'No workflow folders matched prune rules.\n'
+    return 0
+  fi
+  IFS=':' read -r _ total keep_count delete_count <<< "$stats_line"
+  printf 'Workflow folders found: %s | keep: %s | delete: %s\n' "$total" "$keep_count" "$delete_count"
+
+  if [[ "$delete_count" -eq 0 ]]; then
+    printf 'Nothing to prune.\n'
+    return 0
+  fi
+
+  if [[ "$dry_run" -eq 1 ]]; then
+    printf '\nWould DELETE:\n'
+    while IFS= read -r line; do
+      [[ "$line" == DELETE:* ]] || continue
+      printf '  %s\n' "${line#DELETE:}"
+    done <<< "$result"
+    printf '\nDry-run only. To execute: OGM_CONFIRM_PRUNE=yes %s prune\n' "$0"
+    return 0
+  fi
+
+  printf '\nDeleting:\n'
+  while IFS= read -r line; do
+    [[ "$line" == DELETE:* ]] || continue
+    name="${line#DELETE:}"
+    dir="$GITHUB_BACKUPS/$name"
+    if [[ -d "$dir" ]]; then
+      rm -rf "$dir"
+      printf '  deleted dir: %s\n' "$name"
+    elif [[ -f "$dir" ]]; then
+      rm -f "$dir"
+      printf '  deleted file: %s\n' "$name"
+    fi
+  done <<< "$result"
+
+  ensure_github_repo
+  git -C "$GITHUB_BACKUPS" add -A
+  if git -C "$GITHUB_BACKUPS" diff --cached --quiet; then
+    printf 'No git changes after prune.\n'
+    return 0
+  fi
+  git -C "$GITHUB_BACKUPS" commit -m "prune: remove $delete_count old workflow backup folders"
+  local remote="${OGM_GITHUB_REMOTE:-origin}"
+  if git -C "$GITHUB_BACKUPS" remote get-url "$remote" &>/dev/null; then
+    git -C "$GITHUB_BACKUPS" push "$remote" main
+    printf 'Prune committed and pushed to %s/main\n' "$remote"
+  else
+    printf 'Prune committed locally (no remote %s configured).\n' "$remote"
+  fi
+}
+
+pull_folder_date() {
+  local name="$1"
+  if [[ "$name" =~ ^([0-9]{4}-[0-9]{2}-[0-9]{2}) ]]; then
+  printf '%s\n' "${BASH_REMATCH[1]}"
+    return 0
+  fi
+  if [[ -d "$FRESH_PULLS/$name" ]]; then
+    stat -f '%Sm' -t '%Y-%m-%d' "$FRESH_PULLS/$name"
+    return 0
+  fi
+  return 1
+}
+
+cmd_prune_local() {
+  local dry_run=1
+  local arg name cutoff_7 folder_date
+  local -a all_dirs=()
+  local -a protected=()
+  local -a to_delete=()
+
+  for arg in "$@"; do
+    if [[ "$arg" == "--dry-run" ]]; then
+      dry_run=1
+    fi
+  done
+  if [[ "${OGM_CONFIRM_PRUNE:-}" == "yes" || "${OGM_CONFIRM_PRUNE_LOCAL:-}" == "yes" ]] && [[ "$*" != *"--dry-run"* ]]; then
+    dry_run=0
+  fi
+
+  cutoff_7="$(date_days_ago 7)"
+
+  printf '=== Local fresh-godaddy-pulls prune (%s) ===\n' "$([[ "$dry_run" -eq 1 ]] && echo 'dry-run' || echo 'EXECUTE')"
+  printf 'Directory: %s\n' "$FRESH_PULLS"
+  printf 'Delete pulls older than %s except newest 3 folders\n' "$cutoff_7"
+
+  [[ -d "$FRESH_PULLS" ]] || { printf 'Nothing to prune (directory missing).\n'; return 0; }
+
+  while IFS= read -r path; do
+    [[ -z "$path" ]] && continue
+    all_dirs+=("$(basename "$path")")
+  done < <(ls -1td "$FRESH_PULLS"/*/ 2>/dev/null || true)
+
+  local idx=0
+  for name in "${all_dirs[@]}"; do
+    if [[ "$idx" -lt 3 ]]; then
+      protected+=("$name")
+      idx=$((idx + 1))
+      continue
+    fi
+    folder_date="$(pull_folder_date "$name" || echo "")"
+    if [[ -z "$folder_date" ]]; then
+      to_delete+=("$name")
+      continue
+    fi
+    if [[ "$folder_date" < "$cutoff_7" ]]; then
+      to_delete+=("$name")
+    fi
+  done
+
+  printf 'Pull folders: %d | protected (newest 3): %d | delete: %d\n' "${#all_dirs[@]}" "${#protected[@]}" "${#to_delete[@]}"
+  if [[ "${#protected[@]}" -gt 0 ]]; then
+    printf 'Always keeping newest:\n'
+    for name in "${protected[@]}"; do
+      printf '  %s\n' "$name"
+    done
+  fi
+
+  if [[ "${#to_delete[@]}" -eq 0 ]]; then
+    printf 'Nothing to prune locally.\n'
+    return 0
+  fi
+
+  if [[ "$dry_run" -eq 1 ]]; then
+    printf '\nWould DELETE:\n'
+    for name in "${to_delete[@]}"; do
+      printf '  %s\n' "$name"
+    done
+    printf '\nDry-run only. To execute: OGM_CONFIRM_PRUNE_LOCAL=yes %s prune-local\n' "$0"
+    return 0
+  fi
+
+  printf '\nDeleting:\n'
+  for name in "${to_delete[@]}"; do
+    rm -rf "$FRESH_PULLS/$name"
+    printf '  %s\n' "$name"
+  done
+  printf 'Local prune complete.\n'
+}
+
+cmd_snapshot() {
+  cat <<EOF
+OGM full GoDaddy snapshot — not implemented yet.
+
+Planned: pull entire public_html/quoter-tool tree into github-backups/godaddy-full-snapshot-YYYYMMDD/
+Use ogm-workflow.sh start/finish for per-file backups today.
+See dev-tools/OGM-WORKFLOW.md and ogm-workspace/docs/OGM-LOCAL-DISK-PLAN.md.
+EOF
+}
+
 case "${1:-}" in
   start) shift; cmd_start "$@" ;;
   finish) shift; cmd_finish "$@" ;;
   upload) shift; cmd_upload "$@" ;;
+  prune) shift; cmd_prune "$@" ;;
+  prune-local) shift; cmd_prune_local "$@" ;;
+  snapshot) cmd_snapshot ;;
   -h|--help|help|'') usage ;;
   *) usage; exit 2 ;;
 esac

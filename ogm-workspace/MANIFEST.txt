@@ -4,9 +4,16 @@ Source: /Users/tanyawhite/OGM (local); live site files remain in timestamped bac
 
 Included:
   .cursor/rules/ogm-edit-workflow.mdc
+  .cursor/rules/ogm-knowledge-base.mdc
   dev-tools/OGM-WORKFLOW.md
   dev-tools/scripts/ogm-workflow.sh
   dev-tools/godaddy-ftps/ (FTPS scripts; passwords via .env.local or env vars only)
+  docs/README.md
+  docs/OGM-SITE-STRUCTURE.md
+  docs/OGM-SOFTWARE-GUIDE.md
+  docs/OGM-AGENT-WORKFLOW.md
+  docs/OGM-LOCAL-DISK-PLAN.md
+  docs/OGM-CHANGELOG.md
   .gitignore (template)
   OGM.code-workspace
   MANIFEST.txt (this file)
