@@ -1,0 +1,6 @@
+phase: post-edit
+task: ai-quickstart-apply-fix
+file: ogm-quoter-internal.html
+remote_path: public_html/quoter-tool/ogm-quoter-internal.html
+source: /Users/tanyawhite/OGM/quoter-tool-working/ogm-quoter-internal.html
+timestamp: 20260614-003229
