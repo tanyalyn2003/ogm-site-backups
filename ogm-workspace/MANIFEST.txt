@@ -1,0 +1,18 @@
+OGM workspace essentials backup
+Generated: 2026-06-14
+Source: /Users/tanyawhite/OGM (local); live site files remain in timestamped backup folders in this repo.
+
+Included:
+  .cursor/rules/ogm-edit-workflow.mdc
+  dev-tools/OGM-WORKFLOW.md
+  dev-tools/scripts/ogm-workflow.sh
+  dev-tools/godaddy-ftps/ (FTPS scripts; passwords via .env.local or env vars only)
+  .gitignore (template)
+  OGM.code-workspace
+  MANIFEST.txt (this file)
+
+Excluded by design:
+  .env.local and credentials
+  quoter-tool-working/ (site file snapshots in dated folders)
+  github-backups/migrated-local-backups-* nesting
+  node_modules, playwright browsers, large dev-tools subtrees

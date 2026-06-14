@@ -1,0 +1,9 @@
+# OGM workspace template — keep secrets local only
+.env.local
+.env
+*.pem
+.DS_Store
+node_modules/
+quoter-tool-working/
+fresh-godaddy-pulls/
+playwright-browsers/
