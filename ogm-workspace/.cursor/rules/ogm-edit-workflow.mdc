@@ -42,6 +42,20 @@ Upload requires **unambiguous, upload-specific** approval. Generic agreement is 
 
 If unclear, **ask again**: "Should I upload `<filename>` to GoDaddy now?"
 
+## Single GitHub repo
+
+- **ONLY GitHub repo:** `tanyalyn2003/ogm-site-backups` (local: `/Users/tanyawhite/OGM/github-backups/`)
+- **Local workspace:** `/Users/tanyawhite/OGM/` — working directory, **not** a separate GitHub repo
+- **Do NOT** create, push to, or reference `tanyalyn2003/ogm`
+- **Docs/workflow commits:** sync changes into `github-backups/ogm-workspace/`, then:
+  ```sh
+  git -C /Users/tanyawhite/OGM/github-backups add ogm-workspace/
+  git -C /Users/tanyawhite/OGM/github-backups commit -m "..."
+  git -C /Users/tanyawhite/OGM/github-backups push origin main
+  ```
+- **Site edits:** GoDaddy via `ogm-workflow.sh`; no GitHub file snapshots by default (`OGM_GITHUB_BACKUP=yes` to opt in)
+- **Parent `/Users/tanyawhite/OGM/.git`:** optional local history only — agents must **not** treat it as a push target
+
 ## Commands
 
 ```sh
@@ -59,5 +73,6 @@ OGM_CONFIRM_UPLOAD=yes /Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh u
 - **Never** upload without `finish` **and** explicit upload approval.
 - **Never** upload on ambiguous "yes" — require upload-specific language.
 - FTP password only in `/Users/tanyawhite/OGM/.env.local` — never commit.
+- **Never** push to or reference `tanyalyn2003/ogm` or the parent `/Users/tanyawhite/OGM/.git` repo.
 
 Full docs: `/Users/tanyawhite/OGM/dev-tools/OGM-WORKFLOW.md`

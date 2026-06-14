@@ -1,6 +1,8 @@
 OGM workspace essentials backup
 Generated: 2026-06-14
-Source: /Users/tanyawhite/OGM (local); live site files remain in timestamped backup folders in this repo.
+Source: /Users/tanyawhite/OGM (local workspace); live site files on GoDaddy only.
+
+GitHub repo: tanyalyn2003/ogm-site-backups (this repo only — not tanyalyn2003/ogm).
 
 Included:
   .cursor/rules/ogm-edit-workflow.mdc

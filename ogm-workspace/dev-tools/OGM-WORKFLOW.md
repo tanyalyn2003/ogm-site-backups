@@ -2,6 +2,18 @@
 
 Standard process for editing live Olive Glass & Marble site files.
 
+## GitHub: one repo only
+
+| Item | Value |
+|------|-------|
+| **GitHub repo** | [`tanyalyn2003/ogm-site-backups`](https://github.com/tanyalyn2003/ogm-site-backups) |
+| **Local clone** | `/Users/tanyawhite/OGM/github-backups/` |
+| **Workspace** | `/Users/tanyawhite/OGM/` — working directory, **not** a GitHub push target |
+
+Do **not** create, push to, or reference `tanyalyn2003/ogm`. Parent `/Users/tanyawhite/OGM/.git` (if present) is optional local history only.
+
+To commit docs/rules/script changes: sync into `github-backups/ogm-workspace/`, then `git -C github-backups add`, `commit`, `push origin main`.
+
 ## Flow
 
 ```

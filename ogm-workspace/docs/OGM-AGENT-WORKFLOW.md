@@ -18,7 +18,31 @@ Tanya edits on **two computers**. Local copies are often stale. **GoDaddy is the
 | `github-backups/ogm-workspace/docs/` | **Yes** — documentation only |
 | GoDaddy server `backups/` folder | **No** — history only |
 
-**GitHub `ogm-site-backups` repo** = workspace docs + scripts only. It is **not** the live site or edit history.
+---
+
+## GitHub repo (one only)
+
+| What | Path / repo |
+|------|-------------|
+| **Only GitHub repo** | [`tanyalyn2003/ogm-site-backups`](https://github.com/tanyalyn2003/ogm-site-backups) |
+| **Local clone** | `/Users/tanyawhite/OGM/github-backups/` |
+| **Synced workspace** | `github-backups/ogm-workspace/` (docs, scripts, Cursor rules) |
+| **Working directory** | `/Users/tanyawhite/OGM/` — **not** a GitHub repo |
+
+**Do NOT** create, push to, or reference `tanyalyn2003/ogm`. The parent `/Users/tanyawhite/OGM/.git` (if present) is optional local history only — agents must **not** treat it as a push target.
+
+**What goes in GitHub:** docs, workflow scripts, Cursor rules, brand assets — **not** routine live site file copies (opt-in only via `OGM_GITHUB_BACKUP=yes`).
+
+**Commit/push workflow changes:**
+
+```sh
+# After editing docs, rules, or scripts — sync into ogm-workspace/ first, then:
+git -C /Users/tanyawhite/OGM/github-backups add ogm-workspace/
+git -C /Users/tanyawhite/OGM/github-backups commit -m "Describe change"
+git -C /Users/tanyawhite/OGM/github-backups push origin main
+```
+
+**Live site + upload history:** GoDaddy live files and GoDaddy server `backups/` folder (created on upload).
 
 ---
 
@@ -52,7 +76,8 @@ Optional: set `OGM_GITHUB_BACKUP=yes` to also commit dated file snapshots to Git
 - Upload without `finish` + explicit upload approval
 - Upload on ambiguous approval
 - Commit `.env.local` or FTPS passwords
-- Commit parent `/Users/tanyawhite/OGM` git repo (no remote — use `github-backups` for docs/scripts)
+- Push to or reference `tanyalyn2003/ogm` — **only** `tanyalyn2003/ogm-site-backups` exists for OGM
+- Commit or push from parent `/Users/tanyawhite/OGM/.git` (local-only; not a remote target)
 - Use backup folders as edit source
 
 ---

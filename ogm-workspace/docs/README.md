@@ -2,7 +2,9 @@
 
 Canonical knowledge base for **Olive Glass & Marble** quoter-tool (`oliveglassandmarble.com/quoter-tool`). These files live in the `ogm-site-backups` GitHub repo under `ogm-workspace/docs/` so both Macs and Cursor agents share one source of truth.
 
-**Repo policy (since 2026-06-14):** GitHub holds docs, scripts, and Cursor rules — **not** dated site file snapshots. Live site and upload history = GoDaddy + GoDaddy server `backups/`.
+**Single GitHub repo (since 2026-06-14):** [`tanyalyn2003/ogm-site-backups`](https://github.com/tanyalyn2003/ogm-site-backups) only. Local clone: `/Users/tanyawhite/OGM/github-backups/`. The workspace `/Users/tanyawhite/OGM/` is **not** a GitHub repo — do not push to or mention `tanyalyn2003/ogm`.
+
+**Repo contents:** docs, scripts, and Cursor rules — **not** dated site file snapshots. Live site and upload history = GoDaddy + GoDaddy server `backups/`.
 
 ## Index
 

@@ -11,6 +11,14 @@ Before **any** Olive Glass & Marble quoter-tool task (edits, uploads, debugging 
 2. Read `/Users/tanyawhite/OGM/github-backups/ogm-workspace/docs/OGM-SITE-STRUCTURE.md`
 3. Follow `.cursor/rules/ogm-edit-workflow.mdc` (fresh `start`, `finish`, explicit upload approval)
 
+## Single GitHub repo
+
+- **ONLY repo:** [`tanyalyn2003/ogm-site-backups`](https://github.com/tanyalyn2003/ogm-site-backups) — local clone at `/Users/tanyawhite/OGM/github-backups/`
+- **Workspace** `/Users/tanyawhite/OGM/` is the working directory; it is **not** a GitHub push target
+- **Do NOT** create, push to, or mention `tanyalyn2003/ogm`
+- **Docs/rules/scripts:** edit under `ogm-workspace/` inside `github-backups/`, commit and push from `github-backups/` only
+- **Live site files:** GoDaddy via `ogm-workflow.sh` — not stored in GitHub by default
+
 ## Never use as edit source
 
 - Mac `backups/`, Archive folders, Trash

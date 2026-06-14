@@ -6,6 +6,13 @@ Dated notes for quoter-tool and workflow changes. Add a new entry at the top whe
 
 ## 2026-06-14
 
+### Single-repo policy (agents)
+
+- **One GitHub repo only:** `tanyalyn2003/ogm-site-backups` — do not create, push to, or reference `tanyalyn2003/ogm`.
+- **Workspace** `/Users/tanyawhite/OGM/` is a local working directory, not a GitHub push target.
+- **Parent `.git`** at workspace root (if present) is optional local history only.
+- Updated Cursor rules, agent workflow docs, OGM-WORKFLOW.md, and skill to match.
+
 ### Brand & scripts backup (audit cleanup)
 
 - Added `ogm-workspace/brand/logos/` and `brand/background.ogm.psd` from local design assets.
