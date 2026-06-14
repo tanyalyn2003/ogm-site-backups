@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shape Connector</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  height: 100%;
+}
+
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --border: #30363d;
+  --accent: #f0c040;
+  --blue: #58a6ff;
+  --text: #e6edf3;
+  --dim: #8b949e;
+  --danger: #f85149;
+  --green: #3fb950;
+  --shape-fill: rgba(88,166,255,0.06);
+  --shape-border: #58a6ff;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Courier New', monospace;
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+/* ── TOOLBAR ── */
+#toolbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.tlabel {
+  font-size: 10px;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+input[type="number"] {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 8px;
+  width: 60px;
+  font-family: inherit;
+  font-size: 12px;
+  border-radius: 3px;
+}
+
+input[type="number"]:focus { outline: none; border-color: var(--blue); }
+
+button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 12px;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+button.primary { border-color: var(--blue); color: var(--blue); }
+button.primary:hover { background: var(--blue); color: var(--bg); }
+button.danger:hover:not(:disabled) { border-color: var(--danger); color: var(--danger); }
+button.connect-btn { border-color: var(--green); color: var(--green); }
+button.connect-btn:hover:not(:disabled) { background: var(--green); color: var(--bg); }
+button:disabled { opacity: 0.28; cursor: default; }
+
+.sep { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
+
+/* ── MAIN ── */
+#main { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+
+#splash-placement-bar {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  background: #111827;
+  flex-wrap: wrap;
+}
+#splash-placement-bar.active { display: flex; }
+.sp-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  background: #0b1222;
+}
+.sp-title {
+  color: #cbd5e1;
+  font-size: 10px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-left: 6px;
+  opacity: 0.9;
+}
+.sp-title-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding-bottom: 10px;
+}
+.sp-title-dim {
+  position: absolute;
+  left: 0;
+  top: 12px;
+  font-size: 10px;
+  opacity: 0.55;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.sp-room {
+  color: #cbd5e1;
+  font-size: 10px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+}
+.sp-dot {
+  color: #94a3b8;
+  opacity: 0.95;
+  font-size: 12px;
+  line-height: 1;
+  margin: 0 2px;
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+}
+.sp-sel {
+  min-width: 118px;
+  max-width: 170px;
+  width: auto;
+  padding: 4px 8px;
+  border-radius: 3px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-family: inherit;
+  font-size: 11px;
+}
+.sp-off-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sp-off-lbl {
+  font-size: 10px;
+  opacity: 0.72;
+  white-space: nowrap;
+}
+.sp-off-inp {
+  width: 58px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-family: inherit;
+  font-size: 11px;
+}
+
+/* ── WORKSPACE ── */
+#workspace {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  touch-action: none;
+}
+
+#workspace.pan-ready { cursor: grab; }
+#workspace.pan-active { cursor: grabbing; }
+
+/* Pan/zoom: grid + shapes + overlay share one transform */
+#board-scene {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+  will-change: transform;
+  background-image:
+    linear-gradient(rgba(48,54,61,0.25) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(48,54,61,0.25) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+#canvas {
+  position: absolute;
+  inset: 0;
+}
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ── SHAPES ── */
+.shape {
+  position: absolute;
+  border: 1.5px solid var(--shape-border);
+  background: var(--shape-fill);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  cursor: move;
+  user-select: none;
+}
+
+.shape.selected { border-color: var(--accent); border-width: 2px; }
+.shape.in-group { border-color: #c084fc; border-width: 2px; }
+.shape.shape-splash {
+  border-color: #34d399;
+  background: rgba(52, 211, 153, 0.14);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.shape-label {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  color: rgba(255,255,255,0.58);
+  pointer-events: none;
+  letter-spacing: 0.8px;
+  text-shadow: 0 2px 6px rgba(2,6,23,0.98), 0 0 2px rgba(2,6,23,0.98);
+  background: rgba(2,6,23,0.42);
+  border-radius: 3px;
+  padding: 2px 6px;
+  text-align: center;
+  max-width: calc(100% - 12px);
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.25;
+}
+
+.shape-edge-lbl {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  color: rgba(255,255,255,0.78);
+  font-weight: 600;
+  line-height: 1;
+  pointer-events: none;
+  text-shadow: 0 2px 5px rgba(2,6,23,0.98), 0 0 2px rgba(2,6,23,0.95);
+  background: rgba(2,6,23,0.45);
+  border-radius: 2px;
+  padding: 1px 4px;
+}
+
+/* ── CORNER DOTS ── */
+.corner-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--blue);
+  border: 2px solid var(--bg);
+  transform: translate(-50%, -50%);
+  cursor: crosshair;
+  z-index: 10;
+  transition: transform 0.1s, background 0.1s;
+}
+
+.edge-dot {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: #fb923c;
+  border: 1.5px solid var(--bg);
+  transform: translate(-50%, -50%) rotate(45deg);
+  cursor: crosshair;
+  z-index: 10;
+  transition: transform 0.1s, background 0.1s;
+}
+
+.corner-dot:hover { transform: translate(-50%, -50%) scale(1.5); background: var(--accent); }
+.edge-dot:hover   { transform: translate(-50%, -50%) rotate(45deg) scale(1.5); background: var(--accent); }
+.corner-dot.sel-a, .edge-dot.sel-a { background: var(--accent); box-shadow: 0 0 8px var(--accent); transform: translate(-50%,-50%) scale(1.4); }
+.edge-dot.sel-a { transform: translate(-50%,-50%) rotate(45deg) scale(1.4); }
+.corner-dot.sel-b, .edge-dot.sel-b { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+.edge-dot.sel-b { transform: translate(-50%,-50%) rotate(45deg) scale(1.4); }
+.corner-dot.connected { background: var(--green); }
+.edge-dot.connected   { background: var(--green); }
+
+/* Edge markers visible/hidden — opacity only; pointer-events stay on so connect/snap still works */
+#workspace.edge-markers-hidden .edge-dot {
+  opacity: 0;
+  pointer-events: auto;
+}
+
+#toolbar .edge-markers-toggle {
+  margin-left: auto;
+  letter-spacing: 0;
+  line-height: 1;
+  min-width: 24px;
+}
+.edge-markers-toggle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #fb923c !important;
+  background: var(--bg);
+  padding: 0 !important;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  box-sizing: border-box;
+  transition: background 0.12s, border-color 0.12s;
+  color: transparent;
+}
+.edge-markers-toggle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #1e3a8a;
+  pointer-events: none;
+}
+.edge-markers-toggle.markers-visible {
+  background: #fb923c;
+  border-color: #fb923c;
+}
+.edge-markers-toggle.markers-visible::after {
+  opacity: 0;
+}
+.edge-markers-toggle:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.corner-lbl {
+  position: absolute;
+  font-size: 8px;
+  color: rgba(255,255,255,0.2);
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* ── PANEL ── */
+#panel {
+  width: 200px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  padding: 14px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.p-title {
+  font-size: 9px;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+
+.p-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  color: var(--dim);
+}
+
+.p-row span:last-child { color: var(--text); }
+
+#conn-status {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 8px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--dim);
+  min-height: 64px;
+  white-space: pre-line;
+}
+
+#conn-status.active { border-color: var(--accent); color: var(--text); }
+
+#connect-btn { width: 100%; margin-top: 8px; padding: 7px; }
+
+.conn-item {
+  font-size: 10px;
+  color: var(--dim);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.conn-item strong { color: var(--green); }
+
+.conn-del {
+  background: transparent;
+  border: none;
+  color: var(--border);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  transition: color 0.1s;
+  letter-spacing: 0;
+}
+.conn-del:hover { color: var(--danger) !important; border: none; }
+
+.hint {
+  font-size: 10px;
+  color: var(--dim);
+  line-height: 1.6;
+}
+
+/* ── OVERLAP FLASH ── */
+@keyframes flash-red {
+  0%, 100% { border-color: var(--shape-border); }
+  50% { border-color: var(--danger); box-shadow: 0 0 12px var(--danger); }
+}
+.overlap-warn { animation: flash-red 0.4s ease 3; }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <span class="tlabel">W</span>
+  <input type="number" id="inp-w" value="220" min="40" max="700">
+  <span class="tlabel">H</span>
+  <input type="number" id="inp-h" value="70" min="40" max="700">
+  <button class="primary" onclick="addShape()">+ Add Shape</button>
+  <div class="sep"></div>
+  <button id="btn-rot" onclick="rotateSelected()" disabled>↻ Rotate 45°</button>
+  <button id="btn-del" class="danger" onclick="deleteSelected()" disabled>✕ Delete</button>
+  <div class="sep"></div>
+  <button id="btn-undo" onclick="undo()" disabled>↩ Undo</button>
+  <button id="btn-redo" onclick="redo()" disabled>↪ Redo</button>
+  <div class="sep"></div>
+  <button id="btn-selall" onclick="selectAll()">⊞ Select All</button>
+  <button onclick="clearAll()">Clear All</button>
+  <button type="button" id="edge-markers-toggle" class="edge-markers-toggle" title="Show or hide orange edge markers (◆). Clicks still work when hidden." aria-label="Toggle edge marker visibility" aria-pressed="false"></button>
+</div>
+<div id="splash-placement-bar"></div>
+
+<div id="main">
+  <div id="workspace">
+    <div id="board-scene">
+      <div id="canvas"></div>
+      <svg id="overlay"></svg>
+    </div>
+  </div>
+
+  <div id="panel">
+    <div>
+      <div class="p-title">Selected Shape</div>
+      <div id="shape-info"><div class="hint">Click a shape to select it</div></div>
+    </div>
+
+    <div>
+      <div class="p-title">Connect Corners</div>
+      <div id="conn-status">Click a corner dot (●) on any shape to begin</div>
+      <button id="connect-btn" class="connect-btn" onclick="executeConnect()" disabled>▶ Connect</button>
+    </div>
+
+    <div>
+      <div class="p-title">Connections</div>
+      <div id="conn-list"><div class="hint">No connections yet</div></div>
+    </div>
+
+    <div>
+      <div class="p-title">How to Use</div>
+      <div class="hint">
+        1. Add shapes with custom W×H<br>
+        2. Drag to position<br>
+        3. Click ● on Shape A corner<br>
+        4. Click ● on Shape B corner<br>
+        5. Press Connect<br>
+        6. Shape B snaps flush<br><br>
+        <strong style="color:var(--text)">Two pieces onto one piece</strong><br>
+        For each connection, click the corner on the piece receiving both attachments first, then click the corner on the piece being attached.<br><br>
+        <strong style="color:var(--text)">Group Move</strong><br>
+        Ctrl+A or ⊞ Select All<br><br>
+        <strong style="color:var(--text)">Board</strong><br>
+        Mouse wheel — zoom in/out<br>
+        Hold Space + drag — pan<br><br>
+        Shift+click to add/remove<br>
+        Drag any selected shape<br>
+        Click canvas to deselect<br><br>
+        <span style="color:var(--blue)">●</span> = corner point<br>
+        <span style="color:#fb923c">◆</span> = edge point (⅓, ⅔)<br>
+        <span style="color:var(--green)">●</span> = connected<br>
+        <span style="color:var(--accent)">●</span> = selected A<br>
+        <span style="color:var(--danger)">●</span> = selected B<br>
+        <span style="color:#c084fc">■</span> = in group
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────
+const S = {
+  shapes: [],
+  connections: [],
+  splashRows: [],
+  selected: null,       // single shape for info panel / rotate / delete
+  selectedSet: new Set(), // all shapes in group selection
+  pendA: null,
+  pendB: null,
+  drag: null,
+  nextId: 1,
+  undoStack: [],
+  redoStack: [],
+  edgeMarkersVisible: false,
+  boardView: { panX: 0, panY: 0, scale: 1 },
+  keysSpace: false,
+  boardPanDrag: null
+};
+const PX_IN = 3.5;
+
+function applyBoardViewTransform(){
+  const el = document.getElementById('board-scene');
+  if (!el) return;
+  const bv = S.boardView;
+  const sc = (Number(bv.scale) > 0 ? bv.scale : 1);
+  el.style.transform = `translate(${Number(bv.panX) || 0}px, ${Number(bv.panY) || 0}px) scale(${sc})`;
+}
+
+function clampBoardScale(s){
+  const n = Number(s);
+  if (!Number.isFinite(n) || n <= 0) return 1;
+  return Math.min(6, Math.max(0.12, n));
+}
+
+// ── SNAP POINTS ────────────────────────────────────────
+// Each point: id, fractional position (fx,fy) in shape space, type
+const SNAP_POINTS = [
+  { id:'TL', fx:0,    fy:0,   type:'corner' },
+  { id:'TR', fx:1,    fy:0,   type:'corner' },
+  { id:'BR', fx:1,    fy:1,   type:'corner' },
+  { id:'BL', fx:0,    fy:1,   type:'corner' },
+  { id:'T1', fx:1/3,  fy:0,   type:'edge'   },  // top, 1/3 from left
+  { id:'T2', fx:2/3,  fy:0,   type:'edge'   },  // top, 2/3 from left
+  { id:'R1', fx:1,    fy:1/3, type:'edge'   },  // right, 1/3 from top
+  { id:'R2', fx:1,    fy:2/3, type:'edge'   },
+  { id:'B1', fx:1/3,  fy:1,   type:'edge'   },  // bottom, 1/3 from left
+  { id:'B2', fx:2/3,  fy:1,   type:'edge'   },
+  { id:'L1', fx:0,    fy:1/3, type:'edge'   },  // left, 1/3 from top
+  { id:'L2', fx:0,    fy:2/3, type:'edge'   },
+];
+const SP         = Object.fromEntries(SNAP_POINTS.map(p => [p.id, p]));
+const CORNER_IDS = ['TL','TR','BR','BL'];
+
+// Visual label for each logical point at each rotation
+// Derived from 90° CW transform: (fx,fy) → (1-fy, fx)
+const VISUAL_LABEL = {
+  0:   { TL:'TL', TR:'TR', BR:'BR', BL:'BL', T1:'T1', T2:'T2', R1:'R1', R2:'R2', B1:'B1', B2:'B2', L1:'L1', L2:'L2' },
+  90:  { TL:'TR', TR:'BR', BR:'BL', BL:'TL', T1:'R1', T2:'R2', R1:'B2', R2:'B1', B1:'L1', B2:'L2', L1:'T2', L2:'T1' },
+  180: { TL:'BR', TR:'BL', BR:'TL', BL:'TR', T1:'B2', T2:'B1', R1:'L2', R2:'L1', B1:'T2', B2:'T1', L1:'R2', L2:'R1' },
+  270: { TL:'BL', TR:'TL', BR:'TR', BL:'BR', T1:'L2', T2:'L1', R1:'T1', R2:'T2', B1:'R2', B2:'R1', L1:'B1', L2:'B2' }
+};
+
+function visualCornerLabelMap(rotDeg) {
+  const r = ((Math.round((Number(rotDeg) || 0) / 90) * 90) % 360 + 360) % 360;
+  return VISUAL_LABEL[r] || VISUAL_LABEL[0];
+}
+
+function shapeSnapPoints(shape) {
+  const pts = Array.isArray(shape && shape.ogmPolyNorm) ? shape.ogmPolyNorm : null;
+  const isPoly = String(shape && shape.ogmShapeKind || '') === 'poly' || (pts && pts.length >= 3);
+  if (!isPoly || !pts || pts.length < 3) return SNAP_POINTS;
+
+  const out = [];
+  pts.forEach((pt, idx) => {
+    const fx = Math.max(0, Math.min(1, Number(pt && pt[0]) || 0));
+    const fy = Math.max(0, Math.min(1, Number(pt && pt[1]) || 0));
+    out.push({ id: `V${idx + 1}`, fx, fy, type: 'corner' });
+  });
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i];
+    const b = pts[(i + 1) % pts.length];
+    const ax = Math.max(0, Math.min(1, Number(a && a[0]) || 0));
+    const ay = Math.max(0, Math.min(1, Number(a && a[1]) || 0));
+    const bx = Math.max(0, Math.min(1, Number(b && b[0]) || 0));
+    const by = Math.max(0, Math.min(1, Number(b && b[1]) || 0));
+    out.push({ id: `E${i + 1}a`, fx: ax + (bx - ax) / 3, fy: ay + (by - ay) / 3, type: 'edge' });
+    out.push({ id: `E${i + 1}b`, fx: ax + (bx - ax) * 2 / 3, fy: ay + (by - ay) * 2 / 3, type: 'edge' });
+  }
+  return out;
+}
+
+function getSnapById(shape, ptId) {
+  const snaps = shapeSnapPoints(shape);
+  return snaps.find((sp) => sp.id === ptId) || null;
+}
+
+
+// Label position offset inside the div for each snap point
+function normDegSC(d){
+  let v = Number(d) || 0;
+  v = v % 360;
+  if (v < 0) v += 360;
+  return v;
+}
+function clampSC(v, a, b){
+  if (!Number.isFinite(v)) return a;
+  return Math.min(b, Math.max(a, v));
+}
+function rotatePtSC(x, y, deg){
+  const r = deg * Math.PI / 180;
+  const c = Math.cos(r), s = Math.sin(r);
+  return { x: x * c - y * s, y: x * s + y * c };
+}
+function geomFromHostShape(sh){
+  const kind = String(sh.ogmShapeKind || sh.shapeKind || 'rect');
+  const w = Number(sh.ogmGeomWIn) || Number(sh.w) / Math.max(0.001, Number(sh.scale) || 1);
+  const h = Number(sh.ogmGeomHIn) || Number(sh.h) / Math.max(0.001, Number(sh.scale) || 1);
+  if (kind === 'poly' && Array.isArray(sh.ogmPolyNorm) && sh.ogmPolyNorm.length >= 3 && Number(sh.ogmGeomWIn) > 0 && Number(sh.ogmGeomHIn) > 0) {
+    const gw = Number(sh.ogmGeomWIn), gh = Number(sh.ogmGeomHIn);
+    const pts = sh.ogmPolyNorm.map((pt) => [
+      (Number(pt && pt[0]) || 0) * gw - gw / 2,
+      (Number(pt && pt[1]) || 0) * gh - gh / 2
+    ]);
+    return { kind: 'poly', w: gw, h: gh, pts };
+  }
+  return { kind: 'rect', w, h };
+}
+function geomLocalVerticesSC(geom){
+  if (!geom) return [];
+  if (geom.kind === 'rect') {
+    const w = geom.w || 0, h = geom.h || 0;
+    return [
+      { x: -w / 2, y: -h / 2 },
+      { x: w / 2, y: -h / 2 },
+      { x: w / 2, y: h / 2 },
+      { x: -w / 2, y: h / 2 }
+    ];
+  }
+  if (geom.kind === 'poly' && Array.isArray(geom.pts)) {
+    return geom.pts.map((p) => ({ x: Number(p[0]) || 0, y: Number(p[1]) || 0 }));
+  }
+  return [];
+}
+function geomEdgeSegmentsSC(geom){
+  const pts = geomLocalVerticesSC(geom);
+  if (pts.length < 2) return [];
+  const edges = [];
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i];
+    const b = pts[(i + 1) % pts.length];
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy);
+    edges.push({
+      index: i,
+      a,
+      b,
+      dx,
+      dy,
+      len,
+      mid: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+    });
+  }
+  return edges;
+}
+function pointInGeomLocalSC(geom, x, y){
+  if (!geom) return false;
+  if (geom.kind === 'rect') {
+    return Math.abs(x) <= (geom.w || 0) / 2 && Math.abs(y) <= (geom.h || 0) / 2;
+  }
+  if (geom.kind === 'poly') {
+    const pts = geomLocalVerticesSC(geom);
+    if (pts.length < 3) return false;
+    let inside = false;
+    for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+      const xi = pts[i].x, yi = pts[i].y;
+      const xj = pts[j].x, yj = pts[j].y;
+      const intersect = ((yi > y) !== (yj > y)) && (x < ((xj - xi) * (y - yi)) / ((yj - yi) || 1e-9) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+  return false;
+}
+function localEdgeOutwardNormalSC(geom, edge){
+  if (!geom || !edge || !Number.isFinite(edge.len) || edge.len <= 0) return { x: 0, y: -1 };
+  const nx = (-edge.dy) / edge.len;
+  const ny = edge.dx / edge.len;
+  const probe = 0.75;
+  const plusInside = pointInGeomLocalSC(geom, edge.mid.x + nx * probe, edge.mid.y + ny * probe);
+  const minusInside = pointInGeomLocalSC(geom, edge.mid.x - nx * probe, edge.mid.y - ny * probe);
+  if (!plusInside && minusInside) return { x: nx, y: ny };
+  if (plusInside && !minusInside) return { x: -nx, y: -ny };
+  return { x: nx, y: ny };
+}
+function localEdgeInteriorNormalSC(geom, edge){
+  const o = localEdgeOutwardNormalSC(geom, edge);
+  return { x: -o.x, y: -o.y };
+}
+/** Geom-local inches (center-relative, same as geomEdgeSegmentsSC) → iframe px using host div bounds + CSS rotate — matches how the host shape is drawn. */
+function splashLocalInchToCanvasPx(host, geom, lxIn, lyIn){
+  const wIn = Math.max(1e-6, Number(geom.w) || 1);
+  const hIn = Math.max(1e-6, Number(geom.h) || 1);
+  const wPx = Number(host.w) || 0;
+  const hPx = Number(host.h) || 0;
+  const sx = wPx / wIn;
+  const sy = hPx / hIn;
+  const cx = Number(host.x) + wPx / 2;
+  const cy = Number(host.y) + hPx / 2;
+  const px = cx + lxIn * sx;
+  const py = cy + lyIn * sy;
+  const deg = normDegSC(Number(host.rot) || 0);
+  const rad = (deg * Math.PI) / 180;
+  const c = Math.cos(rad), s = Math.sin(rad);
+  const dx = px - cx, dy = py - cy;
+  return { x: cx + dx * c - dy * s, y: cy + dx * s + dy * c };
+}
+function layoutSplashShapesFromHosts(){
+  S.shapes.forEach((splashSh) => {
+    if (!splashSh || !splashSh.isSplash) return;
+    const host = S.shapes.find((h) => h && !h.isSplash && String(h.ogmSourceId) === String(splashSh.splashHostSourceId));
+    if (!host) return;
+    const geom = geomFromHostShape(host);
+    const edges = geomEdgeSegmentsSC(geom);
+    const edge = edges.find((e) => e.index === (parseInt(splashSh.splashEdgeIndex, 10) || 0)) || edges[0];
+    if (!edge || !Number.isFinite(edge.len) || edge.len <= 0) return;
+    const segLen = Math.min(Number(splashSh.splashLength) || 0, edge.len);
+    const offset = clampSC(Number(splashSh.splashOffset) || 0, 0, Math.max(0, edge.len - segLen));
+    const tux = edge.dx / edge.len;
+    const tuy = edge.dy / edge.len;
+    const inwardLoc = localEdgeInteriorNormalSC(geom, edge);
+    const revealCm = [1, 2, 3].includes(Number(splashSh.splashRevealCm)) ? Number(splashSh.splashRevealCm) : 3;
+    const revealIn = revealCm / 2.54;
+    const tk = Math.max(0.1, Number(splashSh.splashThickness) || 1.18);
+    const depthIn = Math.max(tk, revealIn);
+    const offsetIn = Number.isFinite(Number(splashSh.offsetIn)) ? Number(splashSh.offsetIn) : 0;
+    const midT = offset + segLen / 2 + offsetIn;
+    const mxLoc = edge.a.x + tux * midT;
+    const myLoc = edge.a.y + tuy * midT;
+    const Cx = mxLoc + inwardLoc.x * (depthIn / 2);
+    const Cy = myLoc + inwardLoc.y * (depthIn / 2);
+    const cp = splashLocalInchToCanvasPx(host, geom, Cx, Cy);
+    const tanStep = Math.min(0.25, Math.max(1e-4, edge.len * 0.05));
+    const pMid = splashLocalInchToCanvasPx(host, geom, mxLoc, myLoc);
+    const pTan = splashLocalInchToCanvasPx(host, geom, mxLoc + tux * tanStep, myLoc + tuy * tanStep);
+    const rotDeg = (Math.atan2(pTan.y - pMid.y, pTan.x - pMid.x) * 180) / Math.PI;
+    const sc = Number(host.ogmImportScale) || Number(host.scale) || 1;
+    const rawWIn = Number(splashSh.ogmGeomWIn) || segLen;
+    const rawHIn = Number(splashSh.ogmGeomHIn) || depthIn;
+    const wPx = Math.max(4, rawWIn * sc);
+    const hPx = Math.max(4, rawHIn * sc);
+    splashSh.x = cp.x - wPx / 2;
+    splashSh.y = cp.y - hPx / 2;
+    splashSh.w = wPx;
+    splashSh.h = hPx;
+    splashSh.rot = rotDeg;
+    splashSh.scale = sc;
+    if (host.pattern) splashSh.pattern = Object.assign({}, host.pattern);
+  });
+}
+
+function snapLabelStyle(sp) {
+  if (sp.fx === 0 && sp.fy === 0) return { left:'4px', top:'3px' };
+  if (sp.fx === 1 && sp.fy === 0) return { right:'4px', top:'3px' };
+  if (sp.fx === 1 && sp.fy === 1) return { right:'4px', bottom:'3px' };
+  if (sp.fx === 0 && sp.fy === 1) return { left:'4px', bottom:'3px' };
+  if (sp.fy === 0) return { left:(sp.fx*100)+'%', top:'-13px', transform:'translateX(-50%)' };
+  if (sp.fy === 1) return { left:(sp.fx*100)+'%', bottom:'-13px', transform:'translateX(-50%)' };
+  if (sp.fx === 0) return { right:'calc(100% + 3px)', top:(sp.fy*100)+'%', transform:'translateY(-50%)' };
+  return           { left:'calc(100% + 3px)',  top:(sp.fy*100)+'%', transform:'translateY(-50%)' };
+}
+
+function edgeTagForIndex(idx){
+  const i = Math.max(0, Number(idx) || 0);
+  const letter = String.fromCharCode(65 + (i % 26));
+  const cycle = Math.floor(i / 26);
+  return cycle > 0 ? `${letter}${cycle + 1}` : letter;
+}
+
+function shapeDisplayLabel(sh){
+  const raw = String(sh && sh.ogmLabel ? sh.ogmLabel : '');
+  const m = raw.match(/(\d+)/);
+  if (m) return `Shape ${m[1]}`;
+  const sid = String(sh && sh.ogmSourceId ? sh.ogmSourceId : '');
+  const sm = sid.match(/-(\d+)$/);
+  if (sm) return `Shape ${sm[1]}`;
+  return `Shape ${Number(sh && sh.id) || ''}`.trim();
+}
+
+function shapeEdgeLabelAnchors(sh){
+  const poly = Array.isArray(sh && sh.ogmPolyNorm) ? sh.ogmPolyNorm : null;
+  const usePoly = (String(sh && sh.ogmShapeKind || '') === 'poly' || (poly && poly.length >= 3)) && poly && poly.length >= 3;
+  const pts = usePoly
+    ? poly.map((pt) => ({
+        fx: Math.max(0, Math.min(1, Number(pt && pt[0]) || 0)),
+        fy: Math.max(0, Math.min(1, Number(pt && pt[1]) || 0))
+      }))
+    : [{fx:0, fy:0}, {fx:1, fy:0}, {fx:1, fy:1}, {fx:0, fy:1}];
+  if (pts.length < 2) return [];
+  const cx = pts.reduce((s, p) => s + p.fx, 0) / pts.length;
+  const cy = pts.reduce((s, p) => s + p.fy, 0) / pts.length;
+  const w = Math.max(1, Number(sh && sh.w) || 1);
+  const h = Math.max(1, Number(sh && sh.h) || 1);
+  const inwardPx = 10;
+
+  const out = [];
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i];
+    const b = pts[(i + 1) % pts.length];
+    const mx = (a.fx + b.fx) / 2;
+    const my = (a.fy + b.fy) / 2;
+    let vx = cx - mx;
+    let vy = cy - my;
+    const vLen = Math.hypot(vx, vy);
+    if (vLen > 1e-6) {
+      vx /= vLen;
+      vy /= vLen;
+    } else {
+      vx = 0;
+      vy = 0;
+    }
+    out.push({
+      id: edgeTagForIndex(i),
+      fx: mx + (vx * inwardPx) / w,
+      fy: my + (vy * inwardPx) / h
+    });
+  }
+  return out;
+}
+
+
+function rotPt(px, py, cx, cy, deg) {
+  const r = deg * Math.PI / 180;
+  const c = Math.cos(r), s = Math.sin(r);
+  const dx = px - cx, dy = py - cy;
+  return { x: cx + dx*c - dy*s, y: cy + dx*s + dy*c };
+}
+
+function pointWorld(shape, ptId) {
+  const sp = getSnapById(shape, ptId);
+  if (!sp) return { x: shape.x + shape.w / 2, y: shape.y + shape.h / 2 };
+  const lx = shape.x + sp.fx * shape.w;
+  const ly = shape.y + sp.fy * shape.h;
+  const cx = shape.x + shape.w / 2;
+  const cy = shape.y + shape.h / 2;
+  return rotPt(lx, ly, cx, cy, shape.rot);
+}
+
+function aabb(shape) {
+  const snaps = shapeSnapPoints(shape).filter((sp) => sp.type === 'corner');
+  const ids = snaps.length ? snaps.map((sp) => sp.id) : CORNER_IDS;
+  const pts = ids.map((id) => pointWorld(shape, id));
+  const xs  = pts.map(p => p.x), ys = pts.map(p => p.y);
+  return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
+}
+
+function overlaps(a, b) {
+  const ba = aabb(a), bb = aabb(b);
+  const gap = 1; // 1px tolerance
+  return !(ba.maxX <= bb.minX + gap || bb.maxX <= ba.minX + gap ||
+           ba.maxY <= bb.minY + gap || bb.maxY <= ba.minY + gap);
+}
+
+// ── CONNECTED GROUP ────────────────────────────────────
+// Returns all shape IDs transitively connected to the given shape
+function getConnectedGroup(shapeId) {
+  const group = new Set([shapeId]);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    S.connections.forEach(conn => {
+      if (group.has(conn.idA) && !group.has(conn.idB)) { group.add(conn.idB); changed = true; }
+      if (group.has(conn.idB) && !group.has(conn.idA)) { group.add(conn.idA); changed = true; }
+    });
+  }
+  return [...group];
+}
+
+// ── SNAP PROPAGATION ──────────────────────────────────
+// Drag anchor → pull children along (called during mousemove)
+function propagateChildren(anchorId, visited = new Set()) {
+  if (visited.has(anchorId)) return;
+  visited.add(anchorId);
+  S.connections.forEach(conn => {
+    if (conn.idA !== anchorId) return;
+    const sA = shape(conn.idA), sB = shape(conn.idB);
+    if (!sA || !sB) return;
+    const target = pointWorld(sA, conn.cA);
+    const cur    = pointWorld(sB, conn.cB);
+    sB.x += target.x - cur.x;
+    sB.y += target.y - cur.y;
+    propagateChildren(conn.idB, visited);
+  });
+}
+
+// Rotate shape → re-snap it to its own anchor, then pull its children
+function snapAndPropagate(shapeId, visited = new Set()) {
+  if (visited.has(shapeId)) return;
+  visited.add(shapeId);
+  const hostShape = shape(shapeId);
+  // Re-snap this shape to any anchor it's connected to as a child
+  S.connections.forEach(conn => {
+    if (conn.idB !== shapeId || visited.has(conn.idA)) return;
+    const sA = shape(conn.idA), sB = shape(conn.idB);
+    if (!sA || !sB) return;
+    const target = pointWorld(sA, conn.cA);
+    const cur    = pointWorld(sB, conn.cB);
+    sB.x += target.x - cur.x;
+    sB.y += target.y - cur.y;
+  });
+  propagateChildren(shapeId, visited);
+  // Keep hosted backsplash rotation aligned to the host edge after snap/rotate.
+  try {
+    if (!hostShape) return;
+    const splashMap = window.parent && window.parent.assemblyState && window.parent.assemblyState.splashes
+      ? window.parent.assemblyState.splashes
+      : null;
+    if (!splashMap) return;
+    Object.values(splashMap).forEach((splash) => {
+      if (!splash || String(splash.hostPartId || '') !== String(hostShape.ogmSourceId || '')) return;
+      const splashSourceId = String(splash.id || '').replace(/-assembly-splash-/, '-backsplash-');
+      const splashShape = S.shapes.find((sh) => sh && sh.isSplash && String(sh.ogmSourceId || '') === splashSourceId);
+      if (!splashShape) return;
+      const edgeIndex = parseInt(splash.edgeIndex, 10) || 0;
+      const edge = geomEdgeSegmentsSC(geomFromHostShape(hostShape)).find((e) => e.index === edgeIndex);
+      if (!edge) return;
+      const edgeAngle = (Math.atan2(edge.dy, edge.dx) * 180) / Math.PI;
+      splashShape.rot = (Number(hostShape.rot || 0) + edgeAngle + 360) % 360;
+    });
+  } catch {}
+}
+
+// ── UNDO / REDO ────────────────────────────────────────
+function cloneState() {
+  return {
+    shapes: S.shapes.map(s => ({ ...s, connCorners: { ...s.connCorners } })),
+    connections: S.connections.map(c => ({ ...c })),
+    nextId: S.nextId
+  };
+}
+
+function snapshot() {
+  S.undoStack.push(cloneState());
+  if (S.undoStack.length > 60) S.undoStack.shift();
+  S.redoStack = [];
+  syncUndoButtons();
+}
+
+function restoreSnap(snap) {
+  S.shapes      = snap.shapes;
+  S.connections = snap.connections;
+  S.nextId      = snap.nextId;
+  S.selected    = null;
+  S.selectedSet = new Set();
+  S.pendA       = null;
+  S.pendB       = null;
+  document.getElementById('btn-rot').disabled = true;
+  document.getElementById('btn-del').disabled = true;
+  renderAll(); updatePanels();
+}
+
+function undo() {
+  if (!S.undoStack.length) return;
+  S.redoStack.push(cloneState());
+  restoreSnap(S.undoStack.pop());
+  syncUndoButtons();
+}
+
+function redo() {
+  if (!S.redoStack.length) return;
+  S.undoStack.push(cloneState());
+  restoreSnap(S.redoStack.pop());
+  syncUndoButtons();
+}
+
+function syncUndoButtons() {
+  document.getElementById('btn-undo').disabled = !S.undoStack.length;
+  document.getElementById('btn-redo').disabled = !S.redoStack.length;
+}
+
+// ── DELETE CONNECTION ──────────────────────────────────
+function deleteConnection(idx) {
+  snapshot();
+  const conn = S.connections[idx];
+  S.connections.splice(idx, 1);
+
+  // Un-mark corner only if no remaining connection still uses it
+  const usedCorner = (shapeId, corner) =>
+    S.connections.some(c =>
+      (c.idA === shapeId && c.cA === corner) ||
+      (c.idB === shapeId && c.cB === corner)
+    );
+
+  const sA = shape(conn.idA);
+  const sB = shape(conn.idB);
+  if (sA && !usedCorner(conn.idA, conn.cA)) delete sA.connCorners[conn.cA];
+  if (sB && !usedCorner(conn.idB, conn.cB)) delete sB.connCorners[conn.cB];
+
+  renderAll(); updateConnList();
+}
+
+// ── SHAPE OPS ──────────────────────────────────────────
+function addShape() {
+  snapshot();
+  const w  = Math.max(40, parseInt(document.getElementById('inp-w').value) || 220);
+  const h  = Math.max(40, parseInt(document.getElementById('inp-h').value) || 70);
+  const ws = document.getElementById('workspace').getBoundingClientRect();
+  const x  = 60 + Math.random() * Math.max(0, ws.width  - w - 120);
+  const y  = 60 + Math.random() * Math.max(0, ws.height - h - 120);
+  S.shapes.push({ id: S.nextId++, x, y, w, h, rot: 0, connCorners: {} });
+  renderAll();
+}
+
+function rotateSelected() {
+  const sh = shape(S.selected); if (!sh || sh.isSplash) return;
+  snapshot();
+  sh.rot = (sh.rot + 45) % 360;
+  snapAndPropagate(sh.id);
+  renderAll(); updateShapeInfo();
+}
+
+function deleteSelected() {
+  const id = S.selected; if (!id) return;
+  if (shape(id) && shape(id).isSplash) return;
+  snapshot();
+  S.connections = S.connections.filter(c => c.idA !== id && c.idB !== id);
+  S.shapes = S.shapes.filter(s => s.id !== id);
+  if (S.pendA?.shapeId === id) S.pendA = null;
+  if (S.pendB?.shapeId === id) S.pendB = null;
+  S.selected = null;
+  S.selectedSet.delete(id);
+  document.getElementById('btn-rot').disabled = true;
+  document.getElementById('btn-del').disabled = true;
+  renderAll(); updatePanels();
+}
+
+function clearAll() {
+  Object.assign(S, { shapes:[], connections:[], selected:null,
+    selectedSet: new Set(), pendA:null, pendB:null, drag:null, nextId:1,
+    undoStack:[], redoStack:[] });
+  document.getElementById('btn-rot').disabled = true;
+  document.getElementById('btn-del').disabled = true;
+  syncUndoButtons();
+  renderAll(); updatePanels();
+}
+
+function shape(id) { return S.shapes.find(s => s.id === id); }
+
+// ── CONNECTION ─────────────────────────────────────────
+function clickCorner(shapeId, corner, e) {
+  e.stopPropagation();
+
+  // First click
+  if (!S.pendA) {
+    S.pendA = { shapeId, corner };
+
+  // Deselect same dot
+  } else if (S.pendA.shapeId === shapeId && S.pendA.corner === corner) {
+    S.pendA = null; S.pendB = null;
+
+  // Second click — must be different shape
+  } else if (!S.pendB) {
+    if (S.pendA.shapeId === shapeId) return; // reject same shape
+    S.pendB = { shapeId, corner };
+
+  // Third click — restart
+  } else {
+    S.pendA = { shapeId, corner }; S.pendB = null;
+  }
+
+  updateConnStatus(); renderAll();
+}
+
+function executeConnect() {
+  if (!S.pendA || !S.pendB) return;
+  snapshot();
+  const { shapeId:idA, corner:cA } = S.pendA;
+  const { shapeId:idB, corner:cB } = S.pendB;
+  const sA = shape(idA), sB = shape(idB);
+  if (!sA || !sB) return;
+
+  // World position of anchor point on Shape A
+  const target = pointWorld(sA, cA);
+
+  // Move shape B (or B's whole pre-connection group) so the chosen corners meet.
+  // If the user picks the "anchor" side second, idB can be a piece already connected
+  // to others; moving only that one div leaves the rest behind — see getConnectedGroup(idB).
+  const cur = pointWorld(sB, cB);
+  const dx = target.x - cur.x;
+  const dy = target.y - cur.y;
+  const alreadyLinked = getConnectedGroup(idA).includes(idB);
+  const idsToMove = alreadyLinked ? [idB] : getConnectedGroup(idB);
+  idsToMove.forEach((bid) => {
+    const sh = shape(bid);
+    if (sh) {
+      sh.x += dx;
+      sh.y += dy;
+    }
+  });
+
+  // Overlap check: any moved shape vs outsiders (anchor shape allowed at seam)
+  const moveSet = new Set(idsToMove);
+  let collide = false;
+  for (const bid of idsToMove) {
+    const sb = shape(bid);
+    if (!sb) continue;
+    for (const s of S.shapes) {
+      if (moveSet.has(s.id) || s.id === idA) continue;
+      if (overlaps(sb, s)) {
+        collide = true;
+        break;
+      }
+    }
+    if (collide) break;
+  }
+  if (collide) {
+    flashOverlap(idB);
+  }
+
+  // Record
+  S.connections.push({ idA, cA, idB, cB });
+  sA.connCorners[cA] = true;
+  sB.connCorners[cB] = true;
+
+  S.pendA = null; S.pendB = null;
+  renderAll(); updatePanels();
+}
+
+function flashOverlap(shapeId) {
+  setTimeout(() => {
+    const el = document.querySelector(`.shape[data-id="${shapeId}"]`);
+    if (el) { el.classList.add('overlap-warn');
+      el.addEventListener('animationend', () => el.classList.remove('overlap-warn'), { once:true }); }
+  }, 30);
+}
+
+// ── RENDER ─────────────────────────────────────────────
+function renderAll() { renderShapes(); renderLines(); }
+
+function renderSplashPlacementBar(){
+  const host = document.getElementById('splash-placement-bar');
+  if (!host) return;
+  const rows = Array.isArray(S.splashRows) ? S.splashRows : [];
+  host.innerHTML = '';
+  if (!rows.length) {
+    host.classList.remove('active');
+    return;
+  }
+  host.classList.add('active');
+  rows.forEach((row) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'sp-row';
+    const splashSourceId = String(row.splashId || '').replace(/-assembly-splash-/, '-backsplash-');
+    const splashShape = S.shapes.find((sh) => sh && sh.isSplash && String(sh.ogmSourceId || '') === splashSourceId) || null;
+    const titleParts = String(row.title || 'Backsplash').split('·').map((s) => String(s || '').trim());
+    const roomText = titleParts[0] || 'Room';
+    const splashText = titleParts.slice(1).join(' · ') || titleParts[0] || 'Backsplash';
+
+    const hostSel = document.createElement('select');
+    hostSel.className = 'sp-sel';
+    hostSel.title = 'Host shape';
+    const hostOpts = Array.isArray(row.hostOptions) ? row.hostOptions : [];
+    hostSel.innerHTML = hostOpts.map((opt) => `<option value="${String(opt.id)}"${String(opt.id) === String(row.hostPartId) ? ' selected' : ''}>${String(opt.label || opt.id)}</option>`).join('');
+    hostSel.addEventListener('change', () => {
+      try { window.parent.postMessage({type: 'ogm-assembly-splash-change', splashId: String(row.splashId || ''), field: 'hostPartId', value: hostSel.value}, '*'); } catch {}
+    });
+    wrap.appendChild(hostSel);
+
+    const edgeSel = document.createElement('select');
+    edgeSel.className = 'sp-sel';
+    edgeSel.title = 'Wall edge';
+    const edgeOpts = Array.isArray(row.edgeOptions) ? row.edgeOptions : [];
+    edgeSel.innerHTML = edgeOpts.map((opt) => `<option value="${Number(opt.index) || 0}"${Number(opt.index) === Number(row.edgeIndex) ? ' selected' : ''}>${String(opt.label || '')}</option>`).join('');
+    edgeSel.addEventListener('change', () => {
+      try { window.parent.postMessage({type: 'ogm-assembly-splash-change', splashId: String(row.splashId || ''), field: 'edgeIndex', value: parseInt(edgeSel.value, 10) || 0}, '*'); } catch {}
+    });
+    wrap.appendChild(edgeSel);
+
+    const room = document.createElement('div');
+    room.className = 'sp-room';
+    room.textContent = roomText;
+    wrap.appendChild(room);
+
+    const dotA = document.createElement('div');
+    dotA.className = 'sp-dot';
+    dotA.textContent = '·';
+    wrap.appendChild(dotA);
+
+    const ttlWrap = document.createElement('div');
+    ttlWrap.className = 'sp-title-wrap';
+    const ttl = document.createElement('div');
+    ttl.className = 'sp-title';
+    ttl.textContent = splashText;
+    const dim = document.createElement('div');
+    dim.className = 'sp-title-dim';
+    const wIn = Number(row.dimW) || 0;
+    const hIn = Number(row.dimH) || 0;
+    dim.textContent = `${wIn.toFixed(2)}" × ${hIn.toFixed(2)}"`;
+    ttlWrap.appendChild(ttl);
+    ttlWrap.appendChild(dim);
+    wrap.appendChild(ttlWrap);
+
+    const dotB = document.createElement('div');
+    dotB.className = 'sp-dot';
+    dotB.textContent = '·';
+    wrap.appendChild(dotB);
+
+    const offWrap = document.createElement('div');
+    offWrap.className = 'sp-off-wrap';
+    const offLbl = document.createElement('span');
+    offLbl.className = 'sp-off-lbl';
+    offLbl.textContent = 'Offset (in)';
+    const offInp = document.createElement('input');
+    offInp.className = 'sp-off-inp';
+    offInp.type = 'number';
+    offInp.step = '0.01';
+    offInp.value = String(Number(splashShape && splashShape.offsetIn || 0));
+    offInp.addEventListener('input', () => {
+      if (!splashShape) return;
+      const val = Number(offInp.value);
+      splashShape.offsetIn = Number.isFinite(val) ? val : 0;
+      renderAll();
+    });
+    offWrap.appendChild(offLbl);
+    offWrap.appendChild(offInp);
+    wrap.appendChild(offWrap);
+
+    host.appendChild(wrap);
+  });
+}
+
+function renderShapes() {
+  try {
+    layoutSplashShapesFromHosts();
+  } catch (err) {
+    // Never let splash-layout math break base assembly rendering.
+    console.error('layoutSplashShapesFromHosts failed', err);
+  }
+  const canvas = document.getElementById('canvas');
+  canvas.innerHTML = '';
+
+  S.shapes.forEach(sh => {
+    const div = document.createElement('div');
+    const inGroup = S.selectedSet.has(sh.id);
+    const isSingle = S.selected === sh.id && S.selectedSet.size <= 1;
+    div.className = 'shape' + (sh.isSplash ? ' shape-splash' : '') + (isSingle ? ' selected' : inGroup ? ' in-group' : '');
+    div.dataset.id = sh.id;
+    div.style.cssText = `left:${sh.x}px;top:${sh.y}px;width:${sh.w}px;height:${sh.h}px;transform:rotate(${sh.rot}deg);transform-origin:center`;
+    if (String(sh.ogmShapeKind || '') === 'oval') {
+      div.style.borderRadius = '50%';
+    } else {
+      div.style.borderRadius = '';
+    }
+    if ((String(sh.ogmShapeKind || '') === 'poly' || (Array.isArray(sh.ogmPolyNorm) && sh.ogmPolyNorm.length >= 3)) && Array.isArray(sh.ogmPolyNorm) && sh.ogmPolyNorm.length >= 3) {
+      const pts = sh.ogmPolyNorm
+        .map((pt) => `${Math.max(0, Math.min(100, (Number(pt[0]) || 0) * 100)).toFixed(3)}% ${Math.max(0, Math.min(100, (Number(pt[1]) || 0) * 100)).toFixed(3)}%`)
+        .join(', ');
+      const clip = `polygon(${pts})`;
+      div.style.clipPath = clip;
+      div.style.webkitClipPath = clip;
+    } else {
+      div.style.clipPath = '';
+      div.style.webkitClipPath = '';
+    }
+    if (sh.pattern && sh.pattern.url) {
+      div.style.backgroundImage = `linear-gradient(rgba(88,166,255,0.18),rgba(88,166,255,0.18)), url("${String(sh.pattern.url).replace(/"/g, '%22')}")`;
+      if (Number.isFinite(Number(sh.pattern.sizeW)) && Number.isFinite(Number(sh.pattern.sizeH))) {
+        div.style.backgroundSize = `${Number(sh.pattern.sizeW)}px ${Number(sh.pattern.sizeH)}px`;
+      }
+      if (Number.isFinite(Number(sh.pattern.posX)) && Number.isFinite(Number(sh.pattern.posY))) {
+        div.style.backgroundPosition = `${Number(sh.pattern.posX)}px ${Number(sh.pattern.posY)}px`;
+      }
+    }
+
+    // Center shape label
+    const lbl = document.createElement('div');
+    lbl.className = 'shape-label';
+    lbl.textContent = shapeDisplayLabel(sh);
+    div.appendChild(lbl);
+
+    if (sh.isSplash) {
+      canvas.appendChild(div);
+      return;
+    }
+
+    // Edge labels inside shape, centered on each edge.
+    shapeEdgeLabelAnchors(sh).forEach((edge) => {
+      const el = document.createElement('div');
+      el.className = 'shape-edge-lbl';
+      el.textContent = edge.id;
+      el.style.left = `${edge.fx * 100}%`;
+      el.style.top = `${edge.fy * 100}%`;
+      div.appendChild(el);
+    });
+
+    // Snap point dots + labels (corners = circles, edge = diamonds)
+    const snaps = shapeSnapPoints(sh);
+    snaps.forEach(sp => {
+      const dot = document.createElement('div');
+      dot.className = sp.type === 'corner' ? 'corner-dot' : 'edge-dot';
+      dot.style.left = (sp.fx * 100) + '%';
+      dot.style.top  = (sp.fy * 100) + '%';
+
+      if (S.pendA?.shapeId === sh.id && S.pendA?.corner === sp.id) dot.classList.add('sel-a');
+      else if (S.pendB?.shapeId === sh.id && S.pendB?.corner === sp.id) dot.classList.add('sel-b');
+      else if (sh.connCorners?.[sp.id]) dot.classList.add('connected');
+
+      dot.addEventListener('click', e => clickCorner(sh.id, sp.id, e));
+      div.appendChild(dot);
+
+      // Label — poly snaps keep explicit ids; default shapes use rotational labels
+      const cl = document.createElement('div');
+      cl.className = 'corner-lbl';
+      const isDefault = Object.prototype.hasOwnProperty.call(SP, sp.id);
+      cl.textContent = isDefault ? visualCornerLabelMap(sh.rot)[sp.id] : sp.id;
+      Object.assign(cl.style, snapLabelStyle(sp));
+      div.appendChild(cl);
+    });
+
+    // Drag — always moves the entire connected assembly as a rigid body
+    div.addEventListener('mousedown', e => {
+      if (e.target.classList.contains('corner-dot') || e.target.classList.contains('edge-dot')) return;
+      selectShape(sh.id, e.shiftKey);
+
+      // Union of connected group + any explicit multi-select
+      const connectedIds = getConnectedGroup(sh.id);
+      const explicitGroup = S.selectedSet.size > 1 ? [...S.selectedSet] : [];
+      const dragIds = [...new Set([...connectedIds, ...explicitGroup])];
+
+      S.drag = {
+        isGroup: dragIds.length > 1,
+        sx: e.clientX,
+        sy: e.clientY,
+        shapes: dragIds.map(id => {
+          const s = shape(id);
+          return { id, ox: s.x, oy: s.y };
+        })
+      };
+      e.preventDefault();
+    });
+
+    canvas.appendChild(div);
+  });
+}
+
+function renderLines() {
+  const svg = document.getElementById('overlay');
+  svg.innerHTML = '';
+
+  S.connections.forEach(conn => {
+    const sA = shape(conn.idA), sB = shape(conn.idB);
+    if (!sA || !sB) return;
+    const wA = pointWorld(sA, conn.cA);
+    const wB = pointWorld(sB, conn.cB);
+
+    // Dashed line
+    const ln = mkSVG('line', {
+      x1: wA.x, y1: wA.y, x2: wB.x, y2: wB.y,
+      stroke: '#3fb950', 'stroke-width': 1.5, 'stroke-dasharray': '5 3'
+    });
+    svg.appendChild(ln);
+
+    // Connection dot
+    svg.appendChild(mkSVG('circle', { cx: wA.x, cy: wA.y, r: 4, fill: '#3fb950' }));
+  });
+
+  // Pending selection preview line
+  if (S.pendA && S.pendB) {
+    const sA = shape(S.pendA.shapeId), sB = shape(S.pendB.shapeId);
+    if (sA && sB) {
+      const wA = pointWorld(sA, S.pendA.corner);
+      const wB = pointWorld(sB, S.pendB.corner);
+      svg.appendChild(mkSVG('line', {
+        x1: wA.x, y1: wA.y, x2: wB.x, y2: wB.y,
+        stroke: '#f0c040', 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: 0.5
+      }));
+    }
+  }
+}
+
+function mkSVG(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+  return el;
+}
+
+// ── PANEL UPDATES ──────────────────────────────────────
+function selectShape(id, shiftKey = false) {
+  if (shiftKey) {
+    // Shift held — only add to group, never remove
+    S.selectedSet.add(id);
+    S.selected = id;
+  } else {
+    // Single select — clear group unless this shape is already in the group (keep group)
+    if (!S.selectedSet.has(id) || S.selectedSet.size === 1) {
+      S.selectedSet = new Set([id]);
+    }
+    S.selected = id;
+  }
+  const hasSingle = !!S.selected;
+  document.getElementById('btn-rot').disabled = !hasSingle || S.selectedSet.size > 1;
+  document.getElementById('btn-del').disabled = !hasSingle || S.selectedSet.size > 1;
+  updateShapeInfo();
+  renderAll();
+}
+
+function selectAll() {
+  S.selectedSet = new Set(S.shapes.filter((s) => !s.isSplash).map((s) => s.id));
+  S.selected = S.shapes.length ? S.shapes[0].id : null;
+  document.getElementById('btn-rot').disabled = true;
+  document.getElementById('btn-del').disabled = true;
+  renderAll(); updateShapeInfo();
+}
+
+function deselectAll() {
+  S.selectedSet = new Set();
+  S.selected = null;
+  document.getElementById('btn-rot').disabled = true;
+  document.getElementById('btn-del').disabled = true;
+  renderAll(); updateShapeInfo();
+}
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function updateShapeInfo() {
+  const el = document.getElementById('shape-info');
+  const sh = shape(S.selected);
+  if (!sh) { el.innerHTML = '<div class="hint">Click a shape to select it</div>'; return; }
+  const idLine = sh.ogmLabel ? `${escHtml(sh.ogmLabel)} <span style="color:var(--dim)">(S${sh.id})</span>` : `S${sh.id}`;
+  el.innerHTML = `
+    <div class="p-row"><span>ID</span><span>${idLine}</span></div>
+    <div class="p-row"><span>W × H</span><span>${sh.w} × ${sh.h}</span></div>
+    <div class="p-row"><span>Rotation</span><span>${sh.rot}°</span></div>
+    <div class="p-row"><span>X, Y</span><span>${Math.round(sh.x)}, ${Math.round(sh.y)}</span></div>
+  `;
+}
+
+function updateConnStatus() {
+  const el  = document.getElementById('conn-status');
+  const btn = document.getElementById('connect-btn');
+
+  if (!S.pendA) {
+    el.textContent = 'Click a corner dot (●) on any shape to begin';
+    el.classList.remove('active'); btn.disabled = true;
+  } else if (!S.pendB) {
+    const s = shape(S.pendA.shapeId);
+    el.textContent = `S${S.pendA.shapeId} · ${S.pendA.corner} selected\n→ Now click a corner on a different shape`;
+    el.classList.add('active'); btn.disabled = true;
+  } else {
+    el.textContent = `S${S.pendA.shapeId} · ${S.pendA.corner}\n   ↕ connects to\nS${S.pendB.shapeId} · ${S.pendB.corner}`;
+    el.classList.add('active'); btn.disabled = false;
+  }
+}
+
+function updateConnList() {
+  const el = document.getElementById('conn-list');
+  if (!S.connections.length) {
+    el.innerHTML = '<div class="hint">No connections yet</div>'; return;
+  }
+  el.innerHTML = S.connections.map((c,i) =>
+    `<div class="conn-item">
+      <span><strong>${i+1}</strong> S${c.idA}·${c.cA} → S${c.idB}·${c.cB}</span>
+      <button class="conn-del" onclick="deleteConnection(${i})" title="Delete connection">✕</button>
+    </div>`
+  ).join('');
+}
+
+function updatePanels() {
+  updateShapeInfo(); updateConnStatus(); updateConnList();
+}
+
+// ── DRAG ───────────────────────────────────────────────
+document.addEventListener('mousemove', e => {
+  if (S.boardPanDrag) {
+    const b = S.boardPanDrag;
+    S.boardView.panX = b.opx + (e.clientX - b.sx);
+    S.boardView.panY = b.opy + (e.clientY - b.sy);
+    applyBoardViewTransform();
+    return;
+  }
+  if (!S.drag) return;
+  const sc = (S.boardView && S.boardView.scale > 0) ? S.boardView.scale : 1;
+  const dx = (e.clientX - S.drag.sx) / sc;
+  const dy = (e.clientY - S.drag.sy) / sc;
+
+  S.drag.shapes.forEach(d => {
+    const sh = shape(d.id);
+    if (sh) { sh.x = d.ox + dx; sh.y = d.oy + dy; }
+  });
+
+  // Only propagate children if single shape drag (group already moves together)
+  if (!S.drag.isGroup) {
+    propagateChildren(S.drag.shapes[0].id);
+  }
+
+  renderAll(); updateShapeInfo();
+});
+
+document.addEventListener('mouseup', () => {
+  if (S.boardPanDrag) {
+    S.boardPanDrag = null;
+    const wsp = document.getElementById('workspace');
+    if (wsp) wsp.classList.remove('pan-active');
+    return;
+  }
+  if (S.drag) {
+    const moved = S.drag.shapes.some(d => {
+      const sh = shape(d.id);
+      return sh && (Math.abs(sh.x - d.ox) > 1 || Math.abs(sh.y - d.oy) > 1);
+    });
+    if (moved) {
+      const prev = cloneState();
+      prev.shapes = prev.shapes.map(s => {
+        const orig = S.drag.shapes.find(d => d.id === s.id);
+        return orig ? { ...s, x: orig.ox, y: orig.oy } : s;
+      });
+      S.undoStack.push(prev);
+      S.redoStack = [];
+      syncUndoButtons();
+    }
+  }
+  S.drag = null;
+});
+
+// Click empty canvas → deselect all (only when Shift is not held)
+document.getElementById('canvas').addEventListener('mousedown', e => {
+  if (e.target === e.currentTarget && !e.shiftKey) deselectAll();
+});
+
+// ── KEYBOARD SHORTCUTS ─────────────────────────────────
+function targetIsTextField(target){
+  if (!target) return false;
+  const tag = target.tagName ? String(target.tagName).toLowerCase() : '';
+  if (tag === 'textarea' || tag === 'select') return true;
+  if (tag === 'input') {
+    const t = String(target.type || '').toLowerCase();
+    if (t === 'button' || t === 'submit' || t === 'checkbox' || t === 'radio') return false;
+    return true;
+  }
+  return !!target.isContentEditable;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && !e.repeat) {
+    if (targetIsTextField(e.target)) return;
+    S.keysSpace = true;
+    const wsp = document.getElementById('workspace');
+    if (wsp) wsp.classList.add('pan-ready');
+    e.preventDefault();
+    return;
+  }
+  const enterKey = e.key === 'Enter' || e.code === 'Enter' || e.code === 'NumpadEnter';
+  if (enterKey && S.pendA && S.pendB && !targetIsTextField(e.target)) {
+    e.preventDefault();
+    e.stopPropagation();
+    executeConnect();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z') { e.preventDefault(); undo(); }
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); redo(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'a') { e.preventDefault(); selectAll(); }
+}, true);
+
+document.addEventListener('keyup', e => {
+  if (e.code !== 'Space') return;
+  S.keysSpace = false;
+  const wsp = document.getElementById('workspace');
+  if (wsp) {
+    wsp.classList.remove('pan-ready');
+    wsp.classList.remove('pan-active');
+  }
+  S.boardPanDrag = null;
+});
+
+window.addEventListener('blur', () => {
+  S.keysSpace = false;
+  S.boardPanDrag = null;
+  const wsp = document.getElementById('workspace');
+  if (wsp) {
+    wsp.classList.remove('pan-ready');
+    wsp.classList.remove('pan-active');
+  }
+});
+
+(function setupBoardPanZoom(){
+  const workspaceEl = document.getElementById('workspace');
+  if (!workspaceEl) return;
+  workspaceEl.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const rect = workspaceEl.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const bv = S.boardView;
+    const oldScale = (bv.scale > 0) ? bv.scale : 1;
+    const zoomFactor = Math.exp(-e.deltaY * 0.0015);
+    const newScale = clampBoardScale(oldScale * zoomFactor);
+    const wx = (mx - bv.panX) / oldScale;
+    const wy = (my - bv.panY) / oldScale;
+    bv.scale = newScale;
+    bv.panX = mx - wx * newScale;
+    bv.panY = my - wy * newScale;
+    applyBoardViewTransform();
+  }, { passive: false });
+
+  workspaceEl.addEventListener('mousedown', (e) => {
+    if (!S.keysSpace || e.button !== 0) return;
+    if (targetIsTextField(e.target)) return;
+    S.boardPanDrag = {
+      sx: e.clientX,
+      sy: e.clientY,
+      opx: S.boardView.panX,
+      opy: S.boardView.panY
+    };
+    workspaceEl.classList.add('pan-active');
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+})();
+
+applyBoardViewTransform();
+
+// ── PARENT IMPORT (ogm-quoter-internal assembly iframe) ─
+window.addEventListener('message', (ev) => {
+  const d = ev && ev.data;
+  if (!d || !d.type) return;
+  if (d.type === 'ogm-assembly-splash-ui') {
+    S.splashRows = Array.isArray(d.rows) ? d.rows : [];
+    renderSplashPlacementBar();
+    return;
+  }
+  if (d.type !== 'ogm-import-layout') return;
+  const incoming = Array.isArray(d.shapes) ? d.shapes : [];
+
+  let nextShapes = [];
+  try {
+    const prevById = new Map((S.shapes || []).map((sh) => [Number(sh.id), sh]));
+    const prevSplashBySource = new Map(
+      (S.shapes || [])
+        .filter((sh) => sh && sh.isSplash && sh.ogmSourceId)
+        .map((sh) => [String(sh.ogmSourceId), sh])
+    );
+    nextShapes = incoming
+      .filter((s) => s && Number(s.w) > 0 && Number(s.h) > 0)
+      .map((s) => {
+        const id = Number(s.id) || 0;
+        let prev = prevById.get(id);
+        if (!prev && s.isSplash && s.sourceId) {
+          prev = prevSplashBySource.get(String(s.sourceId)) || null;
+        }
+        const base = {
+          id,
+          x: Number(s.x) || 0,
+          y: Number(s.y) || 0,
+          w: Math.max(4, Number(s.w) || 0),
+          h: Math.max(4, Number(s.h) || 0),
+          rot: Number(s.rot) || 0,
+          connCorners: {},
+          ogmLabel: s.label ? String(s.label) : '',
+          ogmSourceId: s.sourceId ? String(s.sourceId) : '',
+          ogmRoomId: s.roomId,
+          ogmImportScale: Number(s.scale) || 1,
+          ogmImportX: Number(s.importX) || 0,
+          ogmImportY: Number(s.importY) || 0,
+          ogmBaseCenterX: Number(s.baseCenterX) || 0,
+          ogmBaseCenterY: Number(s.baseCenterY) || 0,
+          ogmShapeKind: s.shapeKind ? String(s.shapeKind) : 'rect',
+          ogmPolyNorm: Array.isArray(s.polyNorm) ? s.polyNorm.map((pt) => [Number(pt && pt[0]) || 0, Number(pt && pt[1]) || 0]) : null,
+          ogmGeomWIn: Number(s.ogmGeomWIn) || 0,
+          ogmGeomHIn: Number(s.ogmGeomHIn) || 0,
+          pattern: s.pattern && s.pattern.url ? {
+            url: String(s.pattern.url),
+            sizeW: Number(s.pattern.sizeW) || 0,
+            sizeH: Number(s.pattern.sizeH) || 0,
+            posX: Number(s.pattern.posX) || 0,
+            posY: Number(s.pattern.posY) || 0
+          } : null,
+          isSplash: !!s.isSplash,
+          splashHostSourceId: s.splashHostSourceId ? String(s.splashHostSourceId) : '',
+          splashEdgeIndex: parseInt(s.splashEdgeIndex, 10) || 0,
+          splashOffset: Number(s.splashOffset) || 0,
+          splashLength: Number(s.splashLength) || 0,
+          splashThickness: Number(s.splashThickness) || 1.18,
+          splashRevealCm: [1, 2, 3].includes(Number(s.splashRevealCm)) ? Number(s.splashRevealCm) : 3,
+          offsetIn: Number(s.offsetIn) || 0
+        };
+        if (!prev) return base;
+        if (base.isSplash) {
+          const rawWIn = Number(base.ogmGeomWIn) || 0;
+          const rawHIn = Number(base.ogmGeomHIn) || 0;
+          const scSplash = Number(base.ogmImportScale) || 1;
+          return Object.assign({}, base, {
+            connCorners: {},
+            id: prev.id,
+            offsetIn: Number.isFinite(Number(base.offsetIn)) ? Number(base.offsetIn) : (Number(prev.offsetIn) || 0),
+            w: rawWIn > 0 ? Math.max(4, rawWIn * scSplash) : base.w,
+            h: rawHIn > 0 ? Math.max(4, rawHIn * scSplash) : base.h
+          });
+        }
+        return {
+          ...base,
+          x: Number(prev.x) || 0,
+          y: Number(prev.y) || 0,
+          // Keep interactive position, but honor parent rotation updates so splash anchors stay on rotated hosts.
+          rot: Number(s.rot) || 0,
+          connCorners: {...(prev.connCorners || {})}
+        };
+      })
+      .filter((s) => s.id > 0);
+  } catch (err) {
+    console.error('ogm-import-layout parse failed; using safe fallback', err);
+    nextShapes = incoming
+      .filter((s) => s && Number(s.w) > 0 && Number(s.h) > 0)
+      .map((s, idx) => ({
+        id: (Number(s.id) || (idx + 1)),
+        x: Number(s.x) || 0,
+        y: Number(s.y) || 0,
+        w: Math.max(4, Number(s.w) || 0),
+        h: Math.max(4, Number(s.h) || 0),
+        rot: Number(s.rot) || 0,
+        connCorners: {},
+        ogmLabel: s && s.label ? String(s.label) : '',
+        ogmSourceId: s && s.sourceId ? String(s.sourceId) : '',
+        ogmRoomId: s ? s.roomId : null,
+        ogmImportScale: Number(s && s.scale) || 1,
+        ogmImportX: Number(s && s.importX) || 0,
+        ogmImportY: Number(s && s.importY) || 0,
+        ogmBaseCenterX: Number(s && s.baseCenterX) || 0,
+        ogmBaseCenterY: Number(s && s.baseCenterY) || 0,
+        ogmShapeKind: s && s.shapeKind ? String(s.shapeKind) : 'rect',
+        ogmPolyNorm: Array.isArray(s && s.polyNorm) ? s.polyNorm : null,
+        ogmGeomWIn: Number(s && s.ogmGeomWIn) || 0,
+        ogmGeomHIn: Number(s && s.ogmGeomHIn) || 0,
+        pattern: null,
+        isSplash: !!(s && s.isSplash),
+        splashHostSourceId: s && s.splashHostSourceId ? String(s.splashHostSourceId) : '',
+        splashEdgeIndex: parseInt(s && s.splashEdgeIndex, 10) || 0,
+        splashOffset: Number(s && s.splashOffset) || 0,
+        splashLength: Number(s && s.splashLength) || 0,
+        splashThickness: Number(s && s.splashThickness) || 1.18,
+        splashRevealCm: [1, 2, 3].includes(Number(s && s.splashRevealCm)) ? Number(s.splashRevealCm) : 3
+      }))
+      .filter((s) => s.id > 0);
+  }
+
+  S.shapes = nextShapes;
+  const validIds = new Set(nextShapes.map((s) => Number(s.id)));
+  S.connections = (S.connections || []).filter((c) => validIds.has(Number(c.idA)) && validIds.has(Number(c.idB)));
+
+  // Rebuild connection corner marks after any import merge.
+  S.shapes.forEach((sh) => { sh.connCorners = {}; });
+  S.connections.forEach((c) => {
+    const a = shape(c.idA);
+    const b = shape(c.idB);
+    if (a && c.cA) a.connCorners[c.cA] = true;
+    if (b && c.cB) b.connCorners[c.cB] = true;
+  });
+
+  let maxId = 0;
+  S.shapes.forEach((s) => { if (s.id > maxId) maxId = s.id; });
+  S.nextId = maxId + 1;
+  if (!validIds.has(Number(S.selected))) S.selected = null;
+  S.selectedSet = new Set([...S.selectedSet].filter((id) => validIds.has(Number(id))));
+  if (S.pendA && !validIds.has(Number(S.pendA.shapeId))) S.pendA = null;
+  if (S.pendB && !validIds.has(Number(S.pendB.shapeId))) S.pendB = null;
+  S.drag = null;
+  document.getElementById('btn-rot').disabled = !S.selected || S.selectedSet.size > 1;
+  document.getElementById('btn-del').disabled = !S.selected || S.selectedSet.size > 1;
+  renderAll();
+  updatePanels();
+  renderSplashPlacementBar();
+});
+
+let __ogmSyncTimer = null;
+function postStateToParent() {
+  if (!window.parent || window.parent === window) return;
+  const payload = {
+    shapes: S.shapes.map((sh) => shapePayloadRow(sh)),
+    connections: (S.connections || []).map((c) => ({
+      idA: Number(c.idA) || 0,
+      cA: c.cA,
+      idB: Number(c.idB) || 0,
+      cB: c.cB
+    }))
+  };
+  try { window.parent.postMessage({type: 'ogm-assembly-state', payload}, '*'); } catch {}
+}
+
+function shapePayloadRow(sh){
+  const row = {
+    id: Number(sh.id) || 0,
+    sourceId: sh.ogmSourceId ? String(sh.ogmSourceId) : '',
+    roomId: sh.ogmRoomId,
+    x: Number(sh.x) || 0,
+    y: Number(sh.y) || 0,
+    w: Number(sh.w) || 0,
+    h: Number(sh.h) || 0,
+    rot: Number(sh.rot) || 0,
+    scale: Number(sh.ogmImportScale) || 1,
+    importX: Number(sh.ogmImportX) || 0,
+    importY: Number(sh.ogmImportY) || 0,
+    baseCenterX: Number(sh.ogmBaseCenterX) || 0,
+    baseCenterY: Number(sh.ogmBaseCenterY) || 0,
+    isSplash: !!sh.isSplash
+  };
+  if (sh.isSplash) {
+    row.splashHostSourceId = sh.splashHostSourceId ? String(sh.splashHostSourceId) : '';
+    row.splashEdgeIndex = sh.splashEdgeIndex;
+    row.splashOffset = sh.splashOffset;
+    row.offsetIn = Number(sh.offsetIn) || 0;
+    row.splashLength = sh.splashLength;
+    row.splashThickness = sh.splashThickness;
+    row.splashRevealCm = sh.splashRevealCm;
+  }
+  return row;
+}
+
+function scheduleStateSync() {
+  if (__ogmSyncTimer) return;
+  __ogmSyncTimer = setTimeout(() => {
+    __ogmSyncTimer = null;
+    postStateToParent();
+  }, 120);
+}
+
+window.addEventListener('message', (ev) => {
+  if (!ev.data || ev.data.type !== 'ogm-request-immediate-sync') return;
+  if (__ogmSyncTimer) {
+    clearTimeout(__ogmSyncTimer);
+    __ogmSyncTimer = null;
+  }
+  postStateToParent();
+});
+
+const __renderAllOrig = renderAll;
+renderAll = function() {
+  __renderAllOrig();
+  scheduleStateSync();
+};
+
+function applyEdgeMarkersVisibility() {
+  const ws = document.getElementById('workspace');
+  const btn = document.getElementById('edge-markers-toggle');
+  if (!ws || !btn) return;
+  const visible = S.edgeMarkersVisible !== false;
+  ws.classList.toggle('edge-markers-hidden', !visible);
+  btn.classList.toggle('markers-visible', visible);
+  btn.setAttribute('aria-pressed', visible ? 'true' : 'false');
+}
+
+function initEdgeMarkersToggle() {
+  const btn = document.getElementById('edge-markers-toggle');
+  if (!btn) return;
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    S.edgeMarkersVisible = !S.edgeMarkersVisible;
+    applyEdgeMarkersVisibility();
+  });
+  applyEdgeMarkersVisibility();
+}
+
+// ── INIT ───────────────────────────────────────────────
+initEdgeMarkersToggle();
+renderAll(); updatePanels(); syncUndoButtons();
+try { if (window.parent && window.parent !== window) window.parent.postMessage({type: 'ogm-connector-ready'}, '*'); } catch {}
+</script>
+</body>
+</html>

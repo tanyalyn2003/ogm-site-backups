@@ -1,0 +1,9 @@
+Backup manifest - design layout wiring - 20260527-224047
+originals pulled from GoDaddy:
+/Users/tanyawhite/OGM/fresh-godaddy-pulls/2026-05-27-224047/quoter-tool/OGM_KitchenPlanner.html
+/Users/tanyawhite/OGM/fresh-godaddy-pulls/2026-05-27-224047/quoter-tool/ogm-quoter-internal.html
+working backups:
+/Users/tanyawhite/OGM/quoter-tool-working/OGM_KitchenPlanner.backup-before-design-layout-wiring-20260527-224047.html
+/Users/tanyawhite/OGM/quoter-tool-working/ogm-quoter-internal.backup-before-design-layout-wiring-20260527-224047.html
+changed file: ogm-quoter-internal.html
+reason: preserve full Design planner snapshot and ensure imported rooms inherit active stone/pricing so all room-assigned shapes can appear in Layout

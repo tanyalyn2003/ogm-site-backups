@@ -1,0 +1,11 @@
+Hub Stone Catalog + Team & Logins restore
+Timestamp: 2026-05-27 21:14:29
+
+Original working file:
+/Users/tanyawhite/OGM/quoter-tool-working/OGM_Hub.html
+
+Backup:
+/Users/tanyawhite/OGM/backups/2026-05-27-211429-hub-catalog-team-logins/OGM_Hub.backup-before-catalog-team-logins-20260527-211429.html
+
+Reason:
+Restore live Stone Catalog card and Team & Logins card while preserving Website Manager, SOP Library, and Team Marketplace.

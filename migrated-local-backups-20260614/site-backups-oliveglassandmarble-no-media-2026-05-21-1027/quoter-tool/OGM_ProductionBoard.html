@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>OGM Production Board</title>
+<style>
+:root{
+  --bg:#0c0f14;--surface:#111418;--border:rgba(255,255,255,.06);
+  --gold:#c4a05a;--gold-dim:rgba(196,160,90,.1);--gold-bdr:rgba(196,160,90,.28);
+  --green:#4ade80;--green-bg:rgba(22,163,74,.11);--green-bdr:#16a34a;
+  --amber:#fbbf24;--amber-bg:rgba(217,119,6,.13);--amber-bdr:#d97706;
+  --red:#f87171;--red-bg:rgba(220,38,38,.12);--red-bdr:#dc2626;
+  --blue:#60a5fa;--blue-bg:rgba(59,130,246,.12);--blue-bdr:#3b82f6;
+  --dim:rgba(255,255,255,.38);--faint:rgba(255,255,255,.2);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:#fff;
+  font-family:'DM Sans',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+
+.board{width:100vw;height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+
+/* HEADER */
+.hdr{background:var(--bg);border-bottom:1px solid var(--gold-bdr);
+  padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0}
+.hl{display:flex;align-items:center;gap:14px;min-width:0}
+.logo{font-family:Georgia,serif;font-size:22px;font-weight:300;letter-spacing:.2em;color:var(--gold);flex-shrink:0}
+.vsep{width:1px;height:22px;background:rgba(255,255,255,.1);flex-shrink:0}
+.hlb{display:flex;flex-direction:column;gap:1px}
+.hlbl{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#fff;font-weight:700}
+.hdate{font-size:14px;color:#fff;font-weight:700;letter-spacing:.02em}
+.hr{display:flex;align-items:center;gap:14px}
+
+/* WEATHER */
+.wx{display:flex;align-items:center;gap:10px;padding-right:14px;border-right:1px solid rgba(255,255,255,.07)}
+.wxi{font-size:22px;line-height:1}
+.wxi2{display:flex;flex-direction:column;gap:1px}
+.wxt{font-size:20px;font-weight:300;color:#fff;line-height:1}
+.wxc{font-size:9px;color:var(--faint);letter-spacing:.04em;line-height:1.4}
+
+/* SF */
+.sf{display:flex;align-items:baseline;gap:7px;background:var(--gold-dim);
+  border:1px solid var(--gold-bdr);border-radius:3px;padding:4px 14px;flex-shrink:0}
+.sfl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);opacity:.7}
+.sfv{font-size:26px;font-weight:300;font-family:Georgia,serif;color:var(--gold);line-height:1}
+.sfu{font-size:11px;color:var(--gold);opacity:.5}
+.clk{font-size:20px;font-weight:700;letter-spacing:.04em;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rdot{width:6px;height:6px;border-radius:50%;background:var(--green);opacity:.5;animation:p 3s ease-in-out infinite;flex-shrink:0}
+@keyframes p{0%,100%{opacity:.5}50%{opacity:.12}}
+
+/* COLUMNS */
+.cols{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:rgba(255,255,255,.04);overflow:hidden}
+.col{background:var(--surface);display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.chd{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);flex-shrink:0}
+.cnm{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#fff;font-weight:700;line-height:1.2}
+.cct{font-size:11px;font-family:'DM Mono',monospace;color:#fff;font-weight:700;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:2px 8px;min-width:22px;text-align:center}
+.cards{flex:1;overflow-y:auto;padding:7px;display:flex;flex-direction:column;gap:6px;min-height:0}
+.cards.drag-over{background:rgba(196,160,90,.08);outline:1px solid rgba(196,160,90,.34);outline-offset:-3px}
+.cards::-webkit-scrollbar{width:3px}
+.cards::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+
+/* CARDS */
+.card{border-radius:3px;border-left:3px solid;padding:8px 9px 7px}
+.card:not(.empty){cursor:pointer;user-select:none;touch-action:none}
+.card.dragging{opacity:.45;cursor:grabbing}
+.card.move-selected{outline:2px solid var(--gold);outline-offset:2px;box-shadow:0 0 0 3px rgba(196,160,90,.12)}
+.drag-ghost{position:fixed;z-index:1000;pointer-events:none;box-shadow:0 14px 34px rgba(0,0,0,.45);transform:translate3d(0,0,0)}
+.card.green{background:var(--green-bg);border-left-color:var(--green-bdr)}
+.card.amber{background:var(--amber-bg);border-left-color:var(--amber-bdr)}
+.card.red  {background:var(--red-bg);  border-left-color:var(--red-bdr)}
+.card.blue {background:var(--blue-bg); border-left-color:var(--blue-bdr)}
+.card.empty{background:transparent;border-left-color:transparent;color:#fff;
+  font-size:12px;font-weight:700;text-align:center;padding:20px 8px;letter-spacing:.04em;opacity:.85}
+.cc{font-size:12px;font-weight:500;color:#fff;line-height:1.25;margin-bottom:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm{font-size:9px;color:var(--dim);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cf{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.csf{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.32)}
+.ct{font-size:9px;font-weight:500;border-radius:8px;padding:2px 7px;white-space:nowrap}
+.ct.green{background:rgba(22,163,74,.2);color:var(--green)}
+.ct.amber{background:rgba(217,119,6,.2);color:var(--amber)}
+.ct.red  {background:rgba(220,38,38,.2);color:var(--red)}
+.ct.blue {background:rgba(59,130,246,.15);color:var(--blue)}
+.cflag{margin-top:4px;font-size:8px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--blue);background:rgba(59,130,246,.1);border-radius:8px;padding:1px 6px;display:inline-block}
+
+/* FOOTER */
+.ftr{background:var(--bg);border-top:1px solid rgba(255,255,255,.04);
+  padding:5px 20px;display:flex;align-items:center;gap:8px;min-height:34px;flex-shrink:0}
+.fbl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);flex-shrink:0}
+.fsep{width:1px;height:12px;background:rgba(255,255,255,.08);flex-shrink:0}
+.flist{display:flex;align-items:center;gap:7px;overflow:hidden;flex-wrap:nowrap}
+.ipill{background:var(--green-bg);border:1px solid rgba(22,163,74,.2);
+  border-radius:3px;padding:2px 10px;font-size:10px;color:var(--dim);white-space:nowrap}
+.ipill strong{color:var(--green);margin-right:3px}
+.fnone{font-size:10px;color:var(--faint)}
+.fr{margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.fupd{font-size:9px;color:rgba(255,255,255,.18);font-family:'DM Mono',monospace;letter-spacing:.04em}
+.ferr{font-size:10px;color:var(--red);letter-spacing:.04em}
+
+/* LOADING */
+.overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:14px;z-index:99;transition:opacity .4s}
+.overlay.gone{opacity:0;pointer-events:none}
+.ologo{font-family:Georgia,serif;font-size:52px;font-weight:300;letter-spacing:.2em;color:var(--gold)}
+.otxt{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--faint)}
+.spin{width:30px;height:30px;border:2px solid rgba(255,255,255,.06);
+  border-top-color:var(--gold);border-radius:50%;animation:s 1s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="ol">
+  <div class="ologo">OGM</div>
+  <div class="spin"></div>
+  <div class="otxt">Loading production board…</div>
+</div>
+
+<div class="board">
+  <header class="hdr">
+    <div class="hl">
+      <div class="logo">OGM</div>
+      <div class="vsep"></div>
+      <div class="hlb">
+        <div class="hlbl">Production Board</div>
+        <div class="hdate" id="hdate">—</div>
+      </div>
+    </div>
+    <div class="hr">
+      <div class="wx" id="wx" style="display:none">
+        <div class="wxi" id="wxi">—</div>
+        <div class="wxi2">
+          <div class="wxt" id="wxt">—°F</div>
+          <div class="wxc" id="wxc">Raeford, NC</div>
+        </div>
+      </div>
+      <div class="sf">
+        <span class="sfl">TODAY</span>
+        <span class="sfv" id="sfv">—</span>
+        <span class="sfu">SF</span>
+      </div>
+      <div class="clk" id="clk">—</div>
+      <div class="rdot"></div>
+    </div>
+  </header>
+
+  <div class="cols" id="cols"></div>
+
+  <footer class="ftr">
+    <div class="fbl">Installing today</div>
+    <div class="fsep"></div>
+    <div class="flist" id="flist"><div class="fnone">—</div></div>
+    <div class="fr">
+      <div class="fupd" id="fupd"></div>
+      <div class="ferr" id="ferr" style="display:none">⚠ Connection error — retrying…</div>
+    </div>
+  </footer>
+</div>
+
+<script>
+'use strict';
+var REFRESH_MS=90000,WX_MS=600000;
+var WX_LAT=35.0,WX_LNG=-79.0;
+var STAGES=['Approved for Prod','Saw Cut','Router / Polish','Final Polish','QC Check','Ready for Install'];
+var DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var DABR=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var MABR=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var boardData=null,dragTaskId='',dragFromCol=-1,moveBusy=false,pointerDrag=null,pendingMove=null;
+
+function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
+function q(id){return document.getElementById(id)}
+
+/* Clock */
+function tick(){
+  var n=new Date(),h=n.getHours()%12||12,m=String(n.getMinutes()).padStart(2,'0'),ap=n.getHours()<12?'AM':'PM';
+  var c=q('clk');if(c)c.textContent=h+':'+m+' '+ap;
+  var d=q('hdate');if(d)d.textContent=DAYS[n.getDay()]+', '+MONTHS[n.getMonth()]+' '+n.getDate()+', '+n.getFullYear();
+}
+tick();setInterval(tick,1000);
+
+/* Weather — Open-Meteo, free, no API key */
+var WMO_ICON={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌦️',
+  61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'🌨️',80:'🌦️',81:'🌦️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+var WMO_TEXT={0:'Clear',1:'Mostly Clear',2:'Partly Cloudy',3:'Cloudy',45:'Foggy',48:'Foggy',
+  51:'Light Drizzle',53:'Drizzle',55:'Drizzle',61:'Light Rain',63:'Rain',65:'Heavy Rain',
+  71:'Light Snow',73:'Snow',75:'Heavy Snow',80:'Showers',81:'Showers',82:'Showers',
+  95:'Thunderstorm',96:'Thunderstorm',99:'Thunderstorm'};
+
+function fetchWeather(){
+  fetch('https://api.open-meteo.com/v1/forecast?latitude='+WX_LAT+'&longitude='+WX_LNG
+    +'&current=temperature_2m,weathercode&temperature_unit=fahrenheit&timezone=America%2FNew_York')
+  .then(function(r){return r.json()})
+  .then(function(d){
+    var cur=d.current||{},t=cur.temperature_2m,code=cur.weathercode||0;
+    if(t==null)return;
+    var wi=q('wxi');if(wi)wi.textContent=WMO_ICON[code]||'🌡️';
+    var wt=q('wxt');if(wt)wt.textContent=Math.round(t)+'°F';
+    var wc=q('wxc');if(wc)wc.textContent=(WMO_TEXT[code]||'')+'\nRaeford, NC';
+    var wb=q('wx');if(wb)wb.style.display='flex';
+  }).catch(function(){});
+}
+fetchWeather();setInterval(fetchWeather,WX_MS);
+
+/* Render */
+function render(data){
+  boardData=data||{};
+  var sv=q('sfv');if(sv)sv.textContent=data.totalSF>0?Number(data.totalSF).toLocaleString():'0';
+  var ce=q('cols');if(!ce)return;
+  ce.innerHTML='';
+  var cols=(data.columns||[]).slice().sort(function(a,b){return a.col-b.col});
+  for(var ci=0;ci<6;ci++){
+    var col=cols.find(function(c){return c.col===ci})||{stage:STAGES[ci],col:ci,count:0,cards:[]};
+    var colDiv=document.createElement('div');colDiv.className='col';
+    colDiv.innerHTML='<div class="chd"><div class="cnm">'+esc(col.stage||STAGES[ci])+'</div><div class="cct">'+(col.count||0)+'</div></div>';
+    var cardsDiv=document.createElement('div');cardsDiv.className='cards';cardsDiv.dataset.col=String(ci);
+    wireDropZone(cardsDiv);
+    var cards=col.cards||[];
+    if(!cards.length){
+      cardsDiv.innerHTML='<div class="card empty">No jobs</div>';
+    }else{
+      cards.forEach(function(card){
+        var d=document.createElement('div');d.className='card '+(card.color||'green');
+        d.draggable=false;
+        d.dataset.taskId=card.id||'';
+        d.dataset.col=String(ci);
+        if(pendingMove&&String(pendingMove.taskId)===String(card.id||''))d.classList.add('move-selected');
+        d.addEventListener('dragstart',onCardDragStart);
+        d.addEventListener('dragend',onCardDragEnd);
+        d.addEventListener('pointerdown',beginPointerCardDrag);
+        d.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();});
+        var sfStr=card.sf!=null?Math.round(card.sf)+' sf':'';
+        var tl=card.timeLabel||'',tc=card.color||'green';
+        if(ci===5&&card.installDate){
+          try{var dt=new Date(card.installDate+'T00:00:00');tl='Install '+DABR[dt.getDay()]+' '+MABR[dt.getMonth()]+' '+dt.getDate();}catch(_){}
+        }
+        d.innerHTML='<div class="cc">'+esc(card.client)+'</div>'
+          +'<div class="cm">'+esc(card.material||'—')+'</div>'
+          +'<div class="cf"><div class="csf">'+esc(sfStr)+'</div>'
+          +'<div class="ct '+esc(tc)+'">'+esc(tl)+'</div></div>'
+          +(card.qcFlag?'<div class="cflag">QC flagged</div>':'');
+        cardsDiv.appendChild(d);
+      });
+    }
+    colDiv.appendChild(cardsDiv);ce.appendChild(colDiv);
+  }
+
+  var fl=q('flist');
+  if(fl){
+    var inst=data.todayInstalls||[];
+    fl.innerHTML=!inst.length?'<div class="fnone">No installs scheduled today</div>'
+      :inst.map(function(i){
+        var p=[];if(i.material)p.push(i.material);if(i.sf)p.push(Math.round(i.sf)+' sf');if(i.rep)p.push(i.rep);
+        return '<div class="ipill"><strong>'+esc(i.client)+'</strong>'+esc(p.join(' · '))+'</div>';
+      }).join('');
+  }
+
+  var upd=q('fupd');
+  if(upd){
+    var n=new Date(),h=n.getHours()%12||12,m=String(n.getMinutes()).padStart(2,'0'),ap=n.getHours()<12?'AM':'PM';
+    var extra=(data.totalTasks===0&&data.hint)?' · '+data.hint:'';
+    upd.textContent='Updated '+h+':'+m+' '+ap+' · refreshes every 90s'+extra;
+  }
+  var er=q('ferr');if(er)er.style.display='none';
+  var ol=q('ol');if(ol)ol.classList.add('gone');
+}
+
+function wireDropZone(el){
+  el.addEventListener('click',function(ev){
+    if(!pendingMove||moveBusy)return;
+    var toCol=parseInt(el.dataset.col,10);
+    if(Number.isFinite(toCol)){
+      ev.preventDefault();
+      ev.stopPropagation();
+      var move=pendingMove;
+      pendingMove=null;
+      moveCardToColumn(move.taskId,move.fromCol,toCol);
+    }
+  });
+  el.addEventListener('dragover',function(ev){
+    if(!dragTaskId||moveBusy)return;
+    ev.preventDefault();
+    el.classList.add('drag-over');
+  });
+  el.addEventListener('dragleave',function(){el.classList.remove('drag-over');});
+  el.addEventListener('drop',function(ev){
+    ev.preventDefault();
+    el.classList.remove('drag-over');
+    var toCol=parseInt(el.dataset.col,10);
+    moveCardToColumn(dragTaskId,dragFromCol,toCol);
+  });
+}
+
+function onCardDragStart(ev){
+  var el=ev.currentTarget;
+  dragTaskId=el.dataset.taskId||'';
+  dragFromCol=parseInt(el.dataset.col,10);
+  if(!dragTaskId){ev.preventDefault();return;}
+  el.classList.add('dragging');
+  try{
+    ev.dataTransfer.effectAllowed='move';
+    ev.dataTransfer.setData('text/plain',dragTaskId);
+  }catch(_){}
+}
+
+function onCardDragEnd(ev){
+  ev.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.cards.drag-over').forEach(function(el){el.classList.remove('drag-over');});
+  dragTaskId='';dragFromCol=-1;
+}
+
+function dropZoneAtPoint(x,y){
+  var el=document.elementFromPoint(x,y);
+  if(!el||!el.closest)return null;
+  var zone=el.closest('.cards');
+  if(zone)return zone;
+  var col=el.closest('.col');
+  return col?col.querySelector('.cards'):null;
+}
+
+function setActiveDropZone(zone){
+  document.querySelectorAll('.cards.drag-over').forEach(function(el){
+    if(el!==zone)el.classList.remove('drag-over');
+  });
+  if(zone)zone.classList.add('drag-over');
+}
+
+function selectCardForMove(taskId,fromCol){
+  pendingMove={taskId:taskId,fromCol:fromCol};
+  document.querySelectorAll('.card.move-selected').forEach(function(el){el.classList.remove('move-selected');});
+  var card=document.querySelector('.card[data-task-id="'+String(taskId).replace(/"/g,'\\"')+'"]');
+  if(card)card.classList.add('move-selected');
+  var upd=q('fupd');
+  if(upd)upd.textContent='Selected job — click a column to move it, or drag the card.';
+}
+
+function beginPointerCardDrag(ev){
+  if(moveBusy)return;
+  if(ev.pointerType==='mouse'&&ev.button!==0)return;
+  var src=ev.currentTarget;
+  var taskId=src.dataset.taskId||'';
+  var fromCol=parseInt(src.dataset.col,10);
+  if(!taskId||!Number.isFinite(fromCol))return;
+  ev.preventDefault();
+  ev.stopPropagation();
+
+  var rect=src.getBoundingClientRect();
+  var ghost=src.cloneNode(true);
+  ghost.classList.add('drag-ghost');
+  ghost.style.width=rect.width+'px';
+  ghost.style.left='0px';
+  ghost.style.top='0px';
+  document.body.appendChild(ghost);
+  src.classList.add('dragging');
+  pointerDrag={
+    taskId:taskId,
+    fromCol:fromCol,
+    source:src,
+    ghost:ghost,
+    startX:ev.clientX,
+    startY:ev.clientY,
+    moved:false,
+    offsetX:ev.clientX-rect.left,
+    offsetY:ev.clientY-rect.top
+  };
+  movePointerGhost(ev.clientX,ev.clientY);
+  document.addEventListener('pointermove',onPointerCardDragMove,{passive:false});
+  document.addEventListener('pointerup',finishPointerCardDrag,{passive:false});
+  document.addEventListener('pointercancel',cancelPointerCardDrag,{passive:false});
+}
+
+function movePointerGhost(x,y){
+  if(!pointerDrag||!pointerDrag.ghost)return;
+  pointerDrag.ghost.style.transform='translate3d('+(x-pointerDrag.offsetX)+'px,'+(y-pointerDrag.offsetY)+'px,0)';
+}
+
+function onPointerCardDragMove(ev){
+  if(!pointerDrag)return;
+  ev.preventDefault();
+  if(Math.abs(ev.clientX-pointerDrag.startX)>5||Math.abs(ev.clientY-pointerDrag.startY)>5){
+    pointerDrag.moved=true;
+  }
+  movePointerGhost(ev.clientX,ev.clientY);
+  setActiveDropZone(dropZoneAtPoint(ev.clientX,ev.clientY));
+}
+
+function cleanupPointerDrag(){
+  if(!pointerDrag)return null;
+  var drag=pointerDrag;
+  if(drag.source)drag.source.classList.remove('dragging');
+  if(drag.ghost&&drag.ghost.parentNode)drag.ghost.parentNode.removeChild(drag.ghost);
+  setActiveDropZone(null);
+  document.removeEventListener('pointermove',onPointerCardDragMove);
+  document.removeEventListener('pointerup',finishPointerCardDrag);
+  document.removeEventListener('pointercancel',cancelPointerCardDrag);
+  pointerDrag=null;
+  return drag;
+}
+
+function finishPointerCardDrag(ev){
+  if(!pointerDrag)return;
+  ev.preventDefault();
+  var zone=dropZoneAtPoint(ev.clientX,ev.clientY);
+  var toCol=zone?parseInt(zone.dataset.col,10):-1;
+  var drag=cleanupPointerDrag();
+  if(!drag)return;
+  if(!drag.moved){
+    if(pendingMove&&String(pendingMove.taskId)!==String(drag.taskId)&&Number.isFinite(drag.fromCol)){
+      var move=pendingMove;
+      pendingMove=null;
+      moveCardToColumn(move.taskId,move.fromCol,drag.fromCol);
+    }else{
+      selectCardForMove(drag.taskId,drag.fromCol);
+    }
+    return;
+  }
+  pendingMove=null;
+  if(Number.isFinite(toCol))moveCardToColumn(drag.taskId,drag.fromCol,toCol);
+}
+
+function cancelPointerCardDrag(ev){
+  if(ev)ev.preventDefault();
+  cleanupPointerDrag();
+}
+
+function findCardById(data,taskId){
+  var cols=(data&&data.columns)||[];
+  for(var i=0;i<cols.length;i++){
+    var cards=cols[i].cards||[];
+    for(var j=0;j<cards.length;j++){
+      if(String(cards[j].id||'')===String(taskId))return{col:cols[i],idx:j,card:cards[j]};
+    }
+  }
+  return null;
+}
+
+function moveCardLocal(taskId,toCol){
+  if(!boardData)return;
+  var hit=findCardById(boardData,taskId);
+  if(!hit||!hit.col)return;
+  var fromCol=Number(hit.col.col);
+  if(fromCol===toCol)return;
+  var card=hit.col.cards.splice(hit.idx,1)[0];
+  hit.col.count=Math.max(0,(hit.col.count||0)-1);
+  var dest=(boardData.columns||[]).find(function(c){return Number(c.col)===toCol;});
+  if(!dest)return;
+  card.col=toCol;
+  dest.cards=dest.cards||[];
+  dest.cards.push(card);
+  dest.count=(dest.count||0)+1;
+  render(boardData);
+}
+
+function moveCardToColumn(taskId,fromCol,toCol){
+  if(moveBusy||!taskId||!Number.isFinite(toCol)||fromCol===toCol)return;
+  moveBusy=true;
+  moveCardLocal(taskId,toCol);
+  fetch('production-board-api.php',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'move',taskId:taskId,col:toCol})
+  }).then(function(r){
+    return r.json().then(function(d){return{ok:r.ok,data:d};});
+  }).then(function(res){
+    if(!res.ok||!res.data||!res.data.ok){
+      showErr((res.data&&res.data.error)||'Move failed');
+      fetchBoard();
+    }
+  }).catch(function(){
+    showErr('Move failed');
+    fetchBoard();
+  }).finally(function(){moveBusy=false;});
+}
+
+function showErr(msg){
+  var er=q('ferr');if(er){er.textContent='⚠ '+msg+' — retrying…';er.style.display='block';}
+  var ol=q('ol');if(ol)ol.classList.add('gone');
+}
+
+function fetchBoard(){
+  fetch('production-board-api.php?t='+Date.now(),{cache:'no-store'})
+    .then(function(r){
+      return r.json().then(function(d){return {ok:r.ok,status:r.status,data:d};});
+    })
+    .then(function(res){
+      var d=res.data||{};
+      if(!res.ok||!d.ok)showErr(d.error||('Server error ('+(res.status||'?')+')'));
+      else render(d);
+    })
+    .catch(function(){showErr('Could not reach production-board-api.php');});
+}
+fetchBoard();setInterval(fetchBoard,REFRESH_MS);
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OGM Quote Search</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+    .container { max-width: 700px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    h1 { font-size: 2em; margin-bottom: 18px; }
+    input[type="file"] { margin-bottom: 18px; }
+    .search-bar { display: flex; gap: 10px; margin-bottom: 18px; }
+    .search-bar input { flex: 1; padding: 8px; font-size: 1em; border: 1px solid #ccc; border-radius: 4px; }
+    .quote-list { margin-top: 18px; }
+    .quote-item { background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; padding: 14px 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .quote-details { flex: 1; }
+    .quote-actions { margin-left: 18px; }
+    .quote-actions button { background: #dc2626; color: #fff; border: none; border-radius: 3px; padding: 6px 12px; cursor: pointer; }
+    .quote-actions button:hover { background: #b91c1c; }
+    .no-results { color: #888; margin-top: 24px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>OGM Quote Search</h1>
+    <input type="file" id="fileInput" multiple accept=".json">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search by name, address, phone, or quote number...">
+    </div>
+    <div class="quote-list" id="quoteList"></div>
+    <div class="no-results" id="noResults" style="display:none">No quotes found.</div>
+  </div>
+  <script>
+    let quotes = [];
+    let filteredQuotes = [];
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      quotes = [];
+      const files = Array.from(e.target.files);
+      let loaded = 0;
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          try {
+            const data = JSON.parse(evt.target.result);
+            data._filename = file.name;
+            quotes.push(data);
+          } catch (err) {}
+          loaded++;
+          if (loaded === files.length) {
+            filteredQuotes = quotes.slice();
+            renderQuotes();
+          }
+        };
+        reader.readAsText(file);
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const q = e.target.value.toLowerCase();
+      filteredQuotes = quotes.filter(qt => {
+        return (
+          (qt.name && qt.name.toLowerCase().includes(q)) ||
+          (qt.addr && qt.addr.toLowerCase().includes(q)) ||
+          (qt.city && qt.city.toLowerCase().includes(q)) ||
+          (qt.phone && qt.phone.toLowerCase().includes(q)) ||
+          (qt.quoteNumber && (qt.quoteNumber + '').includes(q))
+        );
+      });
+      renderQuotes();
+    });
+
+    function renderQuotes() {
+      const list = document.getElementById('quoteList');
+      list.innerHTML = '';
+      if (filteredQuotes.length === 0) {
+        document.getElementById('noResults').style.display = 'block';
+        return;
+      } else {
+        document.getElementById('noResults').style.display = 'none';
+      }
+      filteredQuotes.forEach((qt, idx) => {
+        const div = document.createElement('div');
+        div.className = 'quote-item';
+        div.innerHTML = `
+          <div class="quote-details">
+            <strong>Quote #${qt.quoteNumber || 'N/A'}</strong> — <span>${qt.name || ''}</span><br>
+            <small>${qt.addr || ''} ${qt.city || ''} ${qt.phone || ''}</small>
+          </div>
+          <div class="quote-actions">
+            <button onclick="deleteQuote(${idx})">Delete</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    // Delete quote from the list (in-memory only)
+    window.deleteQuote = function(idx) {
+      filteredQuotes.splice(idx, 1);
+      // Also remove from main quotes array
+      const q = filteredQuotes[idx];
+      quotes = quotes.filter(item => item !== q);
+      renderQuotes();
+    };
+  </script>
+</body>
+</html>

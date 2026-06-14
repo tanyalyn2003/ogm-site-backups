@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGM — Shower Enclosure Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#faf8f3;--warm:#f5f2ea;--s50:#f7f5ef;--s100:#eae6da;--s200:#d4cfc0;
+  --s300:#b8b09c;--s500:#7a7260;--s700:#4a4538;--s900:#1c1917;
+  --gold:#9e7c3a;--gold-l:#c4a05a;--gold-p:#f0e6cc;
+  /* Match stone quoter default left column (340px); drag handle or dbl-click splitter to resize */
+  --shower-sidebar-w:340px;
+}
+html{height:100%;min-height:0;overflow:hidden}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1c1f;color:#fff;font-family:'DM Sans',sans-serif;font-weight:300;font-size:13px;height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── NAV ── */
+.ogm-nav-bar{background:#0c0f14;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid rgba(158,124,58,.25);flex-shrink:0;z-index:100}
+.ogm-nav-logo{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:.16em;color:#fff;margin-right:16px;flex-shrink:0}
+.ogm-nav-bar .ogm-nav-logo{display:none}
+.ogm-nav-left{display:flex;align-items:center}
+.ogm-nav-links{display:flex;gap:2px}
+.ogm-nav-link{padding:5px 11px;font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;border-radius:2px;transition:all .15s;border:1px solid transparent}
+.ogm-nav-link:hover{color:rgba(255,255,255,.75);background:rgba(255,255,255,.05)}
+.ogm-nav-link.active{color:#c4a05a;border-color:rgba(196,160,90,.3);background:rgba(196,160,90,.07)}
+.ogm-nav-badge{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#334155}
+
+.shower-brand-header{flex:0 0 116px;background:var(--s900);display:grid;grid-template-columns:var(--shower-sidebar-w) minmax(0,1fr);align-items:center;border-bottom:1px solid rgba(255,255,255,.06)}
+.shower-brand{justify-self:center;text-align:center;color:#fff;font-family:'Cormorant Garamond',serif;font-size:36px;line-height:.92;font-weight:300;letter-spacing:.13em}
+.shower-brand small{font-family:'DM Sans',sans-serif;font-size:12px;line-height:1.1;display:block;letter-spacing:.34em;color:var(--gold-l);font-weight:300;margin-top:7px;text-align:center}
+
+/* ── MAIN: grid row gives definitive height for sidebar scroll (flex row + overflow is flaky in WebKit) ── */
+.main-area{
+  display:grid;
+  grid-template-columns:var(--shower-sidebar-w) 7px minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr);
+  flex:1 1 0;
+  min-height:0;
+  height:0;
+  overflow:hidden;
+  isolation:isolate;
+}
+.main-area > .sidebar,
+.main-area > .sb-splitter,
+.main-area > .viewport{min-height:0}
+
+/* ── SIDEBAR: scrollport = grid cell (bounded by minmax row) ── */
+.sidebar{
+  grid-column:1;
+  grid-row:1;
+  min-width:0;
+  background:#12151a;border-right:none;
+  position:relative;
+  z-index:2;
+  display:block;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  scrollbar-width:auto;
+  scrollbar-color:#cbd5e1 #1e293b;
+  box-shadow:inset -1px 0 0 rgba(148,163,184,.22);
+}
+.sidebar::-webkit-scrollbar{width:11px;height:11px}
+.sidebar::-webkit-scrollbar-track{
+  background:#1e293b;
+  border-left:1px solid rgba(148,163,184,.35);
+  border-right:1px solid rgba(15,23,42,.6);
+}
+.sidebar::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#94a3b8,#64748b);
+  border-radius:6px;border:2px solid #1e293b;
+  min-height:40px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#cbd5e1,#94a3b8)}
+#shower-sidebar:focus{outline:none}
+#shower-sidebar:focus-visible{outline:1px solid rgba(196,160,90,.45);outline-offset:2px}
+
+/* Drag bar between menu and 3D view (stone quoter has fixed grid; here you can widen the menu) */
+.sb-splitter{
+  grid-column:2;
+  grid-row:1;
+  width:7px;cursor:col-resize;position:relative;z-index:60;
+  background:rgba(15,23,42,.95);
+  border-left:1px solid rgba(148,163,184,.15);
+  border-right:1px solid rgba(148,163,184,.12);
+  touch-action:none;
+}
+.sb-splitter::after{
+  content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:2px;height:28px;border-radius:1px;
+  background:linear-gradient(180deg,transparent 0%,rgba(196,160,90,.45)20%,rgba(196,160,90,.55)50%,rgba(196,160,90,.45)80%,transparent 100%);
+  pointer-events:none;
+}
+.sb-splitter:hover,.sb-splitter.dragging{
+  background:rgba(158,124,58,.12);
+  border-left-color:rgba(196,160,90,.35);
+}
+.sb-splitter.dragging::after{background:rgba(196,160,90,.75);height:40px}
+.sb-header{
+  display:none;
+}
+/* Shown when content extends below the fold (OS may still hide overlay scrollbars) */
+.sb-scroll-hint{
+  display:none;flex-shrink:0;
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-l);
+  padding:8px 14px 7px;border-bottom:1px solid rgba(158,124,58,.35);
+  background:rgba(158,124,58,.16);
+}
+.sb-scroll-hint.is-on{display:block}
+.sb-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;color:#fff;letter-spacing:.04em}
+.sb-sub{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-l);margin-top:2px}
+.sb-section{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.05)}
+.sb-lbl{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#475569;margin-bottom:8px;font-weight:400}
+
+/* Enclosure type grid */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.type-btn{padding:8px 6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:3px;cursor:pointer;text-align:center;transition:all .15s;font-family:'DM Sans',sans-serif}
+.type-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
+.type-btn.on{background:rgba(158,124,58,.15);border-color:rgba(158,124,58,.5)}
+.type-icon{font-size:22px;display:block;margin-bottom:3px}
+.type-name{font-size:10px;color:#94a3b8;letter-spacing:.04em}
+.type-btn.on .type-name{color:var(--gold-l)}
+
+/* Sliders */
+.dim-row{display:grid;grid-template-columns:60px 1fr 44px;gap:8px;align-items:center;margin-bottom:9px}
+.dim-lbl{font-size:11px;color:#64748b}
+.dim-slider{width:100%;accent-color:var(--gold);height:4px;cursor:pointer}
+.dim-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold-l);text-align:right;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:2px;padding:3px 5px;width:44px}
+.dim-val:focus{outline:none;border-color:var(--gold)}
+
+/* Select dropdowns */
+.sb-select{width:100%;padding:7px 22px 7px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;font-family:'DM Sans',sans-serif;font-size:12px;border-radius:3px;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer;margin-bottom:7px}
+.sb-select:focus{border-color:var(--gold)}
+
+/* Finish swatches */
+.finish-grid{display:flex;flex-wrap:wrap;gap:6px}
+.finish-swatch{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0}
+.finish-swatch:hover{transform:scale(1.12)}
+.finish-swatch.on{border-color:var(--gold-l);box-shadow:0 0 0 2px rgba(196,160,90,.35)}
+
+/* Glass type chips */
+.glass-chips{display:flex;flex-wrap:wrap;gap:4px}
+.glass-chip{padding:4px 9px;border-radius:2px;font-size:10px;letter-spacing:.06em;border:1px solid rgba(255,255,255,.1);background:transparent;color:#64748b;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .12s}
+.glass-chip:hover{color:#94a3b8;border-color:rgba(255,255,255,.2)}
+.glass-chip.on{background:rgba(158,124,58,.15);border-color:rgba(158,124,58,.4);color:var(--gold-l)}
+
+/* Toggle row */
+.toggle-row{display:flex;gap:5px;margin-bottom:7px}
+.tog-btn{flex:1;padding:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:3px;color:#64748b;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;transition:all .12s;text-align:center}
+.tog-btn:hover{background:rgba(255,255,255,.08);color:#94a3b8}
+.tog-btn.on{background:rgba(158,124,58,.15);border-color:rgba(158,124,58,.4);color:var(--gold-l)}
+
+/* Actions (no margin-top:auto — it breaks overflow scroll inside flex; actions stay at end of scroll content) */
+.sb-actions{padding:12px 14px;margin-top:4px;border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.action-btn{width:100%;padding:10px;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .15s;font-weight:400;margin-bottom:5px}
+.btn-gold{background:var(--gold);border:none;color:#fff}.btn-gold:hover{background:var(--gold-l)}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6)}.btn-ghost:hover{border-color:rgba(255,255,255,.3);color:#fff}
+
+/* ── 3D VIEWPORT ── */
+.viewport{
+  grid-column:3;
+  grid-row:1;
+  min-width:0;
+  min-height:0;
+  position:relative;
+  overflow:hidden;
+}
+#canvas{display:block;width:100%;height:100%;cursor:grab}
+#canvas:active{cursor:grabbing}
+
+/* Viewport overlay controls */
+.view-controls{position:absolute;top:14px;right:14px;display:flex;flex-direction:column;gap:5px}
+.vc-btn{width:34px;height:34px;background:rgba(18,21,26,.85);border:1px solid rgba(255,255,255,.12);border-radius:3px;color:#94a3b8;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .12s;backdrop-filter:blur(4px)}
+.vc-btn:hover{background:rgba(158,124,58,.15);border-color:rgba(158,124,58,.4);color:var(--gold-l)}
+
+/* Door toggle */
+.door-toggle{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:rgba(18,21,26,.85);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:6px;backdrop-filter:blur(4px)}
+.dt-btn{padding:6px 16px;border-radius:2px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .12s;border:none}
+.dt-btn.on{background:var(--gold);color:#fff}
+.dt-btn:not(.on){background:transparent;color:#64748b}
+.dt-btn:not(.on):hover{color:#94a3b8}
+
+/* Dimension labels */
+.dim-label{position:absolute;font-family:'DM Mono',monospace;font-size:11px;color:rgba(196,160,90,.8);pointer-events:none;background:rgba(18,21,26,.7);padding:2px 6px;border-radius:2px;backdrop-filter:blur(2px)}
+
+/* Info overlay */
+.info-overlay{position:absolute;top:14px;left:14px;background:rgba(18,21,26,.85);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:10px 14px;backdrop-filter:blur(4px);pointer-events:none}
+.io-lbl{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#475569;margin-bottom:4px}
+.io-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold-l)}
+
+/* Quote summary panel */
+.quote-panel{position:absolute;bottom:14px;right:14px;background:rgba(18,21,26,.92);border:1px solid rgba(158,124,58,.25);border-radius:4px;padding:12px 14px;min-width:220px;backdrop-filter:blur(6px)}
+.qp-title{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-l);margin-bottom:8px}
+.qp-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;color:#64748b}
+.qp-row span:last-child{color:#e2e8f0;font-family:'DM Mono',monospace}
+.qp-btn{width:100%;padding:7px;background:var(--gold);border:none;border-radius:2px;color:#fff;font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-top:8px}
+.qp-btn:hover{background:var(--gold-l)}
+
+/* toast */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--s900);color:#fff;padding:10px 18px;border-radius:4px;font-size:12px;z-index:600;opacity:0;transition:opacity .3s;pointer-events:none;border-left:3px solid var(--gold);font-family:'DM Sans',sans-serif;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+<script>try{if(localStorage.getItem('ogm-theme')==='dark')document.documentElement.setAttribute('data-ogm-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="ogm-theme-toggle.css?v=20260516p">
+<script src="ogm-theme-toggle.js?v=20260516o" defer></script>
+<link rel="stylesheet" href="ogm-accessibility.css?v=20260516c">
+<script src="ogm-accessibility.js?v=20260516o" defer></script>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="ogm-nav-bar">
+  <div class="ogm-nav-left">
+    <span class="ogm-nav-logo">OGM</span>
+    <nav class="ogm-nav-links">
+      <a class="ogm-nav-link" href="hub.php">⌂ Hub</a>
+      <a class="ogm-nav-link" href="index.php">✦ Stone</a>
+      <a class="ogm-nav-link" href="glass-quoter.php">◈ Glass</a>
+      <a class="ogm-nav-link active" href="#">🚿 Shower</a>
+      <a class="ogm-nav-link" href="customer-db.php">◎ Customers</a>
+      <a class="ogm-nav-link" href="job-tracking.php">◈ Jobs</a>
+      <a class="ogm-nav-link" href="message-center.php">✉ Messages</a>
+      <a class="ogm-nav-link" href="invoice-manager.php">◻ Invoices</a>
+      <a class="ogm-nav-link" href="sales-reports.php">◑ Reports</a>
+      <a class="ogm-nav-link" href="calendar.php">📅 Schedule</a>
+      <a class="ogm-nav-link" href="website-leads.php">◉ Leads</a>
+    </nav>
+  </div>
+  <div class="ogm-nav-right">
+    <span class="ogm-nav-badge">Drag to rotate · Scroll to zoom</span>
+  </div>
+</div>
+
+<div class="shower-brand-header">
+  <div class="shower-brand">OGM<small>Shower Builder</small></div>
+</div>
+
+<div class="main-area">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <div class="sidebar" id="shower-sidebar" tabindex="-1">
+    <div class="sb-header">
+      <div class="sb-title">Shower Builder</div>
+      <div class="sb-sub">3D Enclosure Configurator</div>
+    </div>
+    <div id="sb-scroll-hint" class="sb-scroll-hint" role="status" aria-live="polite">More options below — scroll this panel</div>
+
+    <!-- Enclosure Type -->
+    <div class="sb-section">
+      <div class="sb-lbl">Enclosure Type</div>
+      <div class="type-grid">
+        <div class="type-btn on" data-type="alcove" onclick="setType(this)">
+          <span class="type-icon">🚿</span><span class="type-name">Alcove</span>
+        </div>
+        <div class="type-btn" data-type="corner" onclick="setType(this)">
+          <span class="type-icon">📐</span><span class="type-name">Corner</span>
+        </div>
+        <div class="type-btn" data-type="walkin" onclick="setType(this)">
+          <span class="type-icon">🚶</span><span class="type-name">Walk-In</span>
+        </div>
+        <div class="type-btn" data-type="neoangle" onclick="setType(this)">
+          <span class="type-icon">⬠</span><span class="type-name">Neo-Angle</span>
+        </div>
+        <div class="type-btn" data-type="tub" onclick="setType(this)">
+          <span class="type-icon">🛁</span><span class="type-name">Tub Encl.</span>
+        </div>
+        <div class="type-btn" data-type="custom" onclick="setType(this)">
+          <span class="type-icon">✏️</span><span class="type-name">Custom</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dimensions -->
+    <div class="sb-section">
+      <div class="sb-lbl">Dimensions</div>
+      <div class="dim-row">
+        <span class="dim-lbl">Width</span>
+        <input type="range" class="dim-slider" id="s-width" min="24" max="72" value="36" oninput="sync('width',this.value)">
+        <input type="number" class="dim-val" id="n-width" min="24" max="72" value="36" oninput="sync('width',this.value)">
+      </div>
+      <div class="dim-row" id="depth-row">
+        <span class="dim-lbl">Depth</span>
+        <input type="range" class="dim-slider" id="s-depth" min="24" max="48" value="36" oninput="sync('depth',this.value)">
+        <input type="number" class="dim-val" id="n-depth" min="24" max="48" value="36" oninput="sync('depth',this.value)">
+      </div>
+      <div class="dim-row">
+        <span class="dim-lbl">Height</span>
+        <input type="range" class="dim-slider" id="s-height" min="60" max="96" value="78" oninput="sync('height',this.value)">
+        <input type="number" class="dim-val" id="n-height" min="60" max="96" value="78" oninput="sync('height',this.value)">
+      </div>
+    </div>
+
+    <!-- Door -->
+    <div class="sb-section">
+      <div class="sb-lbl">Door</div>
+      <select class="sb-select" id="door-type" onchange="cfg.doorType=this.value;rebuild()">
+        <option value="swing-out">Swing Out (Frameless)</option>
+        <option value="swing-in">Swing In</option>
+        <option value="pivot">Pivot</option>
+        <option value="sliding">Sliding</option>
+        <option value="bypass">Bypass (2-Panel)</option>
+        <option value="barn">Barn Door</option>
+        <option value="none">No Door (Open)</option>
+      </select>
+      <div class="toggle-row" id="door-side-row">
+        <button class="tog-btn on" onclick="setDoorSide('left',this)">Hinge Left</button>
+        <button class="tog-btn" onclick="setDoorSide('right',this)">Hinge Right</button>
+      </div>
+      <div class="dim-row" id="door-width-row">
+        <span class="dim-lbl">Door W</span>
+        <input type="range" class="dim-slider" id="s-doorw" min="18" max="42" value="24" oninput="sync('doorWidth',this.value)">
+        <input type="number" class="dim-val" id="n-doorw" min="18" max="42" value="24" oninput="sync('doorWidth',this.value)">
+      </div>
+    </div>
+
+    <!-- Frame & Glass -->
+    <div class="sb-section">
+      <div class="sb-lbl">Frame Type</div>
+      <div class="toggle-row">
+        <button class="tog-btn on" onclick="setFrame('frameless',this)">Frameless</button>
+        <button class="tog-btn" onclick="setFrame('semi',this)">Semi-Frame</button>
+        <button class="tog-btn" onclick="setFrame('framed',this)">Framed</button>
+      </div>
+      <div class="sb-lbl" style="margin-top:10px">Glass Type</div>
+      <div class="glass-chips">
+        <div class="glass-chip on" onclick="setGlass('clear',this)">Clear</div>
+        <div class="glass-chip" onclick="setGlass('low-iron',this)">Low-Iron</div>
+        <div class="glass-chip" onclick="setGlass('frosted',this)">Frosted</div>
+        <div class="glass-chip" onclick="setGlass('rain',this)">Rain</div>
+        <div class="glass-chip" onclick="setGlass('privacy',this)">Privacy</div>
+      </div>
+      <div class="sb-lbl" style="margin-top:10px">Glass Thickness</div>
+      <div class="toggle-row">
+        <button class="tog-btn on" onclick="setThickness('3/8',this)">3/8"</button>
+        <button class="tog-btn" onclick="setThickness('1/2',this)">1/2"</button>
+      </div>
+    </div>
+
+    <!-- Hardware Finish -->
+    <div class="sb-section">
+      <div class="sb-lbl">Hardware Finish</div>
+      <div class="finish-grid" id="finish-grid"></div>
+      <div style="margin-top:7px;font-size:11px;color:var(--gold-l)" id="finish-name-display">Chrome</div>
+    </div>
+
+    <!-- Actions -->
+    <div class="sb-actions">
+      <button class="action-btn btn-gold" onclick="sendToQuoter()">📋 &nbsp;Send to Glass Quoter</button>
+      <button class="action-btn btn-ghost" onclick="resetView()">↺ Reset View</button>
+    </div>
+  </div>
+
+  <div class="sb-splitter" id="sb-splitter" role="separator" aria-orientation="vertical" aria-label="Resize left menu" title="Drag to resize menu · Double-click resets to 340px (stone quoter width)"></div>
+
+  <!-- ═══ VIEWPORT ═══ -->
+  <div class="viewport">
+    <canvas id="canvas"></canvas>
+
+    <!-- Info -->
+    <div class="info-overlay">
+      <div class="io-lbl">Enclosure</div>
+      <div class="io-val" id="info-size">36" × 36" × 78"</div>
+    </div>
+
+    <!-- View controls -->
+    <div class="view-controls">
+      <button class="vc-btn" onclick="setPresetView('perspective')" title="Perspective">◈</button>
+      <button class="vc-btn" onclick="setPresetView('front')" title="Front">⬛</button>
+      <button class="vc-btn" onclick="setPresetView('side')" title="Side">▬</button>
+      <button class="vc-btn" onclick="setPresetView('top')" title="Top">▲</button>
+      <button class="vc-btn" onclick="resetView()" title="Reset">↺</button>
+    </div>
+
+    <!-- Door toggle -->
+    <div class="door-toggle" id="door-toggle">
+      <button class="dt-btn on" id="dt-closed" onclick="setDoorOpen(false)">Closed</button>
+      <button class="dt-btn" id="dt-open" onclick="setDoorOpen(true)">Open</button>
+    </div>
+
+    <!-- Quote summary -->
+    <div class="quote-panel">
+      <div class="qp-title">Quote Summary</div>
+      <div class="qp-row"><span>Type</span><span id="qp-type">Alcove</span></div>
+      <div class="qp-row"><span>Dimensions</span><span id="qp-dims">36×36×78"</span></div>
+      <div class="qp-row"><span>Door</span><span id="qp-door">Swing Out</span></div>
+      <div class="qp-row"><span>Frame</span><span id="qp-frame">Frameless</span></div>
+      <div class="qp-row"><span>Glass</span><span id="qp-glass">Clear 3/8"</span></div>
+      <div class="qp-row"><span>Finish</span><span id="qp-finish">Chrome</span></div>
+      <button class="qp-btn" onclick="sendToQuoter()">Send to Glass Quoter →</button>
+    </div>
+  </div>
+
+</div><!-- /main-area -->
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ════════════════════════════════════
+   CONFIG
+════════════════════════════════════ */
+const cfg = {
+  type: 'alcove',
+  width: 36, depth: 36, height: 78,
+  doorType: 'swing-out',
+  doorSide: 'left',
+  doorWidth: 24,
+  doorOpen: false,
+  frameType: 'frameless',
+  glassType: 'clear',
+  glassThickness: '3/8',
+  hardwareFinish: 'chrome',
+};
+
+const INCH = 1/12; // Three.js unit = 1 foot → 1" = 1/12
+const BASE_H = 4 * INCH;
+
+const FINISH_DATA = {
+  'chrome':          { name:'Chrome',         hex:'#c8c8c8', color:0xc8c8c8, metalness:1.0, roughness:0.05 },
+  'brushed-nickel':  { name:'Brushed Nickel', hex:'#8a8a8a', color:0x8a8a8a, metalness:0.8, roughness:0.4  },
+  'matte-black':     { name:'Matte Black',    hex:'#1a1a1a', color:0x1a1a1a, metalness:0.3, roughness:0.9  },
+  'polished-brass':  { name:'Polished Brass', hex:'#d4a847', color:0xd4a847, metalness:1.0, roughness:0.05 },
+  'satin-brass':     { name:'Satin Brass',    hex:'#b8952e', color:0xb8952e, metalness:0.8, roughness:0.35 },
+  'oil-bronze':      { name:'Oil-Rubbed Bronze', hex:'#3d2b1f', color:0x3d2b1f, metalness:0.6, roughness:0.5 },
+  'gunmetal':        { name:'Gunmetal',       hex:'#2a2a30', color:0x2a2a30, metalness:0.9, roughness:0.2  },
+  'brushed-gold':    { name:'Brushed Gold',   hex:'#c8a96e', color:0xc8a96e, metalness:0.8, roughness:0.3  },
+};
+
+/* Viewer preview: very light blue tint + slightly higher opacity so panels read on dark BG (not spec sheet colors) */
+const GLASS_DATA = {
+  'clear':     { color:0xd4ecff, opacity:0.38, roughness:0.03, label:'Clear'    },
+  'low-iron':  { color:0xe2f4ff, opacity:0.34, roughness:0.02, label:'Low-Iron' },
+  'frosted':   { color:0xedf3fc, opacity:0.84, roughness:0.95, label:'Frosted'  },
+  'rain':      { color:0xb8daf6, opacity:0.64, roughness:0.65, label:'Rain'     },
+  'privacy':   { color:0xd8e2ee, opacity:0.92, roughness:0.98, label:'Privacy'  },
+};
+
+/* ════════════════════════════════════
+   THREE.JS SETUP
+════════════════════════════════════ */
+const canvas = document.getElementById('canvas');
+const vp = canvas.parentElement;
+let W = vp.clientWidth, H = vp.clientHeight;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1c1f);
+
+const camera = new THREE.PerspectiveCamera(45, W/H, 0.01, 200);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(W, H);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+
+// Lights
+const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambient);
+const sun = new THREE.DirectionalLight(0xffffff, 0.9);
+sun.position.set(6, 12, 8);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.near = 0.1;
+sun.shadow.camera.far = 50;
+sun.shadow.camera.left = sun.shadow.camera.bottom = -8;
+sun.shadow.camera.right = sun.shadow.camera.top = 8;
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xddeeff, 0.35);
+fill.position.set(-5, 6, -5);
+scene.add(fill);
+const rim = new THREE.DirectionalLight(0xfff8e8, 0.2);
+rim.position.set(0, -4, 10);
+scene.add(rim);
+
+// Floor grid
+const gridHelper = new THREE.GridHelper(20, 20, 0x2a2d35, 0x22252e);
+gridHelper.position.y = 0;
+scene.add(gridHelper);
+
+// Floor plane (receives shadows)
+const floorGeo = new THREE.PlaneGeometry(20, 20);
+const floorMat = new THREE.MeshStandardMaterial({ color:0x1c1f24, roughness:0.95 });
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI/2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// Shower group — all shower meshes go here
+let showerGroup = new THREE.Group();
+scene.add(showerGroup);
+
+// Door group (animated)
+let doorPivot = null;
+
+/* ════════════════════════════════════
+   ORBIT CONTROLS (manual)
+════════════════════════════════════ */
+let orb = { theta: Math.PI * 0.2, phi: Math.PI * 0.28, r: 20.25, cx:0, cy:0, cz:0 };
+
+function updateCamera() {
+  camera.position.set(
+    orb.cx + orb.r * Math.sin(orb.phi) * Math.sin(orb.theta),
+    orb.cy + orb.r * Math.cos(orb.phi),
+    orb.cz + orb.r * Math.sin(orb.phi) * Math.cos(orb.theta)
+  );
+  camera.lookAt(orb.cx, orb.cy, orb.cz);
+}
+
+let drag = false, mx = 0, my = 0;
+canvas.addEventListener('mousedown', e => { drag=true; mx=e.clientX; my=e.clientY; });
+window.addEventListener('mousemove', e => {
+  if (!drag) return;
+  const dx = e.clientX-mx, dy = e.clientY-my; mx=e.clientX; my=e.clientY;
+  orb.theta -= dx * 0.008;
+  orb.phi = Math.max(0.08, Math.min(Math.PI/2 - 0.05, orb.phi - dy * 0.008));
+  updateCamera();
+});
+window.addEventListener('mouseup', () => { drag=false; });
+canvas.addEventListener('wheel', e => {
+  var top = document.elementFromPoint(e.clientX, e.clientY);
+  if (!top) return;
+  if (top !== canvas && !canvas.contains(top)) return;
+  e.preventDefault();
+  orb.r = Math.max(2, Math.min(30, orb.r + e.deltaY * 0.01));
+  updateCamera();
+}, { passive:false });
+
+(function () {
+  var sb = document.getElementById('shower-sidebar');
+  if (!sb) return;
+  sb.addEventListener('pointerenter', function () {
+    try { sb.focus({ preventScroll: true }); } catch (e) {}
+  });
+  /* Explicit wheel → scrollTop: native overflow scroll sometimes fails under grid/flex; zoom guard fixed canvas steal */
+  sb.addEventListener('wheel', function (e) {
+    var hit = document.elementFromPoint(e.clientX, e.clientY);
+    if (!hit || (hit !== sb && !sb.contains(hit))) return;
+    var dy = e.deltaY;
+    if (e.deltaMode === 1) dy *= 16;
+    else if (e.deltaMode === 2) dy *= sb.clientHeight;
+    e.preventDefault();
+    sb.scrollTop += dy;
+    syncShowerScrollHint();
+  }, { passive: false });
+})();
+
+// Touch support
+let touch = null;
+canvas.addEventListener('touchstart', e => { touch = e.touches[0]; });
+canvas.addEventListener('touchmove', e => {
+  if (!touch) return; e.preventDefault();
+  const t = e.touches[0];
+  const dx = t.clientX - touch.clientX, dy = t.clientY - touch.clientY;
+  orb.theta -= dx * 0.01;
+  orb.phi = Math.max(0.08, Math.min(Math.PI/2 - 0.05, orb.phi - dy * 0.01));
+  touch = t; updateCamera();
+}, { passive:false });
+canvas.addEventListener('touchend', () => { touch = null; });
+
+function setPresetView(v) {
+  if (v === 'perspective') { orb.theta = Math.PI*0.2; orb.phi = Math.PI*0.28; orb.r = 20.25; }
+  else if (v === 'front')   { orb.theta = Math.PI; orb.phi = Math.PI*0.28; orb.r = 20.25; }
+  else if (v === 'side')    { orb.theta = Math.PI*0.5; orb.phi = Math.PI*0.28; orb.r = 20.25; }
+  else if (v === 'top')     { orb.theta = Math.PI*0.2; orb.phi = 0.15; orb.r = 27; }
+  updateCamera();
+}
+function resetView() { setPresetView('perspective'); }
+
+/* ════════════════════════════════════
+   MATERIALS
+════════════════════════════════════ */
+function getGlassMat() {
+  const g = GLASS_DATA[cfg.glassType] || GLASS_DATA.clear;
+  const dense = cfg.glassType === 'frosted' || cfg.glassType === 'privacy';
+  return new THREE.MeshPhysicalMaterial({
+    color: g.color, transparent: true, opacity: g.opacity,
+    roughness: g.roughness, metalness: 0.0,
+    reflectivity: 0.6, clearcoat: 0.5, clearcoatRoughness: 0.05,
+    emissive: dense ? 0x4a6078 : 0x6a9ec8,
+    emissiveIntensity: dense ? 0.04 : 0.085,
+    side: THREE.DoubleSide, depthWrite: false,
+  });
+}
+function getFrameMat() {
+  const f = FINISH_DATA[cfg.hardwareFinish] || FINISH_DATA.chrome;
+  return new THREE.MeshStandardMaterial({ color:f.color, metalness:f.metalness, roughness:f.roughness });
+}
+function getWallMat() {
+  return new THREE.MeshStandardMaterial({ color:0xddd9d0, roughness:0.85, metalness:0 });
+}
+function getBaseMat() {
+  return new THREE.MeshStandardMaterial({ color:0xb8b4aa, roughness:0.9, metalness:0 });
+}
+
+/* ════════════════════════════════════
+   BUILD HELPERS
+════════════════════════════════════ */
+function clearShower() {
+  while (showerGroup.children.length) showerGroup.remove(showerGroup.children[0]);
+  doorPivot = null;
+}
+
+function addBox(x, y, z, w, h, d, mat, castShadow=true) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z);
+  if (castShadow) { m.castShadow=true; m.receiveShadow=true; }
+  showerGroup.add(m);
+  return m;
+}
+
+function addWall(x, y, z, w, h, d) {
+  return addBox(x, y, z, w, h, d, getWallMat());
+}
+
+function addGlassPanel(x, y, z, w, h, rotY=0, isDoor=false) {
+  const gT = cfg.glassThickness === '1/2' ? 0.5*INCH : (3/8)*INCH;
+  const mat = getGlassMat();
+  const grp = new THREE.Group();
+  grp.position.set(x, y, z);
+  grp.rotation.y = rotY;
+
+  const panel = new THREE.Mesh(new THREE.BoxGeometry(w, h, gT), mat);
+  panel.castShadow = false;
+  grp.add(panel);
+
+  // Frame bars
+  if (cfg.frameType !== 'frameless') {
+    const fw = cfg.frameType === 'framed' ? 1.75*INCH : 1.25*INCH;
+    const fd = gT + 0.01;
+    const fMat = getFrameMat();
+    const sides = cfg.frameType === 'framed'
+      ? [[-w/2, 0, 0, fw, h, fd], [w/2, 0, 0, fw, h, fd], [0, h/2, 0, w+fw, fw, fd], [0, -h/2, 0, w+fw, fw, fd]]
+      : [[0, h/2, 0, w+fw, fw, fd], [0, -h/2, 0, w+fw, fw, fd]];
+    sides.forEach(([fx,fy,fz,fw2,fh,fd2]) => {
+      const fm = new THREE.Mesh(new THREE.BoxGeometry(fw2,fh,fd2), fMat);
+      fm.position.set(fx,fy,fz); fm.castShadow=true;
+      grp.add(fm);
+    });
+  }
+
+  showerGroup.add(grp);
+  return grp;
+}
+
+function addHandle(x, y, z, rotY=0, vertical=true) {
+  const fMat = getFrameMat();
+  const hL = 8*INCH, hR = 0.3*INCH;
+  const barGeo = new THREE.CylinderGeometry(hR, hR, hL, 10);
+  const bar = new THREE.Mesh(barGeo, fMat);
+  if (!vertical) bar.rotation.z = Math.PI/2;
+  bar.castShadow = true;
+  const offset = cfg.glassThickness === '1/2' ? 0.5*INCH : (3/8)*INCH;
+  bar.position.set(x, y, z + offset + hR*2);
+  showerGroup.add(bar);
+  // End caps
+  [hL/2, -hL/2].forEach(d => {
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(hR*2, hR*2, 0.4*INCH, 10), fMat);
+    cap.position.set(x, y + (vertical?d:0), z + offset + hR*2);
+    if (!vertical) { cap.rotation.z = Math.PI/2; cap.position.x = x + d; cap.position.y = y; }
+    cap.castShadow = true;
+    showerGroup.add(cap);
+  });
+}
+
+function addBase(W, D) {
+  const baseMat = getBaseMat();
+  const panMat = new THREE.MeshStandardMaterial({ color:0xd4d0c8, roughness:0.7 });
+  // Shower pan/base
+  addBox(0, BASE_H/2, 0, W, BASE_H, D, baseMat);
+  // Slightly lighter top
+  addBox(0, BASE_H + 0.01, 0, W - 0.04, 0.02, D - 0.04, panMat, false);
+}
+
+function addSlidingDoor(x, y, z, w, h, open) {
+  const gT = cfg.glassThickness === '1/2' ? 0.5*INCH : (3/8)*INCH;
+  const mat = getGlassMat();
+  const overlap = 0.1;
+  const panW = w/2 + overlap;
+  const offset = open ? w/2 - 0.02 : 0;
+  // Left panel (slides left when open)
+  const p1 = new THREE.Mesh(new THREE.BoxGeometry(panW, h, gT), mat);
+  p1.position.set(x - w/4 - offset, y, z);
+  p1.castShadow = false; showerGroup.add(p1);
+  // Right panel (slides right when open)
+  const p2 = new THREE.Mesh(new THREE.BoxGeometry(panW, h, gT), mat);
+  p2.position.set(x + w/4 + offset, y, z);
+  p2.castShadow = false; showerGroup.add(p2);
+  // Frame top
+  if (cfg.frameType !== 'frameless') {
+    const fMat = getFrameMat();
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(w + 2*INCH, 1.5*INCH, gT*2), fMat);
+    rail.position.set(x, y + h/2, z); rail.castShadow=true; showerGroup.add(rail);
+    const rail2 = new THREE.Mesh(new THREE.BoxGeometry(w + 2*INCH, 1.5*INCH, gT*2), fMat);
+    rail2.position.set(x, y - h/2, z); rail2.castShadow=true; showerGroup.add(rail2);
+  }
+}
+
+// Swing door with pivot animation
+function addSwingDoor(hingeX, y, z, w, h, side, open, openAngle) {
+  doorPivot = new THREE.Group();
+  doorPivot.position.set(hingeX, 0, z);
+  showerGroup.add(doorPivot);
+  const gT = cfg.glassThickness === '1/2' ? 0.5*INCH : (3/8)*INCH;
+  const mat = getGlassMat();
+  const door = new THREE.Mesh(new THREE.BoxGeometry(w, h, gT), mat);
+  door.position.set(side === 'left' ? w/2 : -w/2, y, 0);
+  door.castShadow = false;
+  doorPivot.add(door);
+  // Frame
+  if (cfg.frameType !== 'frameless') {
+    const fMat = getFrameMat();
+    const fw = 1.5*INCH;
+    [[side==='left'?w/2:-w/2, h/2, 0, w+fw, fw, gT+0.01],
+     [side==='left'?w/2:-w/2, -h/2, 0, w+fw, fw, gT+0.01],
+     [side==='left'?w:0, 0, 0, fw, h, gT+0.01],
+    ].forEach(([fx,fy,fz,fw2,fh,fd]) => {
+      const fm = new THREE.Mesh(new THREE.BoxGeometry(fw2,fh,fd), fMat);
+      fm.position.set(fx,fy,fz); fm.castShadow=true; doorPivot.add(fm);
+    });
+  }
+  // Handle
+  const hx = side === 'left' ? w - 2*INCH : -(w - 2*INCH);
+  addHandleToDoor(hingeX + hx - (side==='left'?0:0), y, z, side);
+  // Set open angle
+  const ang = open ? (cfg.doorType === 'swing-in' ? -openAngle : openAngle) : 0;
+  doorPivot.rotation.y = ang;
+}
+
+function addHandleToDoor(x, y, z, side) {
+  const fMat = getFrameMat();
+  const hL = 7*INCH, hR = 0.28*INCH;
+  const gT = (3/8)*INCH;
+  const barGeo = new THREE.CylinderGeometry(hR, hR, hL, 10);
+  const bar = new THREE.Mesh(barGeo, fMat);
+  bar.castShadow = true;
+  bar.position.set(x, y, z + gT + hR*3);
+  showerGroup.add(bar);
+}
+
+/* ════════════════════════════════════
+   ENCLOSURE BUILDERS
+════════════════════════════════════ */
+function buildAlcove() {
+  const W = cfg.width * INCH;
+  const D = cfg.depth * INCH;
+  const H = cfg.height * INCH;
+  const dW = Math.min(cfg.doorWidth * INCH, W - 6*INCH);
+  const fixedW = W - dW;
+  const wallT = 0.6 * INCH;
+  const panelH = H - BASE_H;
+  const panelY = BASE_H + panelH/2;
+
+  addBase(W, D);
+
+  // 3 solid walls
+  addWall(0, H/2, -D/2 - wallT/2, W + wallT*2, H, wallT);          // back
+  addWall(-W/2 - wallT/2, H/2, 0, wallT, H, D + wallT);             // left
+  addWall(W/2 + wallT/2, H/2, 0, wallT, H, D + wallT);              // right
+
+  // Front glass
+  const frontZ = D/2;
+  const hasDoor = cfg.doorType !== 'none';
+
+  if (cfg.doorType === 'bypass' || cfg.doorType === 'sliding') {
+    addSlidingDoor(0, panelY, frontZ, W, panelH, cfg.doorOpen);
+    return;
+  }
+
+  if (hasDoor) {
+    const hingeX = cfg.doorSide === 'left' ? -W/2 + 0.01 : W/2 - dW + 0.01;
+    // Fixed panel
+    if (fixedW > INCH) {
+      const fx = cfg.doorSide === 'left' ? W/2 - fixedW/2 : -W/2 + fixedW/2;
+      addGlassPanel(fx, panelY, frontZ, fixedW, panelH);
+    }
+    // Door
+    addSwingDoor(hingeX, panelY, frontZ, dW, panelH, cfg.doorSide, cfg.doorOpen, Math.PI*0.45);
+    addHandle(hingeX + (cfg.doorSide==='left'?dW-2*INCH:2*INCH - dW), panelY, frontZ);
+  } else {
+    // No door — full glass panel
+    addGlassPanel(0, panelY, frontZ, W, panelH);
+  }
+
+  orb.cx = 0; orb.cy = (BASE_H + panelH/2); orb.cz = 0;
+  orb.r = Math.max(W, D, H * 0.6) * 3.2;
+}
+
+function buildCorner() {
+  const W = cfg.width * INCH;
+  const D = cfg.depth * INCH;
+  const H = cfg.height * INCH;
+  const dW = Math.min(cfg.doorWidth * INCH, W - 6*INCH);
+  const fixedFront = W - dW;
+  const wallT = 0.6 * INCH;
+  const panelH = H - BASE_H;
+  const panelY = BASE_H + panelH/2;
+
+  addBase(W, D);
+
+  // 2 solid walls (back + left)
+  addWall(0, H/2, -D/2 - wallT/2, W + wallT, H, wallT);            // back
+  addWall(-W/2 - wallT/2, H/2, 0, wallT, H, D);                    // left
+
+  // Front glass with door
+  const frontZ = D/2;
+  if (cfg.doorType === 'bypass' || cfg.doorType === 'sliding') {
+    addSlidingDoor(0, panelY, frontZ, W, panelH, cfg.doorOpen);
+  } else if (cfg.doorType !== 'none') {
+    const hingeX = -W/2 + 0.01;
+    if (fixedFront > INCH) addGlassPanel(W/2 - fixedFront/2, panelY, frontZ, fixedFront, panelH);
+    addSwingDoor(hingeX, panelY, frontZ, dW, panelH, 'left', cfg.doorOpen, Math.PI*0.45);
+  } else {
+    addGlassPanel(0, panelY, frontZ, W, panelH);
+  }
+
+  // Right side glass panel (no door on this side for corner)
+  const fixedSide = D;
+  addGlassPanel(W/2, panelY, 0, fixedSide, panelH, Math.PI/2);
+
+  orb.cx = 0; orb.cy = H*0.5; orb.cz = 0;
+  orb.r = Math.max(W, D, H*0.6) * 3.2;
+}
+
+function buildWalkIn() {
+  const W = cfg.width * INCH;
+  const D = cfg.depth * INCH;
+  const H = cfg.height * INCH;
+  const wallT = 0.6 * INCH;
+  const panelH = H - BASE_H;
+  const panelY = BASE_H + panelH/2;
+
+  addBase(W, D);
+
+  // Back wall + left wall
+  addWall(0, H/2, -D/2 - wallT/2, W + wallT, H, wallT);
+  addWall(-W/2 - wallT/2, H/2, 0, wallT, H, D);
+
+  // One glass panel on the right side (partial, open entry)
+  const panelW = D * 0.6;
+  addGlassPanel(W/2, panelY, panelW/2 - D/2, panelW, panelH, Math.PI/2);
+
+  // Glass return panel at front (short)
+  const returnW = W * 0.3;
+  addGlassPanel(W/2 - returnW/2, panelY, D/2, returnW, panelH);
+
+  orb.cx = 0; orb.cy = H*0.5; orb.cz = 0;
+  orb.r = Math.max(W, D, H*0.6) * 3.2;
+}
+
+function buildNeoAngle() {
+  const W = cfg.width * INCH;
+  const D = cfg.depth * INCH;
+  const H = cfg.height * INCH;
+  const wallT = 0.6 * INCH;
+  const panelH = H - BASE_H;
+  const panelY = BASE_H + panelH/2;
+  const dW = Math.min(cfg.doorWidth * INCH, W * 0.4);
+
+  addBase(W, D);
+
+  // 2 solid walls
+  addWall(0, H/2, -D/2 - wallT/2, W + wallT, H, wallT);
+  addWall(-W/2 - wallT/2, H/2, 0, wallT, H, D);
+
+  // 5-panel neo-angle front:
+  const sideW = W * 0.22;    // left and right return panels
+  const angW  = W * 0.26;    // angled panels (two)
+  const angle = Math.PI / 6; // 30 degrees
+
+  // Right side panel (vertical, along x=W/2)
+  addGlassPanel(W/2, panelY, 0, sideW, panelH, Math.PI/2);
+  // Left return (vertical at x=-W/2+sideW, z=D/2)
+  addGlassPanel(-W/2 + sideW/2, panelY, D/2, sideW, panelH);
+  // Center door
+  addSwingDoor(-dW/2, panelY, D/2, dW, panelH, 'left', cfg.doorOpen, Math.PI*0.45);
+  // Right angled panel
+  addGlassPanel(W/4, panelY, D/2 - 0.1, angW, panelH, -angle);
+  // Left angled connection
+  addGlassPanel(-W/4 + sideW/2, panelY, D/2 - 0.06, angW * 0.6, panelH, angle * 0.5);
+
+  orb.cx = 0; orb.cy = H*0.5; orb.cz = 0;
+  orb.r = Math.max(W, D, H*0.6) * 3.2;
+}
+
+function buildTub() {
+  const W = cfg.width * INCH;   // tub width (typically 60")
+  const D = 0.3; // tub depth (shallow — visual only)
+  const H = cfg.height * INCH;
+  const wallT = 0.6 * INCH;
+  const surround = 2.5 * INCH;  // tile surround height above tub
+
+  // Tub surround (visual)
+  const tubMat = new THREE.MeshStandardMaterial({ color:0xe8e4da, roughness:0.5 });
+  addBox(0, surround/2 + BASE_H, 0, W, surround, D + 0.2, tubMat);
+  addBox(0, BASE_H/2, 0, W, BASE_H, D + 0.6, getBaseMat()); // tub base
+
+  // 3 walls
+  addWall(0, H/2, -D/2 - wallT/2, W + wallT*2, H, wallT);
+  addWall(-W/2 - wallT/2, H/2, 0, wallT, H, D + 0.6);
+  addWall(W/2 + wallT/2, H/2, 0, wallT, H, D + 0.6);
+
+  // Bypass/sliding doors (tub enclosure always bypass)
+  const panelH = H - (BASE_H + surround);
+  const panelY = BASE_H + surround + panelH/2;
+  addSlidingDoor(0, panelY, D/2, W, panelH, cfg.doorOpen);
+
+  // Bar (horizontal handle)
+  if (cfg.frameType !== 'frameless') {
+    const fMat = getFrameMat();
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(W + 2*INCH, 1.8*INCH, 2*INCH), fMat);
+    bar.position.set(0, BASE_H + surround, D/2);
+    bar.castShadow=true; showerGroup.add(bar);
+  }
+
+  orb.cx = 0; orb.cy = H*0.4; orb.cz = 0;
+  orb.r = Math.max(W, H*0.6) * 3.2;
+}
+
+function buildCustom() {
+  // Same as alcove but with a note
+  buildAlcove();
+}
+
+/* ════════════════════════════════════
+   MAIN REBUILD
+════════════════════════════════════ */
+function rebuild() {
+  clearShower();
+  switch (cfg.type) {
+    case 'alcove':   buildAlcove();   break;
+    case 'corner':   buildCorner();   break;
+    case 'walkin':   buildWalkIn();   break;
+    case 'neoangle': buildNeoAngle(); break;
+    case 'tub':      buildTub();      break;
+    case 'custom':   buildCustom();   break;
+    default:         buildAlcove();
+  }
+  updateCamera();
+  updateInfoPanel();
+  updateQuotePanel();
+  syncShowerScrollHint();
+}
+
+function updateInfoPanel() {
+  document.getElementById('info-size').textContent =
+    `${cfg.width}" × ${cfg.depth}" × ${cfg.height}"`;
+}
+
+function updateQuotePanel() {
+  const typeNames = { alcove:'Alcove',corner:'Corner',walkin:'Walk-In',neoangle:'Neo-Angle',tub:'Tub Encl.',custom:'Custom' };
+  const doorNames = { 'swing-out':'Swing Out','swing-in':'Swing In','pivot':'Pivot','sliding':'Sliding','bypass':'Bypass','barn':'Barn Door','none':'No Door' };
+  const frameNames = { 'frameless':'Frameless','semi':'Semi-Frame','framed':'Framed' };
+  const gd = GLASS_DATA[cfg.glassType]||GLASS_DATA.clear;
+  const fd = FINISH_DATA[cfg.hardwareFinish]||FINISH_DATA.chrome;
+  document.getElementById('qp-type').textContent = typeNames[cfg.type]||cfg.type;
+  document.getElementById('qp-dims').textContent = `${cfg.width}×${cfg.depth}×${cfg.height}"`;
+  document.getElementById('qp-door').textContent = doorNames[cfg.doorType]||cfg.doorType;
+  document.getElementById('qp-frame').textContent = frameNames[cfg.frameType]||cfg.frameType;
+  document.getElementById('qp-glass').textContent = `${gd.label} ${cfg.glassThickness}"`;
+  document.getElementById('qp-finish').textContent = fd.name;
+  // Show/hide door toggle
+  document.getElementById('door-toggle').style.opacity = cfg.doorType === 'none' ? '0.3' : '1';
+  document.getElementById('door-toggle').style.pointerEvents = cfg.doorType === 'none' ? 'none' : 'auto';
+}
+
+/* ════════════════════════════════════
+   UI HANDLERS
+════════════════════════════════════ */
+function setType(el) {
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  cfg.type = el.dataset.type;
+  // For tub, set width to 60 default
+  if (cfg.type === 'tub') {
+    cfg.width = 60;
+    document.getElementById('s-width').value = 60;
+    document.getElementById('n-width').value = 60;
+    cfg.doorType = 'bypass';
+    document.getElementById('door-type').value = 'bypass';
+    document.getElementById('depth-row').style.opacity = '0.4';
+    document.getElementById('depth-row').style.pointerEvents = 'none';
+  } else {
+    document.getElementById('depth-row').style.opacity = '1';
+    document.getElementById('depth-row').style.pointerEvents = 'auto';
+  }
+  rebuild();
+}
+
+function sync(key, val) {
+  cfg[key] = parseFloat(val);
+  const s = document.getElementById('s-' + {width:'width',depth:'depth',height:'height',doorWidth:'doorw'}[key] || key);
+  const n = document.getElementById('n-' + {width:'width',depth:'depth',height:'height',doorWidth:'doorw'}[key] || key);
+  if (s) s.value = val;
+  if (n) n.value = val;
+  rebuild();
+}
+
+function setDoorSide(side, el) {
+  cfg.doorSide = side;
+  document.querySelectorAll('#door-side-row .tog-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  rebuild();
+}
+
+function setFrame(type, el) {
+  cfg.frameType = type;
+  document.querySelectorAll(el.parentElement.querySelectorAll ? '.sb-section .toggle-row:first-of-type .tog-btn' : '.tog-btn').forEach(b => b.classList.remove('on'));
+  el.parentElement.querySelectorAll('.tog-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  rebuild();
+}
+
+function setGlass(type, el) {
+  cfg.glassType = type;
+  document.querySelectorAll('.glass-chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  rebuild();
+}
+
+function setThickness(t, el) {
+  cfg.glassThickness = t;
+  el.parentElement.querySelectorAll('.tog-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  rebuild();
+}
+
+function setDoorOpen(open) {
+  cfg.doorOpen = open;
+  document.getElementById('dt-closed').classList.toggle('on', !open);
+  document.getElementById('dt-open').classList.toggle('on', open);
+  rebuild();
+}
+
+// Hardware finish swatches
+function buildFinishSwatches() {
+  const grid = document.getElementById('finish-grid');
+  grid.innerHTML = Object.entries(FINISH_DATA).map(([key, f]) =>
+    `<div class="finish-swatch ${key===cfg.hardwareFinish?'on':''}"
+      style="background:${f.hex};border-color:${key===cfg.hardwareFinish?'#c4a05a':'transparent'}"
+      title="${f.name}"
+      onclick="setFinish('${key}',this)"></div>`
+  ).join('');
+}
+
+function setFinish(key, el) {
+  cfg.hardwareFinish = key;
+  document.querySelectorAll('.finish-swatch').forEach(s => {
+    s.classList.remove('on');
+    s.style.borderColor = 'transparent';
+  });
+  el.classList.add('on');
+  el.style.borderColor = '#c4a05a';
+  document.getElementById('finish-name-display').textContent = FINISH_DATA[key].name;
+  rebuild();
+}
+
+/* ════════════════════════════════════
+   SEND TO QUOTER
+════════════════════════════════════ */
+function sendToQuoter() {
+  const typeNames = { alcove:'Alcove Shower Enclosure',corner:'Corner Shower Enclosure',walkin:'Walk-In Shower',neoangle:'Neo-Angle Shower Enclosure',tub:'Tub Enclosure',custom:'Custom Shower Enclosure' };
+  const gd = GLASS_DATA[cfg.glassType]||GLASS_DATA.clear;
+  const fd = FINISH_DATA[cfg.hardwareFinish]||FINISH_DATA.chrome;
+  const frameNames = { 'frameless':'Frameless','semi':'Semi-Frameless','framed':'Framed' };
+  const doorNames = { 'swing-out':'Swing-Out Door','swing-in':'Swing-In Door','pivot':'Pivot Door','sliding':'Sliding Door','bypass':'Bypass Doors','barn':'Barn Door','none':'Open (No Door)' };
+
+  // Build line items for the glass quoter
+  const lineItems = [
+    {
+      description: `${typeNames[cfg.type]} — ${cfg.width}" W × ${cfg.depth}" D × ${cfg.height}" H`,
+      glassType: `${gd.label} ${cfg.glassThickness}" Tempered`,
+      thickness: cfg.glassThickness + '"',
+      finish: fd.name,
+      notes: `${frameNames[cfg.frameType]} · ${doorNames[cfg.doorType]} · ${cfg.doorSide==='left'?'Hinge Left':'Hinge Right'}`,
+      amount: ''
+    },
+    {
+      description: `Hardware — ${fd.name} Finish`,
+      glassType: 'N/A',
+      thickness: 'N/A',
+      finish: fd.name,
+      notes: '',
+      amount: ''
+    }
+  ];
+
+  // Store in localStorage for the glass quoter to pick up
+  try {
+    localStorage.setItem('ogm-shower-prefill', JSON.stringify({
+      jobName: `${typeNames[cfg.type]} — ${cfg.width}"×${cfg.depth}"×${cfg.height}"`,
+      lineItems,
+      source: 'shower-builder'
+    }));
+    window.open('glass-quoter.php?from=shower', '_blank');
+    showToast('Opening Glass Quoter — check New Quote for pre-filled items');
+  } catch(e) {
+    showToast('Open the Glass Quoter and enter the details manually', true);
+  }
+}
+
+/* ════════════════════════════════════
+   WINDOW RESIZE
+════════════════════════════════════ */
+function resizeGlFromViewport() {
+  W = vp.clientWidth; H = vp.clientHeight;
+  renderer.setSize(W, H);
+  camera.aspect = W/H;
+  camera.updateProjectionMatrix();
+  syncShowerScrollHint();
+}
+window.addEventListener('resize', resizeGlFromViewport);
+
+/* ════════════════════════════════════
+   ANIMATION LOOP
+════════════════════════════════════ */
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
+
+function showToast(msg, err) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.borderLeftColor = err ? '#ef4444' : 'var(--gold)';
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ════════════════════════════════════
+   INIT
+════════════════════════════════════ */
+buildFinishSwatches();
+
+/* Left menu width: drag splitter (double-click = 340px, stone quoter column) + persist */
+(function initShowerSidebarResize() {
+  const root = document.documentElement;
+  const storageKey = 'ogm-shower-sidebar-w';
+  try {
+    const saved = localStorage.getItem(storageKey);
+    const n = saved ? parseInt(saved, 10) : NaN;
+    if (!isNaN(n)) {
+      const clamped = Math.min(560, Math.max(220, n));
+      root.style.setProperty('--shower-sidebar-w', clamped + 'px');
+    }
+  } catch (e) {}
+
+  const spl = document.getElementById('sb-splitter');
+  const sidebar = document.querySelector('.main-area > .sidebar');
+  if (!spl || !sidebar) return;
+
+  let startX, startW, dragging = false;
+
+  spl.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    dragging = true;
+    startX = e.clientX;
+    startW = sidebar.getBoundingClientRect().width;
+    spl.classList.add('dragging');
+    try { spl.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  });
+
+  spl.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const nw = Math.round(startW + (e.clientX - startX));
+    const clamped = Math.min(560, Math.max(220, nw));
+    root.style.setProperty('--shower-sidebar-w', clamped + 'px');
+    resizeGlFromViewport();
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    spl.classList.remove('dragging');
+    try { spl.releasePointerCapture(e.pointerId); } catch (err) {}
+    try {
+      localStorage.setItem(storageKey, String(Math.round(sidebar.getBoundingClientRect().width)));
+    } catch (err2) {}
+    resizeGlFromViewport();
+  }
+  spl.addEventListener('pointerup', endDrag);
+  spl.addEventListener('pointercancel', endDrag);
+
+  spl.addEventListener('dblclick', () => {
+    root.style.setProperty('--shower-sidebar-w', '340px');
+    try { localStorage.setItem(storageKey, '340'); } catch (e) {}
+    resizeGlFromViewport();
+  });
+})();
+
+rebuild();
+resizeGlFromViewport();
+animate();
+
+function syncShowerScrollHint() {
+  var sc = document.getElementById('shower-sidebar');
+  var hint = document.getElementById('sb-scroll-hint');
+  if (!sc || !hint) return;
+  requestAnimationFrame(function () {
+    var diff = sc.scrollHeight - sc.clientHeight;
+    var on = diff > 6;
+    hint.classList.toggle('is-on', on);
+    hint.setAttribute('aria-hidden', on ? 'false' : 'true');
+  });
+}
+requestAnimationFrame(function () {
+  requestAnimationFrame(syncShowerScrollHint);
+});
+window.addEventListener('resize', syncShowerScrollHint);
+(function () {
+  var sc = document.getElementById('shower-sidebar');
+  if (sc && typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncShowerScrollHint).observe(sc);
+  }
+})();
+</script>
+</body>
+</html>

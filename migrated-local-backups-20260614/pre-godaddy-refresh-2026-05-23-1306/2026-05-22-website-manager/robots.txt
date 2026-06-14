@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+Disallow: /partials/
+Disallow: /scripts/
+Disallow: /chat-log.php
+Disallow: /traffic-log.php
+Disallow: /chat-partial-lead.php
+Disallow: /contact.php
+Disallow: /admin/
+
+Sitemap: https://oliveglassandmarble.com/sitemap.xml

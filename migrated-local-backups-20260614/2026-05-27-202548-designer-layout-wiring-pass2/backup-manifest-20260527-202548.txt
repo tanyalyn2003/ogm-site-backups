@@ -1,0 +1,10 @@
+Designer to Layout wiring pass 2
+Timestamp: 2026-05-27 20:25:48
+
+Original: /Users/tanyawhite/OGM/quoter-tool-working/OGM_KitchenPlanner.html
+Backup:   /Users/tanyawhite/OGM/backups/2026-05-27-202548-designer-layout-wiring-pass2/OGM_KitchenPlanner.backup-before-wiring-pass2-20260527-202548.html
+Reason:   Strengthen planner export ownership for cutouts, seams, per-object summaries, splash/waterfall host data.
+
+Original: /Users/tanyawhite/OGM/quoter-tool-working/ogm-quoter-internal.html
+Backup:   /Users/tanyawhite/OGM/backups/2026-05-27-202548-designer-layout-wiring-pass2/ogm-quoter-internal.backup-before-wiring-pass2-20260527-202548.html
+Reason:   Import planner-owned cutouts/seams, preserve host object/room, count waterfall SF, validate planner import counts.

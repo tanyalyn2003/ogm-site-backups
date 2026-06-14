@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGM — Website Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0b0f14;--brown:#1c1917;--panel:#121a28;--panel2:#0f1622;--line:rgba(255,255,255,.09);--muted:#8290a6;--gold:#9e7c3a;--gold-l:#c4a05a;--green:#22c55e;--red:#ef4444}
+*{box-sizing:border-box}body{margin:0;background:var(--ink);color:#f8fafc;font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh}
+.ogm-nav-bar{height:44px;background:#0a0e13;border-bottom:1px solid rgba(158,124,58,.28);display:flex;align-items:center;justify-content:space-between;padding:0 40px}
+.ogm-nav-left{display:flex;align-items:center;gap:18px;min-width:0}.ogm-nav-logo{font-family:'Cormorant Garamond',serif;font-size:24px;letter-spacing:.18em;color:#fff;white-space:nowrap}.ogm-nav-links{display:flex;gap:2px;min-width:0;overflow:auto}.ogm-nav-link{color:rgba(255,255,255,.52);text-decoration:none;text-transform:uppercase;letter-spacing:.16em;font-size:11px;padding:8px 12px;border:1px solid transparent;border-radius:3px;white-space:nowrap}.ogm-nav-link:hover{color:#fff;background:rgba(255,255,255,.05)}.ogm-nav-link.active{color:var(--gold-l);border-color:rgba(196,160,90,.35);background:rgba(196,160,90,.08)}.ogm-nav-badge{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#43536d;white-space:nowrap}
+.hero{background:var(--brown);border-bottom:1px solid rgba(255,255,255,.08);padding:42px 52px 34px;display:flex;justify-content:space-between;align-items:flex-end;gap:28px}.display{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:58px;line-height:.96;margin:0 0 12px;letter-spacing:.04em}.headline-line{display:block}.headline-nowrap{white-space:nowrap}.subtitle{font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-l);line-height:1.6}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.btn{appearance:none;border:1px solid rgba(196,160,90,.38);background:rgba(196,160,90,.12);color:#f6d28b;min-height:40px;padding:0 16px;border-radius:3px;font:600 12px/1 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}.btn:hover{background:rgba(196,160,90,.18)}.btn.secondary{background:transparent;color:#cbd5e1;border-color:rgba(148,163,184,.28)}
+.layout{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:calc(100vh - 205px)}.side{background:#171512;border-right:1px solid rgba(255,255,255,.08);padding:26px 24px}.side-title{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:#60708a;margin-bottom:18px}.tab{width:100%;height:46px;margin-bottom:8px;border:1px solid rgba(148,163,184,.18);background:transparent;color:#8ea0bb;border-radius:3px;font:500 12px 'DM Sans',sans-serif;letter-spacing:.16em;text-transform:uppercase;text-align:left;padding:0 14px;cursor:pointer}.tab.active{color:#f6d28b;border-color:rgba(196,160,90,.45);background:rgba(196,160,90,.1)}.main{padding:28px 36px 46px}.panel{display:none}.panel.active{display:block}.panel-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.panel-title{font-family:'Cormorant Garamond',serif;font-size:38px;line-height:1;margin:0}.panel-copy{margin:8px 0 0;color:#8ea0bb;line-height:1.65;max-width:760px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:20px}.card-title{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#9aa8bd;margin-bottom:16px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}.label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#8190a8}.input,.select,.textarea{width:100%;border:1px solid rgba(148,163,184,.24);background:#172338;color:#f8fafc;border-radius:3px;padding:0 12px;font:400 14px 'DM Sans',sans-serif}.input,.select{height:42px}.textarea{min-height:104px;padding:12px;line-height:1.5;resize:vertical}.toggle-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}.toggle{width:52px;height:28px;border-radius:999px;border:0;background:#334155;position:relative;cursor:pointer}.toggle::after{content:'';position:absolute;width:22px;height:22px;top:3px;left:3px;border-radius:50%;background:#fff;transition:transform .18s}.toggle.on{background:var(--gold)}.toggle.on::after{transform:translateX(24px)}.toggle-text{font-size:13px;color:#cbd5e1}.preset-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.preset{min-height:38px;border:1px solid rgba(148,163,184,.22);background:#111827;color:#cbd5e1;border-radius:3px;padding:0 10px;text-align:left;font:500 12px 'DM Sans',sans-serif;cursor:pointer}.preset:hover{border-color:rgba(196,160,90,.45);color:#f6d28b}.preview{background:#1c1917;border:1px solid rgba(196,160,90,.38);border-radius:4px;padding:16px;text-align:center}.preview-message{font-size:14px;line-height:1.5}.preview-cta{display:inline-block;margin-top:12px;border:1px solid rgba(247,214,139,.48);border-radius:999px;padding:8px 12px;color:#f6d28b;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.status{font-size:12px;color:#94a3b8}.status.ok{color:#86efac}.status.err{color:#fecaca}.planned{background:var(--panel);border:1px dashed rgba(148,163,184,.28);border-radius:5px;padding:34px;color:#94a3b8;line-height:1.7}.planned strong{color:#e2e8f0}
+@media(max-width:900px){.ogm-nav-bar{padding:0 16px}.ogm-nav-badge{display:none}.hero{display:block;padding:32px 22px}.display{font-size:46px}.hero-actions{justify-content:flex-start;margin-top:18px}.layout{grid-template-columns:1fr}.side{border-right:0;border-bottom:1px solid rgba(255,255,255,.08)}.main{padding:22px}.grid,.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+</style>
+<script>try{if(localStorage.getItem('ogm-theme')==='dark')document.documentElement.setAttribute('data-ogm-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="ogm-theme-toggle.css?v=20260516p">
+<script src="ogm-theme-toggle.js?v=20260516o" defer></script>
+<link rel="stylesheet" href="ogm-accessibility.css?v=20260516c">
+<script src="ogm-accessibility.js?v=20260516o" defer></script>
+</head>
+<body>
+<div class="ogm-nav-bar">
+  <div class="ogm-nav-left">
+    <span class="ogm-nav-logo">OGM</span>
+    <nav class="ogm-nav-links">
+      <a class="ogm-nav-link" href="hub.php">⌂ Hub</a>
+      <a class="ogm-nav-link" href="index.php">✦ Stone</a>
+      <a class="ogm-nav-link" href="stone-catalog.php">◇ Catalog</a>
+      <a class="ogm-nav-link" href="website-leads.php">◉ Leads</a>
+      <a class="ogm-nav-link active" href="website-manager.php">▤ Website</a>
+      <a class="ogm-nav-link" href="sop.php">▣ SOP</a>
+    </nav>
+  </div>
+  <span class="ogm-nav-badge">Public site controls</span>
+</div>
+
+<section class="hero">
+  <div>
+    <h1 class="display">
+      <span class="headline-line">Website Manager</span>
+      <span class="headline-line headline-nowrap">Live Controls</span>
+    </h1>
+    <div class="subtitle">Content · SEO · galleries · leads · emergency updates</div>
+  </div>
+  <div class="hero-actions">
+    <button class="btn secondary" type="button" onclick="loadBanner()">Reload</button>
+    <button class="btn" type="button" onclick="saveBanner()">Save Banner</button>
+  </div>
+</section>
+
+<div class="layout">
+  <aside class="side">
+    <div class="side-title">Website Manager</div>
+    <button class="tab active" type="button" data-tab="banner" onclick="showTab('banner')">Emergency Banner</button>
+    <button class="tab" type="button" data-tab="content" onclick="showTab('content')">Content</button>
+    <button class="tab" type="button" data-tab="seo" onclick="showTab('seo')">SEO</button>
+    <button class="tab" type="button" data-tab="gallery" onclick="showTab('gallery')">Gallery</button>
+    <button class="tab" type="button" data-tab="leads" onclick="showTab('leads')">Lead Forms</button>
+    <button class="tab" type="button" data-tab="inventory" onclick="showTab('inventory')">Inventory Sync</button>
+  </aside>
+
+  <main class="main">
+    <section class="panel active" id="panel-banner">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">Emergency Banner</h2>
+          <p class="panel-copy">Control a public website announcement for holiday hours, weather closures, financing promos, hiring notices, and showroom events.</p>
+        </div>
+        <div class="status" id="status">Loading...</div>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="toggle-row">
+            <button class="toggle" id="active-toggle" type="button" aria-pressed="false" onclick="toggleActive()"></button>
+            <span class="toggle-text" id="active-text">Banner is off</span>
+          </div>
+          <div class="form-grid">
+            <div class="field full">
+              <span class="label">Preset</span>
+              <div class="preset-grid">
+                <button class="preset" type="button" onclick="applyPreset('holiday')">Holiday hours</button>
+                <button class="preset" type="button" onclick="applyPreset('weather')">Weather closure</button>
+                <button class="preset" type="button" onclick="applyPreset('financing')">Financing promo</button>
+                <button class="preset" type="button" onclick="applyPreset('hiring')">Now hiring</button>
+                <button class="preset" type="button" onclick="applyPreset('event')">Showroom event</button>
+                <button class="preset" type="button" onclick="applyPreset('custom')">Custom</button>
+              </div>
+            </div>
+            <div class="field full">
+              <label class="label" for="message">Message</label>
+              <textarea class="textarea" id="message" maxlength="240" oninput="renderPreview()" placeholder="Example: We will be closed Friday due to weather and will reopen Monday at 8 AM."></textarea>
+            </div>
+            <div class="field">
+              <label class="label" for="cta-label">CTA label</label>
+              <input class="input" id="cta-label" maxlength="40" oninput="renderPreview()" placeholder="Call us">
+            </div>
+            <div class="field">
+              <label class="label" for="cta-url">CTA URL</label>
+              <input class="input" id="cta-url" oninput="renderPreview()" placeholder="contact.html">
+            </div>
+            <div class="field">
+              <label class="label" for="start-at">Start date</label>
+              <input class="input" id="start-at" type="date" onchange="renderPreview()">
+            </div>
+            <div class="field">
+              <label class="label" for="end-at">End date</label>
+              <input class="input" id="end-at" type="date" onchange="renderPreview()">
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Public Preview</div>
+          <div class="preview" id="preview"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-content"><div class="planned"><strong>Content editing is planned.</strong><br>Future controls will manage homepage sections, service pages, city pages, CTAs, FAQs, testimonials, and pricing notices without touching code.</div></section>
+    <section class="panel" id="panel-seo"><div class="planned"><strong>SEO controls are planned.</strong><br>Future controls will manage title tags, meta descriptions, schema, redirects, image alt text, internal links, and page health checks.</div></section>
+    <section class="panel" id="panel-gallery"><div class="planned"><strong>Gallery updates are planned.</strong><br>Future controls will manage install photos, before/after galleries, edge profiles, slab highlights, trends, and generated snippets.</div></section>
+    <section class="panel" id="panel-leads"><div class="planned"><strong>Lead form controls are planned.</strong><br>Future controls will review form status, routing, alerts, spam checks, and source tracking. Website Leads remains the live lead dashboard.</div></section>
+    <section class="panel" id="panel-inventory"><div class="planned"><strong>Inventory sync is planned.</strong><br>Future controls will connect website slab/product visibility to the internal catalog and inventory sources.</div></section>
+  </main>
+</div>
+
+<script>
+const API = 'website-manager-api.php';
+const PRESETS = {
+  holiday: {message:'Holiday hours update: our showroom hours have changed for the holiday. Please call before visiting.', ctaLabel:'Call us', ctaUrl:'contact.html'},
+  weather: {message:'Weather update: our showroom schedule may change due to local conditions. Please call before visiting.', ctaLabel:'Call us', ctaUrl:'contact.html'},
+  financing: {message:'Financing options are available for qualifying countertop and shower projects.', ctaLabel:'Learn more', ctaUrl:'contact.html'},
+  hiring: {message:'Now hiring: Olive Glass & Marble is accepting applications for motivated team members.', ctaLabel:'Contact us', ctaUrl:'contact.html'},
+  event: {message:'Showroom event: visit Olive Glass & Marble to explore materials, finishes, and project ideas.', ctaLabel:'Visit us', ctaUrl:'contact.html'},
+  custom: {message:'', ctaLabel:'', ctaUrl:''}
+};
+let active = false;
+let preset = 'custom';
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function setStatus(text, cls){const el=$('status'); if(!el)return; el.textContent=text; el.className='status '+(cls||'');}
+function showTab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+name));}
+function toggleActive(){active=!active;syncToggle();renderPreview();}
+function syncToggle(){const b=$('active-toggle');b.classList.toggle('on',active);b.setAttribute('aria-pressed',active?'true':'false');$('active-text').textContent=active?'Banner is on':'Banner is off';}
+function applyPreset(name){preset=name;const p=PRESETS[name]||PRESETS.custom;if(p.message)$('message').value=p.message;$('cta-label').value=p.ctaLabel||'';$('cta-url').value=p.ctaUrl||'';renderPreview();}
+function getBanner(){return {active,preset,message:$('message').value.trim(),ctaLabel:$('cta-label').value.trim(),ctaUrl:$('cta-url').value.trim(),startAt:$('start-at').value,endAt:$('end-at').value};}
+function renderPreview(){const b=getBanner();const host=$('preview');if(!b.active){host.innerHTML='<div class="preview-message">Banner is off. Public pages will show nothing.</div>';return;}host.innerHTML='<div class="preview-message">'+esc(b.message||'Enter a message to preview the banner.')+'</div>'+((b.ctaLabel&&b.ctaUrl)?'<span class="preview-cta">'+esc(b.ctaLabel)+'</span>':'');}
+function fillBanner(b){active=!!b.active;preset=b.preset||'custom';$('message').value=b.message||'';$('cta-label').value=b.ctaLabel||'';$('cta-url').value=b.ctaUrl||'';$('start-at').value=b.startAt||'';$('end-at').value=b.endAt||'';syncToggle();renderPreview();}
+async function loadBanner(){setStatus('Loading...');const res=await fetch(API,{cache:'no-store'});const data=await res.json();if(!data.ok)throw new Error(data.error||'Could not load banner.');fillBanner(data.banner||{});setStatus('Loaded.','ok');}
+async function saveBanner(){const banner=getBanner();if(banner.active&&!banner.message){alert('Active banner needs a message.');return;}setStatus('Saving...');const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({banner})});const data=await res.json();if(!data.ok)throw new Error(data.error||'Could not save banner.');fillBanner(data.banner||banner);setStatus('Saved.','ok');}
+loadBanner().catch(err=>{console.error(err);setStatus(err.message||'Load failed.','err');renderPreview();});
+</script>
+</body>
+</html>

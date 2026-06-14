@@ -1,0 +1,20 @@
+Task: Auto Google Maps distance pricing for Stone Quoter
+Timestamp: 2026-06-09 11:35:46 America/New_York
+
+Fresh GoDaddy pull:
+- /Users/tanyawhite/OGM/fresh-godaddy-pulls/2026-06-09-1135-distance-pricing/ogm-quoter-internal.html
+
+Local backups:
+- /Users/tanyawhite/OGM/backups/2026-06-09-1135-distance-pricing/ogm-quoter-internal.backup-before-distance-pricing-20260609-113546.html
+- /Users/tanyawhite/OGM/quoter-tool-working/ogm-quoter-internal.backup-before-distance-pricing-20260609-113546.html
+
+Working files touched:
+- /Users/tanyawhite/OGM/quoter-tool-working/ogm-quoter-internal.html
+- /Users/tanyawhite/OGM/quoter-tool-working/maps-distance-api.php
+
+Reason:
+- Add quote-level automatic Google Maps distance pricing, address suggestions, manual distance override, zero-dollar customer-document suppression, saved quote distance state, and legacy room distance migration.
+
+Remote notes:
+- maps-distance-api.php did not exist on GoDaddy before this change.
+- .data/google-maps-api-key.json did not exist on GoDaddy at verification time.

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGM — Internal Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#faf8f3;--warm:#f5f2ea;--s50:#f7f5ef;--s100:#eae6da;--s200:#d4cfc0;
+  --s300:#b8b09c;--s500:#7a7260;--s700:#4a4538;--s900:#1c1917;
+  --gold:#9e7c3a;--gold-l:#c4a05a;--gold-p:#f0e6cc;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--s900);color:#fff;font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;display:flex;flex-direction:column}
+
+/* NAV */
+.ogm-nav-bar{background:#0c0f14;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:1px solid rgba(158,124,58,.25)}
+.ogm-nav-logo{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:.16em;color:#fff;margin-right:20px}
+.ogm-nav-left{display:flex;align-items:center}
+.ogm-nav-links{display:flex;gap:2px}
+.ogm-nav-link{padding:6px 14px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;border-radius:2px;transition:all .15s;border:1px solid transparent}
+.ogm-nav-link:hover{color:rgba(255,255,255,.75);background:rgba(255,255,255,.05)}
+.ogm-nav-link.active{color:var(--gold-l);border-color:rgba(196,160,90,.3);background:rgba(196,160,90,.07)}
+.ogm-nav-badge{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#334155}
+
+/* HERO */
+.hero{padding:60px 40px 40px;text-align:center;border-bottom:1px solid rgba(255,255,255,.06)}
+.hero-eyebrow{font-size:10px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-l);margin-bottom:16px}
+.hero-logo{font-family:'Cormorant Garamond',serif;font-size:72px;font-weight:300;letter-spacing:.1em;color:#fff;line-height:1}
+.hero-sub{font-size:13px;letter-spacing:.1em;color:var(--s300);margin-top:8px}
+.gold-line{width:60px;height:1px;background:var(--gold);margin:20px auto}
+.hero-hint{font-size:12px;color:var(--s500);letter-spacing:.04em}
+
+/* STATS */
+.stats-section{padding:28px 40px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;gap:0}
+.stat-block{flex:1;padding:0 28px;border-right:1px solid rgba(255,255,255,.07);text-align:center}
+.stat-block:first-child{padding-left:0}
+.stat-block:last-child{border-right:none}
+.stat-v{font-family:'DM Mono',monospace;font-size:28px;font-weight:400;color:var(--gold-l);line-height:1;margin-bottom:5px}
+.stat-v.white{color:#fff}
+.stat-l{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--s500)}
+.stat-note{font-size:10px;color:var(--s500);margin-top:3px;font-family:'DM Mono',monospace}
+
+/* TOOL CARDS */
+.tools-section{padding:32px 40px;flex:1}
+.tools-title{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--s500);margin-bottom:20px}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.tool-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:24px;cursor:pointer;transition:all .2s;text-decoration:none;display:block;position:relative;overflow:hidden}
+.tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:background .2s}
+.tool-card:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);transform:translateY(-1px)}
+.tool-card.gold::before{background:var(--gold)}
+.tool-card.blue::before{background:#3b82f6}
+.tool-card.green::before{background:#22c55e}
+.tool-card.reports::before{background:#a855f7}
+.tool-card.schedule::before{background:#0891b2}
+.tool-card.leads::before{background:#f59e0b}
+.tool-card.glass::before{background:#0ea5e9}
+.tool-card.muted{opacity:.5;cursor:not-allowed}
+.tool-card.muted:hover{transform:none;background:rgba(255,255,255,.03)}
+.tool-icon{font-size:28px;margin-bottom:14px;display:block;line-height:1}
+.tool-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:#fff;letter-spacing:.03em;margin-bottom:6px}
+.tool-desc{font-size:12px;color:var(--s500);line-height:1.65}
+.tool-tag{position:absolute;top:14px;right:14px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:2px;font-family:'DM Sans',sans-serif}
+.tag-live{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.tag-soon{background:rgba(100,116,139,.1);color:#64748b;border:1px solid rgba(100,116,139,.15)}
+
+/* RECENT ACTIVITY */
+.activity-section{padding:0 40px 32px}
+.activity-title{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--s500);margin-bottom:14px}
+.activity-list{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
+.activity-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;gap:12px}
+.activity-row:last-child{border-bottom:none}
+.act-type{font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border-radius:2px;flex-shrink:0;font-family:'DM Sans',sans-serif}
+.act-q{background:rgba(59,130,246,.12);color:#93c5fd;border:1px solid rgba(59,130,246,.2)}
+.act-c{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.18)}
+.act-name{color:#e2e8f0;font-weight:400;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+a.act-name-link{color:#e2e8f0;text-decoration:none;border-bottom:1px solid transparent;transition:color .15s,border-color .15s}
+a.act-name-link:hover{color:var(--gold-l);border-bottom-color:rgba(196,160,90,.45)}
+.act-meta{color:var(--s500);font-family:'DM Mono',monospace;font-size:11px;flex-shrink:0}
+.act-total{color:var(--gold-l);font-family:'DM Mono',monospace;font-size:11px;flex-shrink:0}
+.act-empty{padding:20px;text-align:center;color:var(--s500);font-size:13px;font-style:italic}
+.act-link{color:rgba(255,255,255,.3);font-size:11px;text-decoration:none;flex-shrink:0}
+.act-link:hover{color:var(--gold-l)}
+
+/* FOOTER */
+.hub-footer{padding:16px 40px;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center}
+.hub-footer-l{font-size:11px;color:var(--s500);line-height:1.7}
+.hub-footer-r{font-size:10px;color:#334155;letter-spacing:.08em}
+
+@media(max-width:800px){
+  .tool-grid{grid-template-columns:1fr}
+  .stats-section{flex-wrap:wrap}
+  .stat-block{flex:1 1 40%;padding:12px;text-align:left}
+  .ogm-nav-bar,.tools-section,.stats-section,.activity-section,.hub-footer{padding-left:20px;padding-right:20px}
+}
+</style>
+<script>try{if(localStorage.getItem('ogm-theme')==='dark')document.documentElement.setAttribute('data-ogm-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="ogm-theme-toggle.css?v=20260516p">
+<script src="ogm-theme-toggle.js?v=20260516o" defer></script>
+<link rel="stylesheet" href="ogm-accessibility.css?v=20260516c">
+<script src="ogm-accessibility.js?v=20260516o" defer></script>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="ogm-nav-bar">
+  <div class="ogm-nav-left">
+    <span class="ogm-nav-logo" style="margin-right:20px">OGM</span>
+    <nav class="ogm-nav-links">
+      <a class="ogm-nav-link active" href="#">⌂ Hub</a>
+      <a class="ogm-nav-link" href="index.php">✦ Stone</a>
+      <a class="ogm-nav-link" href="glass-quoter.php">◈ Glass</a>
+      <a class="ogm-nav-link" href="shower-builder.php">🚿 Shower</a>
+      <a class="ogm-nav-link" href="customer-db.php">◎ Customers</a>
+      <a class="ogm-nav-link" href="job-tracking.php">◈ Jobs</a>
+      <a class="ogm-nav-link" href="message-center.php">✉ Messages</a>
+      <a class="ogm-nav-link" href="invoice-manager.php">◻ Invoices</a>
+      <a class="ogm-nav-link" href="sales-reports.php">◑ Reports</a>
+      <a class="ogm-nav-link" href="calendar.php">📅 Schedule</a>
+      <a class="ogm-nav-link" href="website-leads.php">◉ Leads</a>
+    </nav>
+  </div>
+  <span class="ogm-nav-badge">Internal — Not Client Facing</span>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">714 Robeson Street &nbsp;·&nbsp; Fayetteville, NC &nbsp;·&nbsp; (910) 484-5277</div>
+  <div class="hero-logo">OGM</div>
+  <div class="hero-sub">Olive Glass &amp; Marble &nbsp;·&nbsp; Sales Operations Hub</div>
+  <div class="gold-line"></div>
+  <div class="hero-hint">Internal tool suite — all activity stays in-house</div>
+</div>
+
+<!-- STATS -->
+<div class="stats-section">
+  <div class="stat-block"><div class="stat-v" id="h-customers">—</div><div class="stat-l">Customers</div></div>
+  <div class="stat-block"><div class="stat-v white" id="h-quotes">—</div><div class="stat-l">Quotes Saved</div></div>
+  <div class="stat-block"><div class="stat-v" id="h-active">—</div><div class="stat-l">Active Jobs</div></div>
+  <div class="stat-block"><div class="stat-v white" id="h-revenue">—</div><div class="stat-l">Total Quote Value</div><div class="stat-note" id="h-rev-note">from saved quotes</div></div>
+</div>
+
+<!-- TOOLS -->
+<div class="tools-section">
+  <div class="tools-title">Tools</div>
+  <div class="tool-grid">
+
+    <a class="tool-card gold" href="index.php">
+      <span class="tool-tag tag-live">Live</span>
+      <span class="tool-icon">✦</span>
+      <div class="tool-name">Stone Quote Builder</div>
+      <div class="tool-desc">Multi-room pricing matrix, slab analysis, ROI calculator, all pricing methods, addons, and proposal generation.</div>
+    </a>
+
+    <a class="tool-card glass" href="glass-quoter.php">
+      <span class="tool-tag tag-live">Live</span>
+      <span class="tool-icon">◈</span>
+      <div class="tool-name">Glass Line Items</div>
+      <div class="tool-desc">Shower and flat glass line items, deposits, and proposals — saved with the same customer and invoice flow as stone.</div>
+    </a>
+
+    <a class="tool-card blue" href="customer-db.php">
+      <span class="tool-tag tag-live">Live</span>
+      <span class="tool-icon">◎</span>
+      <div class="tool-name">Customer Database</div>
+      <div class="tool-desc">Full customer profiles, quote history, notes log, address book, status tracking, and CSV export.</div>
+    </a>
+
+    <a class="tool-card green" href="job-tracking.php">
+      <span class="tool-tag tag-live">Live</span>
+      <span class="tool-icon">◈</span>
+      <div class="tool-name">Job Tracking</div>
+      <div class="tool-desc">ClickUp-backed job board for countertop, shower, and custom glass work with notes, documents, and next-action tracking.</div>
+    </a>
+
+    <a class="tool-card gold" href="message-center.php">
+      <span class="tool-tag tag-live">Live</span>
+      <span class="tool-icon">✉</span>
+      <div class="tool-name">Message Center</div>
+      <div class="tool-desc">Log customer callbacks, assign to reps, and close with resolution notes visible on the customer record.</div>
+    </a>
+
+    <a class="tool-card green" href="invoice-manager.php">
+      <span class="tool-tag tag-live">Live</span>
+      <span class="tool-icon">◻</span>
+      <div class="tool-name">Invoice Manager</div>
+      <div class="tool-desc">Track deposits, balances, receipts, and QuickBooks sync from the same interface as the quote.</div>
+    </a>
+
+    <div class="tool-card muted" onclick="comingSoon('Stone Catalog')">
+      <span class="tool-tag tag-soon">Soon</span>
+      <span class="tool-icon">◇</span>
+      <div class="tool-name">Stone Catalog</div>
+      <div class="tool-desc">Centrally manage the full stone inventory, pricing updates, and new product additions across all tools.</div>
+    </div>
+
+    <a class="tool-card reports" href="sales-reports.php">
+      <span class="tool-tag tag-live">Live</span>
+      <span class="tool-icon">◑</span>
+      <div class="tool-name">Sales Reports</div>
+      <div class="tool-desc">Rep performance, revenue by stone type, quote-to-close rate, and monthly summaries.</div>
+    </a>
+
+    <a class="tool-card schedule" href="calendar.php">
+      <span class="tool-tag tag-live">Live</span>
+      <span class="tool-icon">📅</span>
+      <div class="tool-name">Schedule</div>
+      <div class="tool-desc">Team calendar, installs, and Google Calendar sync.</div>
+    </a>
+
+    <a class="tool-card leads" href="website-leads.php">
+      <span class="tool-tag tag-live">Live</span>
+      <span class="tool-icon">◉</span>
+      <div class="tool-name">Website Leads</div>
+      <div class="tool-desc">Contact form, chat, and Meta DM leads — assign reps, track status, and manage alerts.</div>
+    </a>
+
+  </div>
+</div>
+
+<!-- RECENT ACTIVITY -->
+<div class="activity-section">
+  <div class="activity-title">Recent Activity</div>
+  <div class="activity-list" id="activity-list">
+    <div class="act-empty">Loading…</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="hub-footer">
+  <div class="hub-footer-l">
+    Olive Glass &amp; Marble &nbsp;·&nbsp; 714 Robeson Street, Fayetteville, NC 28305<br>
+    (910) 484-5277 &nbsp;·&nbsp; www.oliveglassandmarble.com
+  </div>
+  <div class="hub-footer-r">Internal Operations Suite &nbsp;·&nbsp; Not Client Facing</div>
+</div>
+
+<script src="ogm-server-sync.js?v=20260503"></script>
+<script>
+async function loadHubData() {
+  let customers = 0, active = 0, quotes = 0, revenue = 0;
+  const activity = [];
+
+  try {
+    // Load customers
+    const ck = await window.storage.list('ogm-cust-');
+    const custKeys = (ck && ck.keys) || [];
+    customers = custKeys.length;
+    for (const key of custKeys) {
+      try {
+        const r = await window.storage.get(key);
+        if (!r||!r.value) continue;
+        const c = JSON.parse(r.value);
+        if (c.status === 'active') active++;
+        activity.push({
+          type:'customer', name:[c.firstName,c.lastName].filter(Boolean).join(' ')||'—',
+          meta: c.status||'prospect', date: c.updatedAt||c.createdAt||'', id: c.id,
+          total: null
+        });
+      } catch(e){}
+    }
+  } catch(e){}
+
+  try {
+    // Load quotes
+    const qk = await window.storage.list('ogm-quote-');
+    const quoteKeys = (qk && qk.keys) || [];
+    quotes = quoteKeys.length;
+    for (const key of quoteKeys) {
+      try {
+        const r = await window.storage.get(key);
+        if (!r||!r.value) continue;
+        const q = JSON.parse(r.value);
+        revenue += parseFloat(q.total)||0;
+        activity.push({
+          type:'quote', name: q.name||'Unnamed',
+          meta: q.invoiceNumber||q.quoteNumber||'—',
+          date: q.savedAt||'', id: null, total: q.total,
+          custId: q.linkedCustomerId,
+          quoteNumber: q.quoteNumber != null && q.quoteNumber !== '' ? String(q.quoteNumber) : '',
+          productLine: q.productLine || ''
+        });
+      } catch(e){}
+    }
+  } catch(e){}
+
+  // Update stats
+  document.getElementById('h-customers').textContent = customers;
+  document.getElementById('h-quotes').textContent = quotes;
+  document.getElementById('h-active').textContent = active;
+  document.getElementById('h-revenue').textContent = revenue > 0
+    ? '$' + revenue.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})
+    : '$0';
+
+  // Render activity — sort by date desc, take 10
+  activity.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const list = document.getElementById('activity-list');
+  if (!activity.length) {
+    list.innerHTML = '<div class="act-empty">No activity yet — open the Quoter or Customer DB to get started</div>';
+    return;
+  }
+  list.innerHTML = activity.slice(0,10).map(a => {
+    const typeTag = a.type === 'quote'
+      ? '<span class="act-type act-q">Quote</span>'
+      : '<span class="act-type act-c">Customer</span>';
+    const link = a.type === 'customer' && a.id
+      ? `<a class="act-link" href="customer-db.php?cid=${encodeURIComponent(a.id)}">View →</a>`
+      : a.type === 'quote' && a.custId
+        ? `<a class="act-link" href="customer-db.php?cid=${encodeURIComponent(a.custId)}">Customer →</a>`
+        : '';
+    const nameHtml = a.type === 'quote' && a.quoteNumber
+      ? `<a class="act-name act-name-link" href="${a.productLine === 'glass' ? 'glass-quoter.php?inv=' : 'index.php?qid='}${encodeURIComponent(a.quoteNumber)}" target="_blank" rel="noopener">${esc(a.name)}</a>`
+      : `<span class="act-name">${esc(a.name)}</span>`;
+    const total = a.total ? `<span class="act-total">$${parseFloat(a.total).toLocaleString('en-US',{minimumFractionDigits:0})}</span>` : '';
+    const dateStr = a.date ? new Date(a.date).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+    return `<div class="activity-row">
+      ${typeTag}
+      ${nameHtml}
+      <span class="act-meta">${esc(a.meta)}</span>
+      ${total}
+      <span class="act-meta">${dateStr}</span>
+      ${link}
+    </div>`;
+  }).join('');
+}
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function comingSoon(tool) {
+  alert(tool + ' is coming soon. The Quoter and Customer Database are live now.');
+}
+
+document.addEventListener('DOMContentLoaded', loadHubData);
+</script>
+</body>
+</html>

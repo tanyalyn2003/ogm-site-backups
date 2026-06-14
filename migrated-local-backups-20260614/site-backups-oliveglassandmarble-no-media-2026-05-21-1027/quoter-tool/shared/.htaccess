@@ -1,0 +1,10 @@
+# Shared viewer snapshots should not be directly web-accessible.
+# The public viewer reads them server-side by token.
+<IfModule mod_authz_core.c>
+Options -Indexes
+Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+Order allow,deny
+Deny from all
+</IfModule>

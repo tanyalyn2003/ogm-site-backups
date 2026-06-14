@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGM — Invoice Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#faf8f3;--s100:#eae6da;--s200:#d4cfc0;--s300:#b8b09c;--s500:#7a7260;--s700:#4a4538;--s900:#1c1917;
+  --gold:#9e7c3a;--gold-l:#c4a05a;--ink:#0f172a;--panel:#16213e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--cream);color:var(--s900);font-family:'DM Sans',sans-serif;font-weight:300;font-size:14px;line-height:1.5;min-height:100vh}
+
+.ogm-nav-bar{background:#0c0f14;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:1px solid rgba(158,124,58,.25)}
+.ogm-nav-logo{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:.16em;color:#fff;margin-right:20px}
+.ogm-nav-left{display:flex;align-items:center}
+.ogm-nav-links{display:flex;gap:2px;flex-wrap:wrap}
+.ogm-nav-link{padding:6px 14px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;border-radius:2px;transition:all .15s;border:1px solid transparent}
+.ogm-nav-link:hover{color:rgba(255,255,255,.75);background:rgba(255,255,255,.05)}
+.ogm-nav-link.active{color:var(--gold-l);border-color:rgba(196,160,90,.3);background:rgba(196,160,90,.07)}
+.ogm-nav-badge{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#334155}
+
+.page{padding:28px 40px 48px;max-width:1280px;margin:0 auto}
+.page-head{margin-bottom:22px}
+.page-head h1{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:400;color:var(--s900);letter-spacing:.06em}
+.page-head p{color:var(--s500);font-size:13px;margin-top:6px;max-width:720px}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px}
+.search-inp{flex:1;min-width:200px;max-width:360px;padding:10px 14px;border:1px solid var(--s200);border-radius:2px;font-family:inherit;font-size:13px;background:#fff}
+.search-inp:focus{outline:none;border-color:var(--gold)}
+.filter-row{display:flex;flex-wrap:wrap;gap:6px}
+.filter-chip{padding:5px 12px;border-radius:2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--s200);color:var(--s500);background:#fff;cursor:pointer;font-family:'DM Sans',sans-serif}
+.filter-chip:hover{border-color:var(--s300);color:var(--s700)}
+.filter-chip.on{background:rgba(158,124,58,.12);border-color:rgba(158,124,58,.4);color:var(--gold)}
+.btn-refresh,.btn-export{padding:9px 18px;border:1px solid var(--s200);border-radius:2px;background:#fff;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--s700);cursor:pointer;transition:border-color .15s,color .15s}
+.btn-refresh:hover,.btn-export:hover{border-color:var(--gold);color:var(--gold)}
+.inv-meta{font-size:11px;color:var(--s500);align-self:center;flex:1;min-width:140px;text-align:right}
+
+.report-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 16px;margin-bottom:16px;background:#fff;border:1px solid var(--s200);border-radius:4px}
+.report-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--s500);flex-shrink:0}
+.report-range{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.week-btn{width:32px;height:32px;padding:0;border:1px solid var(--s200);border-radius:2px;background:#fff;color:var(--s700);font-size:14px;line-height:1;cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s}
+.week-btn:hover{border-color:var(--gold);color:var(--gold)}
+.date-inp{padding:7px 10px;border:1px solid var(--s200);border-radius:2px;font-family:'DM Mono',monospace;font-size:12px;background:#fff;color:var(--s900);min-width:132px}
+.date-inp:focus{outline:none;border-color:var(--gold)}
+.range-sep{font-size:11px;color:var(--s500);letter-spacing:.06em}
+.report-stat{font-size:11px;color:var(--s500);font-family:'DM Mono',monospace;margin-left:auto}
+.report-stat strong{color:var(--s900);font-weight:500}
+.report-totals{display:flex;flex-wrap:wrap;gap:14px 20px;width:100%;padding-top:10px;margin-top:2px;border-top:1px solid var(--s100);font-size:11px;color:var(--s500)}
+.report-totals .rt-val{font-family:'DM Mono',monospace;color:var(--s900);font-size:13px;margin-left:4px}
+
+.table-wrap{border:1px solid var(--s200);border-radius:4px;background:#fff;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;background:var(--s900);color:#e2e8f0;font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;border-bottom:1px solid #0f172a}
+td{padding:10px 12px;border-bottom:1px solid var(--s100);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#faf8f3}
+.mono{font-family:'DM Mono',monospace;font-size:12px;color:var(--s700)}
+.phase{display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.ph-Draft{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0}
+.ph-Quoted{background:rgba(59,130,246,.1);color:#2563eb;border:1px solid rgba(59,130,246,.2)}
+.ph-Deposit{background:rgba(217,119,6,.1);color:#b45309;border:1px solid rgba(217,119,6,.25)}
+.ph-Invoiced{background:rgba(22,101,52,.1);color:#166534;border:1px solid rgba(34,197,94,.25)}
+a.row-link{color:var(--gold);text-decoration:none;font-size:11px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+a.row-link:hover{text-decoration:underline}
+.empty{padding:40px;text-align:center;color:var(--s500);font-size:14px}
+.err{color:#b91c1c;font-size:13px;margin-top:8px}
+
+@media(max-width:800px){
+  .ogm-nav-bar,.page{padding-left:20px;padding-right:20px}
+}
+</style>
+<script>try{if(localStorage.getItem('ogm-theme')==='dark')document.documentElement.setAttribute('data-ogm-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="ogm-theme-toggle.css?v=20260516p">
+<script src="ogm-theme-toggle.js?v=20260516o" defer></script>
+<link rel="stylesheet" href="ogm-accessibility.css?v=20260516c">
+<script src="ogm-accessibility.js?v=20260516o" defer></script>
+</head>
+<body>
+
+<div class="ogm-nav-bar">
+  <div class="ogm-nav-left">
+    <span class="ogm-nav-logo">OGM</span>
+    <nav class="ogm-nav-links">
+      <a class="ogm-nav-link" href="hub.php">⌂ Hub</a>
+      <a class="ogm-nav-link" href="index.php">✦ Stone</a>
+      <a class="ogm-nav-link" href="glass-quoter.php">◈ Glass</a>
+      <a class="ogm-nav-link" href="shower-builder.php">🚿 Shower</a>
+      <a class="ogm-nav-link" href="customer-db.php">◎ Customers</a>
+      <a class="ogm-nav-link" href="job-tracking.php">◈ Jobs</a>
+      <a class="ogm-nav-link" href="message-center.php">✉ Messages</a>
+      <a class="ogm-nav-link active" href="#">◻ Invoices</a>
+      <a class="ogm-nav-link" href="sales-reports.php">◑ Reports</a>
+      <a class="ogm-nav-link" href="calendar.php">📅 Schedule</a>
+      <a class="ogm-nav-link" href="website-leads.php">◉ Leads</a>
+    </nav>
+  </div>
+  <span class="ogm-nav-badge">Internal — Not Client Facing</span>
+</div>
+
+<div class="page">
+  <div class="page-head">
+    <h1>Invoice Manager</h1>
+    <p>Invoices · deposits · balances</p>
+  </div>
+
+  <div class="report-bar" id="report-bar">
+    <span class="report-label">Report period</span>
+    <div class="report-range">
+      <button type="button" class="week-btn" id="range-prev" title="Previous week (Mon–Fri)" aria-label="Previous week">◀</button>
+      <input type="date" class="date-inp" id="range-from" aria-label="Start date">
+      <span class="range-sep">to</span>
+      <input type="date" class="date-inp" id="range-to" aria-label="End date">
+      <button type="button" class="week-btn" id="range-next" title="Next week (Mon–Fri)" aria-label="Next week">▶</button>
+      <button type="button" class="btn-export" id="inv-export" title="Export visible rows to CSV">↓ Export CSV</button>
+    </div>
+    <span class="report-stat" id="range-stat"></span>
+    <div class="report-totals" id="report-totals"></div>
+  </div>
+
+  <div class="toolbar">
+    <input type="search" class="search-inp" id="inv-search" placeholder="Search name, phone, address, city, invoice #, quote #…" autocomplete="off">
+    <button type="button" class="btn-refresh" id="inv-refresh" title="Reload from server">Refresh</button>
+    <span class="inv-meta" id="inv-meta"></span>
+    <div class="filter-row" id="phase-filters" style="width:100%"></div>
+  </div>
+  <div id="inv-err" class="err" style="display:none"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Quote #</th>
+          <th>Invoice #</th>
+          <th>Date</th>
+          <th>Customer</th>
+          <th>Phase</th>
+          <th>Total</th>
+          <th>Deposit</th>
+          <th>Est. balance</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="inv-tbody"></tbody>
+    </table>
+    <div id="inv-empty" class="empty" style="display:none">No quotes match. Save from the Stone or Glass quoter first.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  let allItems = [];
+  let phaseFilter = 'all';
+  let rangeFrom = '';
+  let rangeTo = '';
+  const PHASES = ['all', 'Draft', 'Quoted', 'Deposit', 'Invoiced'];
+
+  function localDateISO(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+  function parseYMD(s) {
+    if (!s || typeof s !== 'string') return null;
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s.trim());
+    if (!m) return null;
+    const d = new Date(+m[1], +m[2] - 1, +m[3]);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function ymdFromValue(v) {
+    if (!v) return '';
+    const s = String(v).trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) return localDateISO(d);
+    return '';
+  }
+  /** Mon–Fri of the calendar week containing ref (local). */
+  function workWeekMonFri(ref) {
+    const base = ref ? new Date(ref.getTime()) : new Date();
+    const day = base.getDay();
+    const monOff = day === 0 ? -6 : 1 - day;
+    const mon = new Date(base.getFullYear(), base.getMonth(), base.getDate() + monOff);
+    const fri = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 4);
+    return { mon: localDateISO(mon), fri: localDateISO(fri) };
+  }
+  function setRangeInputs(from, to) {
+    rangeFrom = from;
+    rangeTo = to;
+    document.getElementById('range-from').value = from;
+    document.getElementById('range-to').value = to;
+  }
+  function initWorkWeekRange() {
+    const wk = workWeekMonFri(new Date());
+    setRangeInputs(wk.mon, wk.fri);
+  }
+  function shiftRangeWeek(delta) {
+    const fromD = parseYMD(rangeFrom) || new Date();
+    const toD = parseYMD(rangeTo) || fromD;
+    fromD.setDate(fromD.getDate() + delta * 7);
+    toD.setDate(toD.getDate() + delta * 7);
+    setRangeInputs(localDateISO(fromD), localDateISO(toD));
+    renderTable();
+  }
+  function rowReportDate(row) {
+    if (!row) return '';
+    const inv = ymdFromValue(row.invoiceDate);
+    if (inv) return inv;
+    const conv = ymdFromValue(row.convertedAt);
+    if (conv) return conv;
+    const dep = ymdFromValue(row.depositRecordedAt);
+    if (dep) return dep;
+    const qd = ymdFromValue(row.date);
+    if (qd) return qd;
+    return ymdFromValue(row.savedAt);
+  }
+  function inDateRange(row) {
+    const d = rowReportDate(row);
+    if (!d) return false;
+    if (rangeFrom && d < rangeFrom) return false;
+    if (rangeTo && d > rangeTo) return false;
+    return true;
+  }
+  function formatDisplayDate(ymd) {
+    const d = parseYMD(ymd);
+    if (!d) return ymd || '—';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function money(n) {
+    const x = parseFloat(n);
+    if (!isFinite(x)) return '—';
+    return '$' + x.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function estBalance(row) {
+    const g = parseFloat(row.grand);
+    const d = row.depositAmount != null && row.depositAmount !== '' ? parseFloat(row.depositAmount) : 0;
+    if (!isFinite(g)) return null;
+    const dep = isFinite(d) ? d : 0;
+    return g - dep;
+  }
+  function phaseClass(ph) {
+    const p = String(ph || 'Draft').replace(/\s/g, '');
+    return 'phase ph-' + (PHASES.indexOf(p) >= 0 ? p : 'Draft');
+  }
+  function haystack(row) {
+    return [
+      row.id, row.quoteNumber, row.invoiceNumber, row.name, row.phone, row.email, row.job, row.workflowPhase,
+      row.addr, row.city, row.installAddr, row.installCity, row.productLine
+    ].filter(Boolean).join(' ').toLowerCase();
+  }
+
+  function invoiceManagerCustomerKey(row) {
+    var ph = String(row.phone || '').replace(/\D/g, '');
+    if (ph.length >= 7) return 'ph:' + ph;
+    var nm = String(row.name || '').trim().toLowerCase();
+    if (nm && nm !== '—') return 'nm:' + nm;
+    return 'qn:' + String(row.quoteNumber || row.id || '').trim();
+  }
+
+  function mergeInvoiceManagerRows(a, b) {
+    var ga = parseFloat(a.grand);
+    var gb = parseFloat(b.grand);
+    var primary = (isFinite(ga) && ga > 0) ? a : ((isFinite(gb) && gb > 0) ? b : a);
+    var other = primary === a ? b : a;
+    var g1 = isFinite(ga) ? ga : 0;
+    var g2 = isFinite(gb) ? gb : 0;
+    var merged = Object.assign({}, primary);
+    merged.grand = Math.max(g1, g2);
+    merged.invoiceNumber = String(primary.invoiceNumber || other.invoiceNumber || '').trim();
+    merged.invoiceDate = primary.invoiceDate || other.invoiceDate || '';
+    merged.convertedAt = primary.convertedAt || other.convertedAt || '';
+    merged.depositReceiptNumber = primary.depositReceiptNumber || other.depositReceiptNumber || '';
+    merged.depositRecordedAt = primary.depositRecordedAt || other.depositRecordedAt || '';
+    if (merged.depositAmount == null || merged.depositAmount === '') {
+      merged.depositAmount = other.depositAmount != null && other.depositAmount !== '' ? other.depositAmount : null;
+    }
+    var phA = String(a.workflowPhase || '');
+    var phB = String(b.workflowPhase || '');
+    var rank = { Invoiced: 3, Deposit: 2, Quoted: 1, Draft: 0 };
+    if ((rank[phB] || 0) > (rank[phA] || 0)) merged.workflowPhase = phB;
+    if (!merged.productLine && other.productLine) merged.productLine = other.productLine;
+    merged.savedAt = (primary.savedAt || '') >= (other.savedAt || '') ? primary.savedAt : other.savedAt;
+    return merged;
+  }
+
+  function shouldMergeNearDuplicateRows(a, b) {
+    var qnA = String(a.quoteNumber || a.id || '').trim();
+    var qnB = String(b.quoteNumber || b.id || '').trim();
+    if (qnA && qnB && qnA === qnB) return false;
+    if (invoiceManagerCustomerKey(a) !== invoiceManagerCustomerKey(b)) return false;
+    var ta = Date.parse(a.savedAt || '') || 0;
+    var tb = Date.parse(b.savedAt || '') || 0;
+    if (ta && tb && Math.abs(ta - tb) <= 15000) return true;
+    var ga = parseFloat(a.grand) || 0;
+    var gb = parseFloat(b.grand) || 0;
+    return (ga === 0) !== (gb === 0);
+  }
+
+  function dedupeInvoiceManagerRows(rows) {
+    var out = [];
+    var used = new Array(rows.length);
+    for (var i = 0; i < rows.length; i++) {
+      if (used[i]) continue;
+      var merged = rows[i];
+      for (var j = i + 1; j < rows.length; j++) {
+        if (used[j]) continue;
+        if (!shouldMergeNearDuplicateRows(merged, rows[j])) continue;
+        merged = mergeInvoiceManagerRows(merged, rows[j]);
+        used[j] = true;
+      }
+      out.push(merged);
+      used[i] = true;
+    }
+    return out;
+  }
+
+  function summaryToRow(s) {
+    if (!s || typeof s !== 'object') return null;
+    var qn = String(s.quoteNumber || '').trim();
+    if (!qn) return null;
+    var snap = s.glassSnapshot || {};
+    var grand = parseFloat(s.grand != null ? s.grand : s.total);
+    if (!isFinite(grand)) grand = 0;
+    var depRaw = s.depositAmount != null && s.depositAmount !== '' ? s.depositAmount : snap.depositAmt;
+    var depositAmount = null;
+    if (depRaw != null && depRaw !== '' && isFinite(parseFloat(depRaw))) depositAmount = parseFloat(depRaw);
+    return {
+      id: qn,
+      quoteNumber: qn,
+      invoiceNumber: String(s.invoiceNumber || '').trim(),
+      name: s.name || '',
+      phone: s.phone || '',
+      email: s.email || '',
+      job: s.job || '',
+      workflowPhase: s.workflowPhase || 'Quoted',
+      grand: grand,
+      depositAmount: depositAmount,
+      savedAt: s.savedAt || '',
+      invoiceDate: s.invoiceDate || '',
+      convertedAt: s.convertedAt || '',
+      depositRecordedAt: s.depositRecordedAt || '',
+      date: s.date || '',
+      productLine: s.productLine || '',
+      addr: s.addr || '',
+      city: s.city || '',
+      installAddr: s.installAddr || '',
+      installCity: s.installCity || ''
+    };
+  }
+
+  function openHrefForRow(row) {
+    var id = String(row.id || row.quoteNumber || '').trim();
+    if (!id) return 'index.php?qid=';
+    if (row.productLine === 'glass' || /^GLS-/i.test(id)) {
+      var phase = String(row.workflowPhase || '').toLowerCase();
+      var q = 'glass-quoter.php?inv=' + encodeURIComponent(id);
+      if (phase === 'invoiced' || phase === 'deposit' || row.invoiceNumber) {
+        q += '&openInvoice=1';
+      }
+      return q;
+    }
+    return 'index.php?qid=' + encodeURIComponent(id);
+  }
+
+  function renderPhaseChips() {
+    const el = document.getElementById('phase-filters');
+    el.innerHTML = PHASES.map(p => {
+      const label = p === 'all' ? 'All' : p;
+      const on = (p === 'all' && phaseFilter === 'all') || (p !== 'all' && phaseFilter === p);
+      return '<button type="button" class="filter-chip' + (on ? ' on' : '') + '" data-phase="' + esc(p) + '">' + esc(label) + '</button>';
+    }).join('');
+    el.querySelectorAll('.filter-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        phaseFilter = btn.getAttribute('data-phase') || 'all';
+        renderPhaseChips();
+        renderTable();
+      });
+    });
+  }
+
+  function getFilteredRows() {
+    const q = (document.getElementById('inv-search').value || '').toLowerCase().trim();
+    let rows = allItems.slice();
+    rows = rows.filter(inDateRange);
+    if (phaseFilter !== 'all') {
+      rows = rows.filter(r => String(r.workflowPhase || '') === phaseFilter);
+    }
+    if (q) {
+      rows = rows.filter(r => haystack(r).indexOf(q) !== -1);
+    }
+    return rows;
+  }
+  function productLineLabel(row) {
+    return row.productLine === 'glass' ? 'Glass' : 'Stone';
+  }
+  function csvCell(v) {
+    return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  }
+  function exportCSV() {
+    const rows = getFilteredRows();
+    if (!rows.length) {
+      alert('No quotes to export for the current date range and filters.');
+      return;
+    }
+    const headers = [
+      'Quote #', 'Product Line', 'Invoice #', 'Report Date', 'Customer', 'Phone', 'Email', 'Job',
+      'Phase', 'Total', 'Deposit', 'Est. Balance',
+      'Invoice Date', 'Converted At', 'Deposit Recorded At', 'Quote Date',
+      'Service Address', 'Service City', 'Install Address', 'Install City'
+    ];
+    const csvRows = rows.map(function (row) {
+      const bal = estBalance(row);
+      const rptDate = rowReportDate(row);
+      return [
+        row.quoteNumber || row.id || '',
+        productLineLabel(row),
+        row.invoiceNumber || '',
+        rptDate ? formatDisplayDate(rptDate) : '',
+        row.name || '',
+        row.phone || '',
+        row.email || '',
+        row.job || '',
+        row.workflowPhase || 'Draft',
+        isFinite(parseFloat(row.grand)) ? parseFloat(row.grand).toFixed(2) : '',
+        row.depositAmount != null && row.depositAmount !== '' && isFinite(parseFloat(row.depositAmount))
+          ? parseFloat(row.depositAmount).toFixed(2) : '',
+        bal != null && isFinite(bal) ? bal.toFixed(2) : '',
+        ymdFromValue(row.invoiceDate) || '',
+        ymdFromValue(row.convertedAt) || '',
+        ymdFromValue(row.depositRecordedAt) || '',
+        ymdFromValue(row.date) || '',
+        row.addr || '',
+        row.city || '',
+        row.installAddr || '',
+        row.installCity || ''
+      ].map(csvCell);
+    });
+    const csv = [headers.map(csvCell).join(','), csvRows.map(r => r.join(','))].join('\n');
+    const fromPart = rangeFrom || 'start';
+    const toPart = rangeTo || 'end';
+    const filename = 'invoice-manager_' + fromPart + '_to_' + toPart + '.csv';
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function updateReportSummary(rows) {
+    const statEl = document.getElementById('range-stat');
+    const totalsEl = document.getElementById('report-totals');
+    const fromLbl = formatDisplayDate(rangeFrom);
+    const toLbl = formatDisplayDate(rangeTo);
+    statEl.innerHTML = '<strong>' + esc(fromLbl) + '</strong> – <strong>' + esc(toLbl) + '</strong> · ' + rows.length + ' in range';
+    let sumGrand = 0;
+    let sumDep = 0;
+    let sumBal = 0;
+    rows.forEach(function (row) {
+      const g = parseFloat(row.grand);
+      if (isFinite(g)) sumGrand += g;
+      if (row.depositAmount != null && row.depositAmount !== '') {
+        const d = parseFloat(row.depositAmount);
+        if (isFinite(d)) sumDep += d;
+      }
+      const bal = estBalance(row);
+      if (bal != null && isFinite(bal)) sumBal += bal;
+    });
+    totalsEl.innerHTML =
+      '<span>Quotes<span class="rt-val">' + rows.length + '</span></span>'
+      + '<span>Total<span class="rt-val">' + money(sumGrand) + '</span></span>'
+      + '<span>Deposits<span class="rt-val">' + money(sumDep) + '</span></span>'
+      + '<span>Est. balance<span class="rt-val">' + money(sumBal) + '</span></span>';
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('inv-tbody');
+    const empty = document.getElementById('inv-empty');
+    const rows = getFilteredRows();
+    updateReportSummary(rows);
+    if (!rows.length) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      empty.textContent = allItems.length
+        ? 'No quotes in this date range match your search or phase filter.'
+        : 'No saved quotes yet. Save from the Stone or Glass quoter first.';
+      return;
+    }
+    empty.style.display = 'none';
+    tbody.innerHTML = rows.map(row => {
+      const bal = estBalance(row);
+      const ph = row.workflowPhase || 'Draft';
+      const href = openHrefForRow(row);
+      const lineLbl = productLineLabel(row);
+      const rptDate = rowReportDate(row);
+      return '<tr>'
+        + '<td class="mono">' + esc(row.quoteNumber || row.id || '—') + ' <span style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--s500)">' + esc(lineLbl) + '</span></td>'
+        + '<td class="mono">' + esc(row.invoiceNumber || '—') + '</td>'
+        + '<td class="mono" style="font-size:11px">' + esc(rptDate ? formatDisplayDate(rptDate) : '—') + '</td>'
+        + '<td>' + esc(row.name || '—') + '</td>'
+        + '<td><span class="' + phaseClass(ph) + '">' + esc(ph) + '</span></td>'
+        + '<td class="mono">' + money(row.grand) + '</td>'
+        + '<td class="mono">' + (row.depositAmount != null && row.depositAmount !== '' ? money(row.depositAmount) : '—') + '</td>'
+        + '<td class="mono">' + (bal != null && isFinite(bal) ? money(bal) : '—') + '</td>'
+        + '<td><a class="row-link" href="' + esc(href) + '" target="_blank" rel="noopener">Open</a></td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  async function load() {
+    const errEl = document.getElementById('inv-err');
+    const metaEl = document.getElementById('inv-meta');
+    metaEl.textContent = '';
+    errEl.style.display = 'none';
+    let stoneItems = [];
+    let summaries = [];
+    let stoneErr = '';
+    let sumErr = '';
+    try {
+      const r = await fetch('quotes-api.php?action=list', { credentials: 'same-origin' });
+      const data = await r.json().catch(() => ({}));
+      if (r.ok && data && data.ok && Array.isArray(data.items)) {
+        stoneItems = data.items;
+      } else {
+        stoneErr = (data && data.error) || ('Stone quotes HTTP ' + r.status);
+      }
+    } catch (e) {
+      stoneErr = 'Could not load stone quote index.';
+    }
+    try {
+      const r2 = await fetch('customers-api.php?action=list-quote-summaries', { credentials: 'same-origin' });
+      const data2 = await r2.json().catch(() => ({}));
+      if (r2.ok && data2 && data2.ok && Array.isArray(data2.summaries)) {
+        summaries = data2.summaries;
+      } else {
+        sumErr = (data2 && data2.error) || ('Summaries HTTP ' + r2.status);
+      }
+    } catch (e2) {
+      sumErr = 'Could not load quote summaries (glass / CRM links).';
+    }
+    if (!stoneItems.length && !summaries.length) {
+      errEl.textContent = [stoneErr, sumErr].filter(Boolean).join(' — ') || 'No quotes found. Sign in at the suite login, then return here.';
+      errEl.style.display = 'block';
+      allItems = [];
+      renderTable();
+      return;
+    }
+    if (stoneErr || sumErr) {
+      errEl.textContent = [stoneErr, sumErr].filter(Boolean).join(' — ');
+      errEl.style.display = 'block';
+    }
+    const seen = new Map();
+    stoneItems.forEach(function (row) {
+      var qn = String(row.quoteNumber || row.id || '').trim();
+      if (qn) seen.set(qn, true);
+    });
+    var merged = stoneItems.map(function (row) {
+      var o = Object.assign({}, row);
+      if (!o.productLine) o.productLine = 'stone';
+      return o;
+    });
+    summaries.forEach(function (s) {
+      if (!s || s._type !== 'ogm-quote-summary') return;
+      var row = summaryToRow(s);
+      if (!row) return;
+      var qn = String(row.quoteNumber || '').trim();
+      if (seen.has(qn)) return;
+      seen.set(qn, true);
+      merged.push(row);
+    });
+    merged.sort(function (a, b) {
+      return String(b.savedAt || '').localeCompare(String(a.savedAt || ''));
+    });
+    allItems = dedupeInvoiceManagerRows(merged);
+    var n = allItems.length;
+    metaEl.textContent = n + ' quote' + (n !== 1 ? 's' : '') + ' loaded · filtered by report period';
+    renderTable();
+  }
+
+  function onRangeInputChange() {
+    rangeFrom = document.getElementById('range-from').value || '';
+    rangeTo = document.getElementById('range-to').value || '';
+    if (rangeFrom && rangeTo && rangeFrom > rangeTo) {
+      const t = rangeFrom;
+      rangeFrom = rangeTo;
+      rangeTo = t;
+      setRangeInputs(rangeFrom, rangeTo);
+    }
+    renderTable();
+  }
+
+  document.getElementById('inv-search').addEventListener('input', () => { renderTable(); });
+  document.getElementById('inv-refresh').addEventListener('click', () => { load(); });
+  document.getElementById('inv-export').addEventListener('click', () => { exportCSV(); });
+  document.getElementById('range-from').addEventListener('change', onRangeInputChange);
+  document.getElementById('range-to').addEventListener('change', onRangeInputChange);
+  document.getElementById('range-prev').addEventListener('click', () => { shiftRangeWeek(-1); });
+  document.getElementById('range-next').addEventListener('click', () => { shiftRangeWeek(1); });
+  renderPhaseChips();
+  initWorkWeekRange();
+  load();
+})();
+</script>
+</body>
+</html>

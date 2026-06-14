@@ -1,0 +1,126 @@
+{
+    "_type": "ogm-quote-summary",
+    "productLine": "stone",
+    "quoteNumber": "1778946609485",
+    "invoiceNumber": "84565",
+    "invoiceDate": "2026-05-16",
+    "convertedAt": "2026-05-16T15:51:00.389Z",
+    "depositReceiptNumber": "",
+    "depositRecordedAt": "",
+    "depositAmount": null,
+    "jobCode": "S.InvTakeout",
+    "jobType": "Installed",
+    "installDate": "2026-05-08",
+    "hrsEst": 8,
+    "hrsAct": 2,
+    "jtNotes": "",
+    "cosTotal": 539.36,
+    "cosTax": 0,
+    "cosLabor": 0,
+    "name": "Lellario, Martha",
+    "phone": "",
+    "email": "",
+    "addr": "",
+    "city": "",
+    "installAddr": "",
+    "installCity": "",
+    "job": "Shower Seat",
+    "salesperson": "Austen",
+    "stone": "",
+    "sqft": 2.95,
+    "totalSF": 2.95,
+    "date": "May 16, 2026",
+    "total": 0,
+    "grand": 0,
+    "workflowPhase": "Invoiced",
+    "status": "invoiced",
+    "savedAt": "2026-05-16T15:51:00.389Z",
+    "linkedCustomerId": "CMP8IWSG99A8",
+    "rep": "Austen",
+    "invoiceTotal": 1138.94,
+    "updatedAt": "2026-05-16T19:53:23+00:00",
+    "_changeLog": [
+        {
+            "at": "2026-05-16T18:48:49+00:00",
+            "by": "Sed",
+            "changes": [
+                {
+                    "field": "Job description",
+                    "from": "",
+                    "to": "Stone job"
+                },
+                {
+                    "field": "Invoice amount",
+                    "from": "",
+                    "to": "0"
+                },
+                {
+                    "field": "Install date",
+                    "from": "",
+                    "to": "2026-05-08"
+                },
+                {
+                    "field": "Actual hours / time on site",
+                    "from": "0",
+                    "to": "8"
+                }
+            ]
+        },
+        {
+            "at": "2026-05-16T18:50:10+00:00",
+            "by": "Sed",
+            "changes": [
+                {
+                    "field": "Customer name",
+                    "from": "Big Orange - Mouser",
+                    "to": "Lellario, Martha"
+                },
+                {
+                    "field": "Job description",
+                    "from": "Stone job",
+                    "to": "Shower Seat"
+                },
+                {
+                    "field": "Salesperson",
+                    "from": "Tanya Wadkins (TW)",
+                    "to": "Austen"
+                },
+                {
+                    "field": "Invoice #",
+                    "from": "INV-20260516-003",
+                    "to": "84565"
+                },
+                {
+                    "field": "Invoice amount",
+                    "from": "0",
+                    "to": "1138.94"
+                },
+                {
+                    "field": "Actual hours / time on site",
+                    "from": "8",
+                    "to": "2"
+                },
+                {
+                    "field": "Job code",
+                    "from": "T1.Inv.Instal",
+                    "to": "S.InvTakeout"
+                },
+                {
+                    "field": "Material/COS",
+                    "from": "0",
+                    "to": "539.36"
+                },
+                {
+                    "field": "Square feet",
+                    "from": "0",
+                    "to": "2.95"
+                },
+                {
+                    "field": "Square feet",
+                    "from": "0",
+                    "to": "2.95"
+                }
+            ]
+        }
+    ]
+}

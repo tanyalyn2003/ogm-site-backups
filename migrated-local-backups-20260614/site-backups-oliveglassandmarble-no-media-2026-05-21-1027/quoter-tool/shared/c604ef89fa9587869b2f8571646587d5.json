@@ -1,0 +1,1 @@
+{"savedAt":"2026-04-22T02:12:55+00:00","snapshot":{"version":1,"units":"in","createdAt":"2026-04-22T02:12:55.152Z","stones":[{"key":"0","name":"Stone","sl":126,"sw":63,"tk":"3cm"}],"parts":[{"id":"1","roomId":1,"label":"Room 1","stoneKey":"0","geom":{"kind":"oval","w":65,"h":46},"placement":{"x":0,"y":0,"rot":180,"slabIndex":0},"cutouts":[],"seams":[],"splashRuns":[]}]}}

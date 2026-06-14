@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGM — Blueprint Scanner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:#faf8f3; --s700:#4a4538; --s900:#1c1917;
+  --gold:#9e7c3a; --gold-l:#c4a05a; --gold-p:#f0e6cc;
+  --green:#16a34a; --blue:#1d4ed8; --red:#dc2626;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#12151a;color:#e2e8f0;font-family:'DM Sans',sans-serif;font-weight:300;font-size:13px;min-height:100vh;display:flex;flex-direction:column}
+
+/* NAV */
+.ogm-nav{background:#0c0f14;height:44px;display:flex;align-items:center;padding:0 20px;gap:14px;border-bottom:1px solid rgba(158,124,58,.25);flex-shrink:0}
+.ogm-logo{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:.16em;color:#fff}
+.nav-link{padding:5px 11px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;border-radius:2px;transition:all .15s;border:1px solid transparent}
+.nav-link:hover{color:rgba(255,255,255,.75);background:rgba(255,255,255,.05)}
+.nav-link.active{color:#c4a05a;border-color:rgba(196,160,90,.3);background:rgba(196,160,90,.07)}
+
+/* LAYOUT */
+.app-body{flex:1;display:grid;grid-template-columns:280px 1fr 260px;overflow:hidden;height:calc(100vh - 44px)}
+
+/* PANELS */
+.left-panel,.right-panel{background:#0d1117;overflow-y:auto;border-right:1px solid rgba(255,255,255,.07)}
+.right-panel{border-right:none;border-left:1px solid rgba(255,255,255,.07)}
+.panel-section{padding:14px 14px 12px;border-bottom:1px solid rgba(255,255,255,.05)}
+.panel-lbl{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#334155;margin-bottom:9px}
+
+/* STEPS */
+.step-header{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.step-num{width:22px;height:22px;border-radius:50%;background:rgba(158,124,58,.15);border:1px solid rgba(158,124,58,.35);color:var(--gold-l);font-size:11px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;flex-shrink:0}
+.step-num.done{background:rgba(22,163,74,.15);border-color:rgba(22,163,74,.35);color:#4ade80}
+.step-title{font-size:12px;color:#94a3b8;letter-spacing:.04em}
+
+/* DROP ZONE */
+.drop-zone{border:1.5px dashed rgba(255,255,255,.12);border-radius:3px;padding:18px 12px;text-align:center;cursor:pointer;transition:all .15s;background:rgba(255,255,255,.02)}
+.drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:rgba(158,124,58,.07)}
+.dz-icon{font-size:28px;color:#334155;margin-bottom:8px}
+.dz-text{font-size:11px;color:#475569;line-height:1.6}
+.dz-sub{font-size:10px;color:#334155}
+
+/* CONTROLS */
+.ctrl-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.ctrl-lbl{font-size:10px;color:#475569;min-width:80px}
+.ctrl-inp{flex:1;padding:5px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--gold-l);font-family:'DM Mono',monospace;font-size:11px;border-radius:2px;outline:none}
+.ctrl-inp:focus{border-color:var(--gold)}
+.ctrl-inp[type=range]{accent-color:var(--gold);height:4px;cursor:pointer;padding:0}
+.ctrl-val{font-family:'DM Mono',monospace;font-size:10px;color:#64748b;min-width:32px;text-align:right}
+select.ctrl-inp{appearance:none;cursor:pointer}
+
+/* BUTTONS */
+.btn{padding:7px 14px;border-radius:2px;font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .15s;border:none;font-weight:400}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-gold:hover{background:var(--gold-l)}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)}
+.btn-ghost:hover{border-color:var(--gold-l);color:var(--gold-l)}
+.btn-blue{background:rgba(29,78,216,.2);border:1px solid rgba(29,78,216,.4);color:#60a5fa}
+.btn-blue:hover{background:rgba(29,78,216,.3)}
+.btn-green{background:rgba(22,163,74,.2);border:1px solid rgba(22,163,74,.4);color:#4ade80}
+.btn-green:hover{background:rgba(22,163,74,.3)}
+.btn-red{background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.25);color:#f87171}
+.btn-red:hover{background:rgba(220,38,38,.2)}
+.btn-full{width:100%;margin-bottom:6px;padding:9px}
+.btn-row{display:flex;gap:6px}
+
+/* CANVAS AREA */
+.canvas-area{position:relative;background:#1a1c1f;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#mainCanvas{display:block;max-width:100%;max-height:100%}
+
+/* STAGE TABS */
+.stage-tabs{display:flex;gap:2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:3px;padding:2px;margin-bottom:10px}
+.stage-tab{flex:1;padding:4px 8px;border-radius:2px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:center}
+.stage-tab.on{background:var(--gold);color:#fff}
+.stage-tab:not(.on){background:transparent;color:#475569}
+.stage-tab:not(.on):hover{color:#64748b}
+
+/* SHAPE LIST */
+.shape-item{padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:2px;margin-bottom:5px;cursor:pointer;transition:all .12s}
+.shape-item:hover{background:rgba(255,255,255,.06)}
+.shape-item.sel{background:rgba(158,124,58,.12);border-color:rgba(158,124,58,.35)}
+.shape-item.rejected{opacity:.4}
+.shape-top{display:flex;align-items:center;justify-content:space-between}
+.shape-name{font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:6px}
+.shape-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.shape-meta{font-family:'DM Mono',monospace;font-size:10px;color:#475569;margin-top:3px}
+.shape-actions{display:flex;gap:4px;margin-top:6px}
+.sa-btn{padding:3px 8px;border-radius:2px;font-size:9px;letter-spacing:.08em;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .12s}
+
+/* METRICS */
+.metric-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.metric-row span:first-child{color:#475569}
+.metric-row span:last-child{font-family:'DM Mono',monospace;color:var(--gold-l)}
+.metric-row.total span{font-family:'Cormorant Garamond',serif;font-size:16px;color:#fff}
+.metric-row.total span:first-child{font-family:'DM Sans',sans-serif;font-size:13px;color:#94a3b8}
+
+/* STATUS BAR */
+.status-bar{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(13,17,23,.88);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:5px 14px;font-size:11px;color:#64748b;pointer-events:none;white-space:nowrap}
+
+/* OVERLAY */
+.process-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.process-overlay.show{display:flex}
+.process-spinner{font-size:28px;animation:spin 1s linear infinite}
+.process-msg{font-size:13px;color:#64748b}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SCALE MODAL */
+.scale-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center}
+.scale-modal.open{display:flex}
+.scale-box{background:#0d1117;border:1px solid rgba(158,124,58,.35);border-radius:4px;padding:26px;max-width:440px;width:calc(100% - 40px)}
+.scale-box h3{font-family:'Cormorant Garamond',serif;font-size:22px;color:#fff;font-weight:400;margin-bottom:8px}
+.scale-box p{font-size:12px;color:#64748b;line-height:1.7;margin-bottom:16px}
+.scale-type-row{display:flex;gap:8px;margin-bottom:16px}
+.scale-type-btn{flex:1;padding:10px 8px;border-radius:2px;cursor:pointer;text-align:center;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);transition:all .12s}
+.scale-type-btn:hover{border-color:rgba(196,160,90,.3)}
+.scale-type-btn.sel{background:rgba(158,124,58,.15);border-color:rgba(158,124,58,.45)}
+.stb-title{font-size:12px;color:#94a3b8;margin-bottom:3px}
+.stb-dim{font-family:'DM Mono',monospace;font-size:14px;color:var(--gold-l)}
+.stb-desc{font-size:10px;color:#334155;margin-top:3px}
+.scale-or{text-align:center;font-size:11px;color:#334155;margin:10px 0}
+.scale-manual-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.scale-inp{flex:1;padding:9px 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:'DM Mono',monospace;font-size:16px;border-radius:2px;outline:none;text-align:center}
+.scale-inp:focus{border-color:var(--gold)}
+.scale-confirm{width:100%;padding:11px;background:var(--gold);border:none;border-radius:2px;color:#fff;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.scale-confirm:hover{background:var(--gold-l)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1c1917;color:#fff;padding:9px 16px;border-radius:4px;font-size:12px;z-index:600;opacity:0;transition:opacity .3s;pointer-events:none;border-left:3px solid var(--gold);font-family:'DM Sans',sans-serif;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* CONFIDENCE BADGE */
+.conf-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:10px;font-size:9px;letter-spacing:.08em}
+.conf-high{background:rgba(22,163,74,.12);color:#4ade80;border:1px solid rgba(22,163,74,.3)}
+.conf-med{background:rgba(217,119,6,.12);color:#fbbf24;border:1px solid rgba(217,119,6,.3)}
+.conf-low{background:rgba(220,38,38,.12);color:#f87171;border:1px solid rgba(220,38,38,.3)}
+
+.info-box{padding:8px 10px;background:rgba(29,78,216,.08);border:1px solid rgba(29,78,216,.2);border-radius:2px;font-size:10px;color:#64748b;line-height:1.7;margin-top:8px}
+.info-box strong{color:#60a5fa}
+</style>
+<script>try{if(localStorage.getItem('ogm-theme')==='dark')document.documentElement.setAttribute('data-ogm-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="ogm-theme-toggle.css?v=20260516p">
+<script src="ogm-theme-toggle.js?v=20260516o" defer></script>
+<link rel="stylesheet" href="ogm-accessibility.css?v=20260516c">
+<script src="ogm-accessibility.js?v=20260516o" defer></script>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="ogm-nav">
+  <span class="ogm-logo">OGM</span>
+  <a class="nav-link" href="OGM_Hub.html">⌂ Hub</a>
+  <a class="nav-link" href="OGM_KitchenPlanner.html">🏠 Kitchen Planner</a>
+  <a class="nav-link" href="ogm-quoter-internal.html">✦ Quoter</a>
+  <a class="nav-link active" href="#">📐 Blueprint Scanner</a>
+</div>
+
+<div class="app-body">
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+
+  <!-- STEP 1: UPLOAD -->
+  <div class="panel-section">
+    <div class="step-header">
+      <div class="step-num" id="step1-num">1</div>
+      <div class="step-title">Upload Blueprint</div>
+    </div>
+    <div class="drop-zone" id="drop-zone" ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event)" onclick="document.getElementById('file-in').click()">
+      <div class="dz-icon">📐</div>
+      <div class="dz-text">Drop blueprint image here<br><span class="dz-sub">JPG · PNG · PDF photo · HEIC</span></div>
+    </div>
+    <input type="file" id="file-in" accept="image/*,.heic,.heif" style="display:none" onchange="loadFile(this.files[0])">
+    <div id="upload-status" style="display:none;margin-top:8px;font-size:11px;color:#64748b;line-height:1.6"></div>
+  </div>
+
+  <!-- STEP 2: PROCESS -->
+  <div class="panel-section">
+    <div class="step-header">
+      <div class="step-num" id="step2-num">2</div>
+      <div class="step-title">Processing Pipeline</div>
+    </div>
+
+    <div class="stage-tabs">
+      <button class="stage-tab on" id="stab-original" onclick="setStage('original',this)">Original</button>
+      <button class="stage-tab" id="stab-gray"     onclick="setStage('gray',this)">Gray</button>
+      <button class="stage-tab" id="stab-binary"   onclick="setStage('binary',this)">Binary</button>
+      <button class="stage-tab" id="stab-clean"    onclick="setStage('clean',this)">Clean</button>
+      <button class="stage-tab" id="stab-contours" onclick="setStage('contours',this)">Shapes</button>
+    </div>
+
+    <div class="ctrl-row">
+      <span class="ctrl-lbl">Threshold</span>
+      <input type="range" class="ctrl-inp" id="threshold" min="50" max="220" value="140" oninput="onSlider('threshold',this.value)">
+      <span class="ctrl-val" id="threshold-val">140</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-lbl">Blur radius</span>
+      <input type="range" class="ctrl-inp" id="blur" min="0" max="6" value="2" step="1" oninput="onSlider('blur',this.value)">
+      <span class="ctrl-val" id="blur-val">2</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-lbl">Dilate</span>
+      <input type="range" class="ctrl-inp" id="dilate" min="0" max="5" value="2" step="1" oninput="onSlider('dilate',this.value)">
+      <span class="ctrl-val" id="dilate-val">2</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-lbl">Simplify</span>
+      <input type="range" class="ctrl-inp" id="simplify" min="1" max="30" value="8" oninput="onSlider('simplify',this.value)">
+      <span class="ctrl-val" id="simplify-val">8</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-lbl">Min area %</span>
+      <input type="range" class="ctrl-inp" id="minarea" min="1" max="50" value="2" oninput="onSlider('minarea',this.value)">
+      <span class="ctrl-val" id="minarea-val">2</span>
+    </div>
+
+    <button class="btn btn-gold btn-full" id="run-btn" onclick="runPipeline()" disabled>▶ Run Detection</button>
+    <button class="btn btn-ghost btn-full" onclick="reprocess()" id="reprocess-btn" style="display:none">↺ Re-run with Settings</button>
+  </div>
+
+  <!-- STEP 3: SCALE -->
+  <div class="panel-section">
+    <div class="step-header">
+      <div class="step-num" id="step3-num">3</div>
+      <div class="step-title">Scale Calibration</div>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-lbl">Type</span>
+      <select class="ctrl-inp" id="counter-type" onchange="updateScaleType()">
+        <option value="kitchen">Kitchen (25.5" deep)</option>
+        <option value="vanity">Vanity (22.5" deep)</option>
+        <option value="custom">Custom depth…</option>
+      </select>
+    </div>
+    <div id="custom-depth-row" style="display:none" class="ctrl-row">
+      <span class="ctrl-lbl">Depth (in)</span>
+      <input type="number" class="ctrl-inp" id="custom-depth" value="25.5" min="12" max="48" step="0.5">
+    </div>
+    <div id="scale-status" style="font-size:10px;color:#334155;margin-bottom:8px">Scale: not set — run detection first</div>
+    <button class="btn btn-ghost btn-full" id="scale-btn" onclick="openScaleModal()" disabled>📏 Set Scale from Image</button>
+    <div class="info-box">
+      <strong>Auto-scale:</strong> After detection, the tool uses the shortest dimension of each shape (assumed = known depth) to set pixels/inch. Click Set Scale to override manually.
+    </div>
+  </div>
+
+  <!-- STEP 4: EXPORT -->
+  <div class="panel-section">
+    <div class="step-header">
+      <div class="step-num" id="step4-num">4</div>
+      <div class="step-title">Send to Planner</div>
+    </div>
+    <button class="btn btn-green btn-full" id="export-btn" onclick="exportToPlanner()" disabled>→ Send to Kitchen Planner</button>
+    <button class="btn btn-ghost btn-full" onclick="exportJSON()" id="json-btn" style="display:none">↓ Export JSON</button>
+    <div id="export-status" style="font-size:11px;color:#334155;margin-top:6px"></div>
+  </div>
+
+</div><!-- /left-panel -->
+
+<!-- CANVAS -->
+<div class="canvas-area" id="canvas-area">
+  <canvas id="mainCanvas"></canvas>
+  <div class="status-bar" id="status-bar">Upload a blueprint to begin</div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+
+  <div class="panel-section">
+    <div class="panel-lbl">Detected Shapes <span id="merge-hint" style="color:#fbbf24;font-size:9px;display:none">⚠ Adjacent shapes detected</span></div>
+    <div id="merge-bar" style="display:none;margin-bottom:8px;padding:7px 9px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:2px">
+      <div style="font-size:10px;color:#fbbf24;margin-bottom:6px">Adjacent shapes found — merge into L/U shape?</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap" id="merge-suggestions"></div>
+    </div>
+    <div id="shape-list"><div style="font-size:11px;color:#334155;font-style:italic">No shapes detected yet</div></div>
+    <div style="margin-top:8px;display:flex;gap:5px" id="multi-select-bar" style="display:none">
+      <button class="btn btn-ghost" style="flex:1;padding:5px;font-size:9px" onclick="mergeSelected()">⊕ Merge Selected</button>
+      <button class="btn btn-ghost" style="flex:1;padding:5px;font-size:9px" onclick="clearSelection()">✕ Clear</button>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-lbl">Measurements</div>
+    <div id="metrics-panel">
+      <div class="metric-row"><span>Total SF</span><span id="m-sf">—</span></div>
+      <div class="metric-row"><span>Shapes</span><span id="m-shapes">—</span></div>
+      <div class="metric-row"><span>Scale</span><span id="m-scale">not set</span></div>
+      <div class="metric-row total"><span>Net Countertop</span><span id="m-total">—</span></div>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-lbl">Interpretation Guide</div>
+    <div style="font-size:10px;color:#475569;line-height:1.8">
+      <div>🟡 <strong style="color:#9e7c3a">Gold</strong> = accepted counter</div>
+      <div>🔵 <strong style="color:#60a5fa">Blue</strong> = possible counter</div>
+      <div>🔴 <strong style="color:#f87171">Red</strong> = rejected / noise</div>
+      <div style="margin-top:8px;color:#334155">Click shapes on canvas or in list to accept/reject. Adjust sliders and re-run to refine.</div>
+    </div>
+    <div class="info-box" style="margin-top:10px">
+      <strong>Tips for best results:</strong><br>
+      • Clean black-line drawings work best<br>
+      • Increase Threshold for light blueprints<br>
+      • Increase Dilate to connect broken lines<br>
+      • Lower Min Area % to catch small shapes<br>
+      • Higher Simplify = fewer polygon vertices
+    </div>
+  </div>
+
+</div><!-- /right-panel -->
+
+</div><!-- /app-body -->
+
+<!-- SCALE MODAL -->
+<div class="scale-modal" id="scale-modal">
+  <div class="scale-box">
+    <h3>Set Scale</h3>
+    <p>Choose the counter type to use the known depth as scale reference, or enter the longest known dimension manually.</p>
+    <div class="scale-type-row">
+      <div class="scale-type-btn sel" id="stype-kitchen" onclick="selectScaleType('kitchen',this)">
+        <div class="stb-title">Kitchen</div>
+        <div class="stb-dim">25.5"</div>
+        <div class="stb-desc">Standard depth</div>
+      </div>
+      <div class="scale-type-btn" id="stype-vanity" onclick="selectScaleType('vanity',this)">
+        <div class="stb-title">Vanity</div>
+        <div class="stb-dim">22.5"</div>
+        <div class="stb-desc">Standard depth</div>
+      </div>
+    </div>
+    <div class="scale-or">— or enter a known dimension —</div>
+    <div class="scale-manual-row">
+      <input type="number" class="scale-inp" id="manual-inches" placeholder="e.g. 120" min="1" max="9999" step="0.5">
+      <span style="font-size:12px;color:#64748b;white-space:nowrap">inches</span>
+    </div>
+    <button class="scale-confirm" onclick="confirmScale()">Apply Scale →</button>
+  </div>
+</div>
+
+<!-- PROCESS OVERLAY -->
+<div class="process-overlay" id="process-overlay">
+  <div class="process-spinner">⚙</div>
+  <div class="process-msg" id="process-msg">Processing…</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   OGM BLUEPRINT SCANNER
+   Implements a client-side CV pipeline:
+   1. Grayscale conversion
+   2. Gaussian blur (noise reduction)
+   3. Otsu adaptive threshold (binarize)
+   4. Morphological dilation + erosion (close gaps)
+   5. Connected component labeling (remove speckle)
+   6. Contour tracing (Moore neighbor tracing)
+   7. Douglas-Peucker simplification
+   8. Scale calibration using known counter depth
+   9. Shape classification (rectangle, L, U, custom)
+  10. Export to Kitchen Planner
+══════════════════════════════════════════════════════════ */
+
+const canvas = document.getElementById('mainCanvas');
+const ctx    = canvas.getContext('2d', { willReadFrequently: true });
+const area   = document.getElementById('canvas-area');
+
+// ── STATE ──────────────────────────────────────────────
+let origImage   = null;  // original Image object
+let origW = 0, origH = 0;
+let stages = {};         // { gray, binary, clean, contours } — ImageData per stage
+let detectedShapes = []; // [{id, points, area_px, sf, accepted, type, confidence}]
+let pixPerInch  = 0;     // scale: pixels per inch
+let knownDepthIn = 25.5; // default kitchen
+let selectedShape = null;
+let currentStage = 'original';
+let scaleTypeChoice = 'kitchen';
+
+// Display scale (fit to canvas area)
+let dispScale = 1;
+let dispOffX = 0, dispOffY = 0;
+
+// ── SLIDERS ─────────────────────────────────────────────
+const params = { threshold: 140, blur: 2, dilate: 2, simplify: 8, minarea: 2 };
+
+function onSlider(name, val) {
+  params[name] = parseFloat(val);
+  document.getElementById(name + '-val').textContent = val;
+}
+
+// ── DROP / UPLOAD ────────────────────────────────────────
+function dzOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('over'); }
+function dzLeave(e) { document.getElementById('drop-zone').classList.remove('over'); }
+function dzDrop(e) { e.preventDefault(); dzLeave(e); loadFile(e.dataTransfer.files[0]); }
+
+function loadFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      origImage = img;
+      origW = img.naturalWidth;
+      origH = img.naturalHeight;
+      fitCanvas();
+      drawOriginal();
+      document.getElementById('run-btn').disabled = false;
+      document.getElementById('scale-btn').disabled = false;
+      document.getElementById('upload-status').style.display = 'block';
+      document.getElementById('upload-status').innerHTML = `✓ <strong>${file.name}</strong><br>${origW} × ${origH} px`;
+      document.getElementById('step1-num').classList.add('done');
+      document.getElementById('drop-zone').querySelector('.dz-text').innerHTML = `<strong style="color:var(--gold-l)">${file.name}</strong><br><span class="dz-sub">Click to replace</span>`;
+      setStatus('Image loaded — click ▶ Run Detection');
+      currentStage = 'original';
+      document.querySelectorAll('.stage-tab').forEach(t => t.classList.remove('on'));
+      document.getElementById('stab-original').classList.add('on');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── CANVAS FIT ───────────────────────────────────────────
+function fitCanvas() {
+  const aw = area.clientWidth  - 20;
+  const ah = area.clientHeight - 20;
+  dispScale = Math.min(aw / origW, ah / origH, 1);
+  canvas.width  = Math.round(origW * dispScale);
+  canvas.height = Math.round(origH * dispScale);
+}
+
+function drawOriginal() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(origImage, 0, 0, canvas.width, canvas.height);
+}
+
+// ── STAGE VIEW ───────────────────────────────────────────
+function setStage(name, btn) {
+  currentStage = name;
+  document.querySelectorAll('.stage-tab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  renderStage(name);
+}
+
+function renderStage(name) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (name === 'original' || !stages[name]) {
+    if (origImage) ctx.drawImage(origImage, 0, 0, canvas.width, canvas.height);
+    return;
+  }
+  if (name === 'contours') {
+    // Draw clean binary as background, overlay shapes
+    if (stages.clean) putImageDataScaled(stages.clean);
+    drawShapesOverlay();
+    return;
+  }
+  putImageDataScaled(stages[name]);
+}
+
+function putImageDataScaled(imgData) {
+  // Draw full-res ImageData to a temp canvas, then scale-draw to main
+  const tmp = document.createElement('canvas');
+  tmp.width = imgData.width; tmp.height = imgData.height;
+  tmp.getContext('2d').putImageData(imgData, 0, 0);
+  ctx.drawImage(tmp, 0, 0, canvas.width, canvas.height);
+}
+
+// ══════════════════════════════════════════════════════════
+//  PIPELINE
+// ══════════════════════════════════════════════════════════
+async function runPipeline() {
+  if (!origImage) return;
+  showOverlay('Analysing image…');
+  document.getElementById('run-btn').disabled = true;
+
+  await sleep(20); // yield to browser to show overlay
+
+  try {
+    // 1. Draw full-res image to offscreen canvas
+    const oc = document.createElement('canvas');
+    oc.width = origW; oc.height = origH;
+    const octx = oc.getContext('2d', { willReadFrequently: true });
+    octx.drawImage(origImage, 0, 0);
+    const raw = octx.getImageData(0, 0, origW, origH);
+
+    updateMsg('Step 1/5: Grayscale + blur…');
+    await sleep(10);
+    const gray = toGrayscale(raw.data, origW, origH);
+    stages.gray = makeImgData(gray, origW, origH, false);
+
+    const blurred = params.blur > 0 ? gaussianBlur(gray, origW, origH, params.blur) : gray.slice();
+    updateMsg('Step 2/5: Otsu threshold…');
+    await sleep(10);
+
+    const threshold = params.threshold > 0 ? params.threshold : otsuThreshold(blurred);
+    const binary = binarize(blurred, origW, origH, threshold);
+    stages.binary = makeImgData(binary, origW, origH, true);
+
+    updateMsg('Step 3/5: Morphological cleanup…');
+    await sleep(10);
+    let cleaned = binary.slice();
+    // Dilate to close line gaps
+    if (params.dilate > 0) cleaned = dilate(cleaned, origW, origH, params.dilate);
+    // Erode back to sharpen edges
+    if (params.dilate > 0) cleaned = erode(cleaned, origW, origH, Math.max(1, params.dilate - 1));
+    stages.clean = makeImgData(cleaned, origW, origH, true);
+
+    updateMsg('Step 4/5: Finding contours…');
+    await sleep(10);
+    const contours = findContours(cleaned, origW, origH);
+    const imgAreaPx = origW * origH;
+    const minPx     = (params.minarea / 100) * imgAreaPx;
+
+    // Filter by min area and simplify
+    detectedShapes = [];
+    let idCtr = 0;
+    for (const pts of contours) {
+      const area_px = polygonArea(pts);
+      if (area_px < minPx) continue;
+      const eps = (params.simplify / 1000) * Math.sqrt(area_px);
+      const simplified = douglasPeucker(pts, Math.max(eps, 1.5));
+      if (simplified.length < 3) continue;
+      idCtr++;
+      detectedShapes.push({
+        id: idCtr,
+        points: simplified,
+        area_px,
+        sf: 0,
+        accepted: true,
+        type: classifyShape(simplified),
+        confidence: computeConfidence(simplified, area_px, imgAreaPx),
+      });
+    }
+
+    // Sort largest first
+    detectedShapes.sort((a, b) => b.area_px - a.area_px);
+
+    updateMsg('Step 5/5: Detecting L/U shapes + calibrating…');
+    await sleep(10);
+
+    // Auto-merge adjacent/touching shapes (two rectangles = L-shape)
+    autoMergeAdjacentShapes();
+    autoSetScale();
+
+    stages.contours = null; // rendered dynamically
+    hideOverlay();
+
+    currentStage = 'contours';
+    document.querySelectorAll('.stage-tab').forEach(t => t.classList.remove('on'));
+    document.getElementById('stab-contours').classList.add('on');
+
+    renderStage('contours');
+    renderShapeList();
+    updateMetrics();
+
+    document.getElementById('step2-num').classList.add('done');
+    document.getElementById('step3-num').classList.add('done');
+    document.getElementById('reprocess-btn').style.display = 'block';
+    document.getElementById('export-btn').disabled = detectedShapes.filter(s => s.accepted).length === 0;
+    document.getElementById('json-btn').style.display = 'block';
+
+    setStatus(`Found ${detectedShapes.length} shape${detectedShapes.length!==1?'s':''} · ${detectedShapes.filter(s=>s.accepted).length} accepted`);
+    showToast(`Detection complete — ${detectedShapes.length} shapes found`);
+
+  } catch(e) {
+    hideOverlay();
+    setStatus('Error: ' + e.message);
+    console.error(e);
+  }
+  document.getElementById('run-btn').disabled = false;
+}
+
+function reprocess() { runPipeline(); }
+
+// ══════════════════════════════════════════════════════════
+//  IMAGE PROCESSING ALGORITHMS
+// ══════════════════════════════════════════════════════════
+
+/** Convert RGBA to grayscale using luminance weights */
+function toGrayscale(data, w, h) {
+  const out = new Uint8Array(w * h);
+  for (let i = 0; i < w * h; i++) {
+    out[i] = Math.round(0.299 * data[i*4] + 0.587 * data[i*4+1] + 0.114 * data[i*4+2]);
+  }
+  return out;
+}
+
+/** Gaussian blur — separable 1D pass in x then y */
+function gaussianBlur(gray, w, h, radius) {
+  const sigma = radius * 0.5 + 0.5;
+  const ksize = radius * 2 + 1;
+  const kernel = new Float32Array(ksize);
+  let sum = 0;
+  for (let i = 0; i < ksize; i++) {
+    const x = i - radius;
+    kernel[i] = Math.exp(-(x*x) / (2 * sigma * sigma));
+    sum += kernel[i];
+  }
+  for (let i = 0; i < ksize; i++) kernel[i] /= sum;
+
+  const tmp = new Uint8Array(w * h);
+  const out = new Uint8Array(w * h);
+
+  // Horizontal
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let val = 0;
+      for (let k = 0; k < ksize; k++) {
+        const sx = Math.max(0, Math.min(w-1, x + k - radius));
+        val += kernel[k] * gray[y * w + sx];
+      }
+      tmp[y * w + x] = Math.round(val);
+    }
+  }
+  // Vertical
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let val = 0;
+      for (let k = 0; k < ksize; k++) {
+        const sy = Math.max(0, Math.min(h-1, y + k - radius));
+        val += kernel[k] * tmp[sy * w + x];
+      }
+      out[y * w + x] = Math.round(val);
+    }
+  }
+  return out;
+}
+
+/** Otsu's thresholding — returns optimal threshold value */
+function otsuThreshold(gray) {
+  const hist = new Int32Array(256);
+  for (const v of gray) hist[v]++;
+  const total = gray.length;
+  let sumB = 0, wB = 0, max = 0, thresh = 128;
+  let sum1 = 0;
+  for (let i = 0; i < 256; i++) sum1 += i * hist[i];
+  for (let t = 0; t < 256; t++) {
+    wB += hist[t]; if (!wB) continue;
+    const wF = total - wB; if (!wF) break;
+    sumB += t * hist[t];
+    const mB = sumB / wB, mF = (sum1 - sumB) / wF;
+    const between = wB * wF * (mB - mF) * (mB - mF);
+    if (between > max) { max = between; thresh = t; }
+  }
+  return thresh;
+}
+
+/** Binarize: pixels BELOW threshold = 255 (foreground = dark lines) */
+function binarize(gray, w, h, thresh) {
+  const out = new Uint8Array(w * h);
+  for (let i = 0; i < w * h; i++) {
+    out[i] = gray[i] < thresh ? 255 : 0;
+  }
+  return out;
+}
+
+/** Morphological dilation with square kernel of given radius */
+function dilate(bin, w, h, r) {
+  const out = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let found = false;
+      for (let dy = -r; dy <= r && !found; dy++) {
+        for (let dx = -r; dx <= r && !found; dx++) {
+          const nx = x+dx, ny = y+dy;
+          if (nx>=0 && nx<w && ny>=0 && ny<h && bin[ny*w+nx]) found = true;
+        }
+      }
+      out[y*w+x] = found ? 255 : 0;
+    }
+  }
+  return out;
+}
+
+/** Morphological erosion */
+function erode(bin, w, h, r) {
+  const out = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let all = true;
+      for (let dy = -r; dy <= r && all; dy++) {
+        for (let dx = -r; dx <= r && all; dx++) {
+          const nx = x+dx, ny = y+dy;
+          if (nx<0||nx>=w||ny<0||ny>=h||!bin[ny*w+nx]) all = false;
+        }
+      }
+      out[y*w+x] = all ? 255 : 0;
+    }
+  }
+  return out;
+}
+
+// ══════════════════════════════════════════════════════════
+//  CONTOUR TRACING — Square tracing / Moore neighborhood
+// ══════════════════════════════════════════════════════════
+function findContours(bin, w, h) {
+  const visited = new Uint8Array(w * h);
+  const contours = [];
+  // 8-directional neighbors: E, SE, S, SW, W, NW, N, NE
+  const dx = [1,1,0,-1,-1,-1,0,1];
+  const dy = [0,1,1,1,0,-1,-1,-1];
+
+  for (let y = 1; y < h-1; y++) {
+    for (let x = 1; x < w-1; x++) {
+      const idx = y*w+x;
+      if (!bin[idx] || visited[idx]) continue;
+      // Check if it's a border pixel (has at least one background neighbor)
+      let isBorder = false;
+      for (let d = 0; d < 8; d++) {
+        const nx = x+dx[d], ny = y+dy[d];
+        if (!bin[ny*w+nx]) { isBorder = true; break; }
+      }
+      if (!isBorder) continue;
+
+      // Trace contour using Moore neighbor tracing
+      const contour = traceContour(bin, visited, x, y, w, h);
+      if (contour.length >= 8) {
+        contours.push(contour);
+      }
+    }
+  }
+  return contours;
+}
+
+function traceContour(bin, visited, startX, startY, w, h) {
+  const pts = [];
+  const dx = [1,1,0,-1,-1,-1,0,1];
+  const dy = [0,1,1,1,0,-1,-1,-1];
+  let x = startX, y = startY;
+  let dir = 0; // start looking East
+
+  for (let step = 0; step < w * h; step++) {
+    visited[y*w+x] = 1;
+    pts.push({x, y});
+    // Find next border pixel by rotating direction
+    let found = false;
+    for (let i = 0; i < 8; i++) {
+      const nd = (dir + 6 + i) % 8; // start from left of current direction
+      const nx = x + dx[nd], ny = y + dy[nd];
+      if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue;
+      if (bin[ny*w+nx]) {
+        // Check it's a border pixel
+        let border = false;
+        for (let d = 0; d < 8; d++) {
+          const bx = nx+dx[d], by = ny+dy[d];
+          if (bx<0||bx>=w||by<0||by>=h||!bin[by*w+bx]) { border=true; break; }
+        }
+        if (border) {
+          x = nx; y = ny; dir = nd; found = true; break;
+        }
+      }
+    }
+    if (!found) break;
+    // Check closure
+    if (pts.length > 4 && x === startX && y === startY) break;
+  }
+  return pts;
+}
+
+// ══════════════════════════════════════════════════════════
+//  DOUGLAS-PEUCKER PATH SIMPLIFICATION
+// ══════════════════════════════════════════════════════════
+function douglasPeucker(pts, eps) {
+  if (pts.length <= 2) return pts;
+  // Find point farthest from line start→end
+  const start = pts[0], end = pts[pts.length-1];
+  let maxDist = 0, maxIdx = 0;
+  for (let i = 1; i < pts.length-1; i++) {
+    const d = perpDistance(pts[i], start, end);
+    if (d > maxDist) { maxDist = d; maxIdx = i; }
+  }
+  if (maxDist > eps) {
+    const left  = douglasPeucker(pts.slice(0, maxIdx+1), eps);
+    const right = douglasPeucker(pts.slice(maxIdx), eps);
+    return [...left.slice(0,-1), ...right];
+  }
+  return [start, end];
+}
+
+function perpDistance(pt, a, b) {
+  const dx = b.x-a.x, dy = b.y-a.y;
+  const len = Math.hypot(dx, dy);
+  if (len === 0) return Math.hypot(pt.x-a.x, pt.y-a.y);
+  return Math.abs(dy*pt.x - dx*pt.y + b.x*a.y - b.y*a.x) / len;
+}
+
+// ══════════════════════════════════════════════════════════
+//  POLYGON GEOMETRY
+// ══════════════════════════════════════════════════════════
+function polygonArea(pts) {
+  let a = 0;
+  for (let i = 0, j = pts.length-1; i < pts.length; j=i++) {
+    a += (pts[j].x + pts[i].x) * (pts[j].y - pts[i].y);
+  }
+  return Math.abs(a) / 2;
+}
+
+function polyBoundingBox(pts) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const p of pts) {
+    minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+    minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+  }
+  return { minX, minY, maxX, maxY, w: maxX-minX, h: maxY-minY };
+}
+
+// ══════════════════════════════════════════════════════════
+//  SHAPE CLASSIFICATION
+// ══════════════════════════════════════════════════════════
+function classifyShape(pts) {
+  const n = pts.length;
+  if (n <= 4)  return 'Rectangle';
+  if (n <= 6)  return 'L-Shape';
+  if (n <= 8)  return 'U-Shape';
+  return 'Custom';
+}
+
+function computeConfidence(pts, area_px, imgArea) {
+  const bb = polyBoundingBox(pts);
+  const bbArea = bb.w * bb.h;
+  // Rectangularity: how close to bounding box fill
+  const rect = bbArea > 0 ? area_px / bbArea : 0;
+  // Relative size
+  const relSize = area_px / imgArea;
+  if (rect > 0.7 && relSize > 0.02) return 'high';
+  if (rect > 0.4 && relSize > 0.005) return 'medium';
+  return 'low';
+}
+
+// ══════════════════════════════════════════════════════════
+//  SCALE CALIBRATION
+// ══════════════════════════════════════════════════════════
+function autoSetScale() {
+  // Use shortest dimension of the largest accepted shape as known depth
+  if (!detectedShapes.length) return;
+  const largest = detectedShapes[0];
+  const bb = polyBoundingBox(largest.points);
+  const shortSidePx = Math.min(bb.w, bb.h);
+  if (shortSidePx > 0) {
+    pixPerInch = shortSidePx / knownDepthIn;
+    updateShapeSF();
+    updateScaleStatus();
+  }
+}
+
+function updateShapeSF() {
+  for (const s of detectedShapes) {
+    s.sf = pixPerInch > 0 ? s.area_px / (pixPerInch * pixPerInch) / 144 : 0;
+  }
+}
+
+function updateScaleStatus() {
+  const el = document.getElementById('scale-status');
+  if (pixPerInch > 0) {
+    el.innerHTML = `Scale: <strong style="color:var(--gold-l)">${pixPerInch.toFixed(1)} px/inch</strong> · Known depth: ${knownDepthIn}"`;
+    document.getElementById('m-scale').textContent = pixPerInch.toFixed(1) + ' px/in';
+  } else {
+    el.textContent = 'Scale: not set';
+  }
+}
+
+function updateScaleType() {
+  const type = document.getElementById('counter-type').value;
+  if (type === 'kitchen') { knownDepthIn = 25.5; document.getElementById('custom-depth-row').style.display='none'; }
+  else if (type === 'vanity') { knownDepthIn = 22.5; document.getElementById('custom-depth-row').style.display='none'; }
+  else { document.getElementById('custom-depth-row').style.display='flex'; knownDepthIn = parseFloat(document.getElementById('custom-depth').value) || 25.5; }
+  if (detectedShapes.length) { autoSetScale(); updateMetrics(); renderStage(currentStage); }
+}
+
+function openScaleModal() { document.getElementById('scale-modal').classList.add('open'); }
+
+function selectScaleType(type, el) {
+  scaleTypeChoice = type;
+  document.querySelectorAll('.scale-type-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('manual-inches').value = '';
+}
+
+function confirmScale() {
+  const manual = parseFloat(document.getElementById('manual-inches').value);
+  if (manual > 0) {
+    // Manual: use entered dimension as longest side of largest shape
+    if (detectedShapes.length) {
+      const bb = polyBoundingBox(detectedShapes[0].points);
+      const longSidePx = Math.max(bb.w, bb.h);
+      pixPerInch = longSidePx / manual;
+    }
+  } else {
+    knownDepthIn = scaleTypeChoice === 'kitchen' ? 25.5 : 22.5;
+    document.getElementById('counter-type').value = scaleTypeChoice;
+    autoSetScale();
+  }
+  document.getElementById('scale-modal').classList.remove('open');
+  updateShapeSF();
+  updateScaleStatus();
+  updateMetrics();
+  renderStage(currentStage);
+  showToast(`Scale set: ${pixPerInch.toFixed(1)} px/inch`);
+}
+
+// ══════════════════════════════════════════════════════════
+//  RENDER SHAPES OVERLAY
+// ══════════════════════════════════════════════════════════
+const COLORS = { high:'#c4a05a', medium:'#60a5fa', low:'#f87171' };
+
+function drawShapesOverlay() {
+  for (let i = 0; i < detectedShapes.length; i++) {
+    const s = detectedShapes[i];
+    const color = s.accepted ? COLORS[s.confidence] : '#334155';
+    const isSelected = selectedShape === s.id;
+    drawShapeOnCanvas(s.points, color, isSelected, i+1, s);
+  }
+}
+
+function drawShapeOnCanvas(pts, color, selected, label, s) {
+  if (!pts.length) return;
+  // Scale points to display canvas
+  ctx.beginPath();
+  const p0 = scalePoint(pts[0]);
+  ctx.moveTo(p0.x, p0.y);
+  for (let i = 1; i < pts.length; i++) {
+    const p = scalePoint(pts[i]);
+    ctx.lineTo(p.x, p.y);
+  }
+  ctx.closePath();
+
+  ctx.fillStyle = selected ? color + '33' : color + '22';
+  ctx.fill();
+  ctx.strokeStyle = selected ? '#fff' : color;
+  ctx.lineWidth = selected ? 2.5 : 1.8;
+  if (!s.accepted) { ctx.setLineDash([4,3]); }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Label at centroid
+  const cx = pts.reduce((a,p) => a+p.x, 0)/pts.length * dispScale;
+  const cy = pts.reduce((a,p) => a+p.y, 0)/pts.length * dispScale;
+  ctx.fillStyle = s.accepted ? color : '#475569';
+  ctx.font = "bold 12px 'DM Sans', sans-serif";
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(label, cx, cy);
+  if (pixPerInch > 0 && s.sf > 0) {
+    ctx.font = "10px 'DM Mono', monospace";
+    ctx.fillText(s.sf.toFixed(1) + ' sf', cx, cy + 16);
+  }
+}
+
+function scalePoint(p) {
+  return { x: p.x * dispScale, y: p.y * dispScale };
+}
+
+// ══════════════════════════════════════════════════════════
+//  SHAPE LIST & METRICS
+// ══════════════════════════════════════════════════════════
+function renderShapeList() {
+  const el = document.getElementById('shape-list');
+  if (!detectedShapes.length) {
+    el.innerHTML = '<div style="font-size:11px;color:#334155;font-style:italic">No shapes detected</div>';
+    return;
+  }
+  el.innerHTML = detectedShapes.map((s, i) => {
+    const confClass = `conf-${s.confidence}`;
+    const color = COLORS[s.confidence];
+    const sfText = pixPerInch > 0 ? `${s.sf.toFixed(1)} sf` : `${(s.area_px/1000).toFixed(0)}k px`;
+    const isMultiSel = multiSelected.has(s.id);
+    const isSel = selectedShape === s.id || isMultiSel;
+    const mergedTag = s.mergedFrom ? `<span style="font-size:9px;color:#a78bfa;margin-left:4px">⊕ merged</span>` : '';
+    return `<div class="shape-item${isSel?' sel':''}${!s.accepted?' rejected':''}" onclick="selectShape(${s.id})">
+      <div class="shape-top">
+        <span class="shape-name">
+          <span class="shape-dot" style="background:${color}"></span>
+          ${i+1}. ${s.type}${mergedTag}
+        </span>
+        <span class="conf-badge ${confClass}">${s.confidence}</span>
+      </div>
+      <div class="shape-meta">${sfText} · ${s.points.length} vertices</div>
+      <div class="shape-actions">
+        <button class="sa-btn" style="background:rgba(22,163,74,.15);border:1px solid rgba(22,163,74,.3);color:#4ade80" onclick="event.stopPropagation();acceptShape(${s.id})">✓ Accept</button>
+        <button class="sa-btn" style="background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.25);color:#f87171" onclick="event.stopPropagation();rejectShape(${s.id})">✗ Reject</button>
+        ${!s.mergedFrom?`<button class="sa-btn" style="background:rgba(196,160,90,.1);border:1px solid rgba(196,160,90,.25);color:var(--gold-l)" onclick="event.stopPropagation();selectShape(${s.id})" title="Select then merge with another">☐ Select</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectShape(id) {
+  selectedShape = selectedShape === id ? null : id;
+  renderShapeList();
+  renderStage(currentStage);
+}
+
+function acceptShape(id) {
+  const s = detectedShapes.find(s => s.id === id);
+  if (s) s.accepted = true;
+  renderShapeList(); renderStage(currentStage); updateMetrics();
+  document.getElementById('export-btn').disabled = false;
+}
+
+function rejectShape(id) {
+  const s = detectedShapes.find(s => s.id === id);
+  if (s) s.accepted = false;
+  renderShapeList(); renderStage(currentStage); updateMetrics();
+}
+
+function updateMetrics() {
+  const accepted = detectedShapes.filter(s => s.accepted);
+  const totalSF  = accepted.reduce((a, s) => a + (s.sf||0), 0);
+  document.getElementById('m-sf').textContent    = accepted.map(s => s.sf>0?s.sf.toFixed(1)+'sf':'?').join(' + ') || '—';
+  document.getElementById('m-shapes').textContent = `${accepted.length} accepted / ${detectedShapes.length} found`;
+  document.getElementById('m-total').textContent  = pixPerInch > 0 ? totalSF.toFixed(2) + ' sf' : '— (set scale)';
+}
+
+// ══════════════════════════════════════════════════════════
+//  EXPORT
+// ══════════════════════════════════════════════════════════
+function exportToPlanner() {
+  const accepted = detectedShapes.filter(s => s.accepted);
+  if (!accepted.length) { showToast('No accepted shapes to export', true); return; }
+  if (!pixPerInch) { showToast('Set scale first for accurate measurements', true); openScaleModal(); return; }
+
+  // Find overall bounding box across ALL accepted shapes so we
+  // preserve their relative positions (don't reset each shape to 0,0)
+  const allPts = accepted.flatMap(s => s.points);
+  const globalBB = polyBoundingBox(allPts);
+
+  // Convert pixel polygons → inch polygons, keeping relative layout
+  const runs = accepted.map((s, i) => {
+    const inchPts = s.points.map(p => ({
+      x: +((p.x - globalBB.minX) / pixPerInch).toFixed(2),
+      y: +((p.y - globalBB.minY) / pixPerInch).toFixed(2),
+    }));
+    return {
+      type: 'counter',
+      points: inchPts,
+      sf: s.sf.toFixed(2),
+      shapeType: s.type,
+      edges: [],
+    };
+  });
+
+  const payload = {
+    type: 'OGM_BP_EXPORT',
+    source: 'blueprint-scanner',
+    scanner: true,
+    totalSF: accepted.reduce((a,s) => a + (s.sf||0), 0).toFixed(2),
+    runs,
+    seamList: [],
+    cutoutList: [],
+    scale: { pixPerInch: +pixPerInch.toFixed(4), knownDepthIn },
+    notes: `Blueprint scan import · ${accepted.length} shape${accepted.length!==1?'s':''} · Scale: ${pixPerInch.toFixed(1)} px/in · Depth: ${knownDepthIn}"`,
+    // NOTE: svgDataUrl intentionally omitted — too large for localStorage (5MB limit)
+    timestamp: new Date().toISOString(),
+  };
+
+  const storageKey = 'ogm-blueprint-import';
+  try {
+    const json = JSON.stringify(payload);
+    localStorage.setItem(storageKey, json);
+    // Verify it was actually stored
+    const check = localStorage.getItem(storageKey);
+    if (!check) throw new Error('localStorage write failed silently');
+    const parsed = JSON.parse(check);
+    if (!parsed.runs || parsed.runs.length !== accepted.length) {
+      throw new Error(`Only ${parsed.runs?.length||0} of ${accepted.length} shapes stored`);
+    }
+  } catch(e) {
+    showToast('Storage error: ' + e.message + ' — try fewer shapes', true);
+    console.error('localStorage write failed:', e);
+    return;
+  }
+  document.getElementById('export-status').innerHTML =
+    `✓ <strong style="color:#4ade80">${accepted.length} shape${accepted.length!==1?'s':''} sent</strong> — ${payload.totalSF} sf total`;
+  document.getElementById('step4-num').classList.add('done');
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage(payload, '*');
+    }
+  } catch {}
+  showToast(`${accepted.length} shape${accepted.length!==1?'s':''} sent to Kitchen Planner`);
+  const embedded = !!(window.parent && window.parent !== window);
+  if (!embedded) {
+    setTimeout(() => window.open('OGM_KitchenPlanner.html?from=scanner', '_blank'), 500);
+  }
+}
+
+function exportJSON() {
+  const data = {
+    shapes: detectedShapes.filter(s => s.accepted).map(s => ({
+      type: s.type, sf: s.sf, vertices: s.points.length,
+      points_px: s.points,
+      points_in: pixPerInch > 0 ? s.points.map(p => ({x: +(p.x/pixPerInch).toFixed(2), y: +(p.y/pixPerInch).toFixed(2)})) : null,
+    })),
+    scale: { px_per_in: pixPerInch, known_depth_in: knownDepthIn },
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ogm-blueprint-scan.json';
+  a.click();
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function makeImgData(gray, w, h, isBinary) {
+  const id = new ImageData(w, h);
+  for (let i = 0; i < w * h; i++) {
+    const v = gray[i];
+    id.data[i*4]   = v;
+    id.data[i*4+1] = v;
+    id.data[i*4+2] = v;
+    id.data[i*4+3] = 255;
+  }
+  return id;
+}
+
+function setStatus(msg) { document.getElementById('status-bar').textContent = msg; }
+function updateMsg(msg) { document.getElementById('process-msg').textContent = msg; }
+function showOverlay(msg) {
+  document.getElementById('process-overlay').classList.add('show');
+  document.getElementById('process-msg').textContent = msg;
+}
+function hideOverlay() { document.getElementById('process-overlay').classList.remove('show'); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function showToast(msg, err) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderLeftColor = err ? '#ef4444' : 'var(--gold)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// Canvas click to select shapes
+canvas.addEventListener('click', e => {
+  if (!detectedShapes.length) return;
+  const r = canvas.getBoundingClientRect();
+  const cx = e.clientX - r.left, cy = e.clientY - r.top;
+  const px = cx / dispScale, py = cy / dispScale;
+
+  // Point-in-polygon test for each shape
+  for (const s of detectedShapes) {
+    if (ptInPoly({x:px,y:py}, s.points)) {
+      selectShape(s.id);
+      return;
+    }
+  }
+  selectShape(null);
+});
+
+function ptInPoly(pt, poly) {
+  let inside = false;
+  for (let i=0, j=poly.length-1; i<poly.length; j=i++) {
+    const xi=poly[i].x, yi=poly[i].y, xj=poly[j].x, yj=poly[j].y;
+    if (((yi>pt.y)!==(yj>pt.y)) && (pt.x < (xj-xi)*(pt.y-yi)/(yj-yi)+xi)) inside=!inside;
+  }
+  return inside;
+}
+
+// Resize handler
+window.addEventListener('resize', () => {
+  if (origImage) { fitCanvas(); renderStage(currentStage); }
+});
+
+// Keyboard: Escape closes modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('scale-modal').classList.remove('open');
+});
+
+/* ══════════════════════════════════════════════════════════
+   L-SHAPE / ADJACENT SHAPE DETECTION & MERGE
+   
+   The core problem: blueprints often draw an L-shape kitchen
+   as two separate rectangles. The contour tracer finds two
+   blobs. We need to:
+   1. Detect when two shapes share an edge or corner (adjacent)
+   2. Offer to merge them into one L/U polygon
+   3. Compute the union convex-ish hull of the combined bbox
+══════════════════════════════════════════════════════════ */
+
+let multiSelected = new Set();
+
+/**
+ * Auto-detect pairs of shapes whose bounding boxes overlap or
+ * touch (within SNAP tolerance in pixels). Offer merge suggestions.
+ */
+function autoMergeAdjacentShapes() {
+  const SNAP = Math.max(origW, origH) * 0.02; // 2% of image = proximity threshold
+  const suggestions = [];
+
+  for (let i = 0; i < detectedShapes.length; i++) {
+    for (let j = i+1; j < detectedShapes.length; j++) {
+      const a = detectedShapes[i], b = detectedShapes[j];
+      if (bbsAdjacent(a.points, b.points, SNAP)) {
+        suggestions.push([a.id, b.id]);
+      }
+    }
+  }
+
+  // Show merge bar if suggestions exist
+  const bar = document.getElementById('merge-bar');
+  const hint = document.getElementById('merge-hint');
+  const sugEl = document.getElementById('merge-suggestions');
+
+  if (suggestions.length > 0) {
+    bar.style.display = 'block';
+    hint.style.display = 'inline';
+    sugEl.innerHTML = suggestions.map(([aid, bid]) => {
+      const a = detectedShapes.find(s=>s.id===aid);
+      const b = detectedShapes.find(s=>s.id===bid);
+      const idxA = detectedShapes.indexOf(a)+1;
+      const idxB = detectedShapes.indexOf(b)+1;
+      return `<button onclick="mergeShapeIds(${aid},${bid})" style="
+        padding:4px 10px;background:rgba(196,160,90,.15);border:1px solid rgba(196,160,90,.35);
+        border-radius:2px;color:var(--gold-l);font-family:'DM Sans',sans-serif;font-size:10px;
+        letter-spacing:.06em;cursor:pointer;transition:all .12s"
+        onmouseover="this.style.background='rgba(196,160,90,.25)'"
+        onmouseout="this.style.background='rgba(196,160,90,.15)'">
+        Merge ${idxA} + ${idxB} →
+      </button>`;
+    }).join('');
+  } else {
+    bar.style.display = 'none';
+    hint.style.display = 'none';
+  }
+}
+
+/**
+ * Check if two shapes' bounding boxes are adjacent or overlapping.
+ */
+function bbsAdjacent(ptsA, ptsB, snap) {
+  const a = polyBoundingBox(ptsA);
+  const b = polyBoundingBox(ptsB);
+  // Expand each bbox by snap, check overlap
+  const ax1=a.minX-snap, ax2=a.maxX+snap, ay1=a.minY-snap, ay2=a.maxY+snap;
+  const bx1=b.minX-snap, bx2=b.maxX+snap, by1=b.minY-snap, by2=b.maxY+snap;
+  return ax1 < bx2 && ax2 > bx1 && ay1 < by2 && ay2 > by1;
+}
+
+/**
+ * Merge two shapes by ID into a single L/U polygon.
+ * Strategy: union their bounding boxes, then cut out interior overlap
+ * to create an L-shape polygon, OR just combine all points and
+ * compute convex hull for irregular shapes.
+ */
+function mergeShapeIds(idA, idB) {
+  const idxA = detectedShapes.findIndex(s => s.id === idA);
+  const idxB = detectedShapes.findIndex(s => s.id === idB);
+  if (idxA < 0 || idxB < 0) return;
+
+  const a = detectedShapes[idxA];
+  const b = detectedShapes[idxB];
+
+  // Try smart L-shape merge first (bbox union minus interior)
+  const merged = smartMerge(a.points, b.points);
+
+  const newArea = polygonArea(merged);
+  const newId   = Math.max(...detectedShapes.map(s=>s.id)) + 1;
+  const imgArea = origW * origH;
+
+  const newShape = {
+    id: newId,
+    points: merged,
+    area_px: newArea,
+    sf: pixPerInch > 0 ? newArea / (pixPerInch*pixPerInch) / 144 : 0,
+    accepted: true,
+    type: classifyShape(merged),
+    confidence: computeConfidence(merged, newArea, imgArea),
+    mergedFrom: [idA, idB],
+  };
+
+  // Remove originals, add merged
+  detectedShapes.splice(Math.max(idxA,idxB), 1);
+  detectedShapes.splice(Math.min(idxA,idxB), 1);
+  detectedShapes.unshift(newShape);
+
+  autoSetScale();
+  renderShapeList();
+  renderStage(currentStage);
+  updateMetrics();
+  autoMergeAdjacentShapes(); // re-check for more adjacent pairs
+
+  document.getElementById('export-btn').disabled = false;
+  showToast(`Merged into ${newShape.type} — ${newShape.sf > 0 ? newShape.sf.toFixed(1)+' sf' : '?'}`);
+}
+
+/**
+ * Smart merge: create an L-shape from two rectangles.
+ * Uses bounding-box union and constructs the L polygon correctly.
+ * Falls back to convex hull if shapes are irregular.
+ */
+function smartMerge(ptsA, ptsB) {
+  const bbA = polyBoundingBox(ptsA);
+  const bbB = polyBoundingBox(ptsB);
+
+  // Determine which axis they share (horizontal or vertical adjacency)
+  const sharedX = rangesOverlap(bbA.minX, bbA.maxX, bbB.minX, bbB.maxX);
+  const sharedY = rangesOverlap(bbA.minY, bbA.maxY, bbB.minY, bbB.maxY);
+
+  if (sharedX || sharedY) {
+    // Build L-shape from the two bounding boxes
+    return buildLPolygon(bbA, bbB);
+  }
+
+  // Fallback: convex hull of all points
+  return convexHullOfPoints([...ptsA, ...ptsB]);
+}
+
+function rangesOverlap(a1, a2, b1, b2) {
+  return a1 < b2 && a2 > b1;
+}
+
+/**
+ * Given two bounding boxes, construct the exact L-shape union polygon.
+ * Finds which corner of the combined bbox is covered by neither rect,
+ * then builds the 6-vertex L directly — no sorting needed.
+ */
+function buildLPolygon(a, b) {
+  const minX = Math.min(a.minX, b.minX);
+  const minY = Math.min(a.minY, b.minY);
+  const maxX = Math.max(a.maxX, b.maxX);
+  const maxY = Math.max(a.maxY, b.maxY);
+
+  // Use a tiny tolerance for floating-point safety (NOT 2px — that was the original bug)
+  const EPS = 0.5;
+
+  const inR = (px, py, r) =>
+    px >= r.minX - EPS && px <= r.maxX + EPS &&
+    py >= r.minY - EPS && py <= r.maxY + EPS;
+
+  // Find which corner of the combined bbox is in NEITHER rectangle
+  const corners = [
+    [minX, minY], [maxX, minY], [maxX, maxY], [minX, maxY]
+  ];
+  const missing = corners.find(([cx,cy]) => !inR(cx,cy,a) && !inR(cx,cy,b));
+
+  if (!missing) {
+    // One rect fully contains the other — return the larger as a plain rectangle
+    const big = (a.w * a.h) >= (b.w * b.h) ? a : b;
+    return [
+      {x:big.minX,y:big.minY},{x:big.maxX,y:big.minY},
+      {x:big.maxX,y:big.maxY},{x:big.minX,y:big.maxY}
+    ];
+  }
+
+  const [mcX, mcY] = missing;
+  // Inner corner of the L notch = the point where the two rects' inner edges meet
+  let pts;
+  if (mcX === minX && mcY === minY) {
+    const nx = Math.max(a.minX, b.minX), ny = Math.max(a.minY, b.minY);
+    pts = [{x:nx,y:minY},{x:maxX,y:minY},{x:maxX,y:maxY},{x:minX,y:maxY},{x:minX,y:ny},{x:nx,y:ny}];
+  } else if (mcX === maxX && mcY === minY) {
+    const nx = Math.min(a.maxX, b.maxX), ny = Math.max(a.minY, b.minY);
+    pts = [{x:minX,y:minY},{x:nx,y:minY},{x:nx,y:ny},{x:maxX,y:ny},{x:maxX,y:maxY},{x:minX,y:maxY}];
+  } else if (mcX === maxX && mcY === maxY) {
+    const nx = Math.min(a.maxX, b.maxX), ny = Math.min(a.maxY, b.maxY);
+    pts = [{x:minX,y:minY},{x:maxX,y:minY},{x:maxX,y:ny},{x:nx,y:ny},{x:nx,y:maxY},{x:minX,y:maxY}];
+  } else {
+    // Missing: bottom-left
+    const nx = Math.max(a.minX, b.minX), ny = Math.min(a.maxY, b.maxY);
+    pts = [{x:minX,y:minY},{x:maxX,y:minY},{x:maxX,y:maxY},{x:nx,y:maxY},{x:nx,y:ny},{x:minX,y:ny}];
+  }
+  return pts;
+}
+
+/** Segment-segment intersection — returns intersection point or null */
+function segIntersect(p1, p2, p3, p4) {
+  const d1 = {x:p2.x-p1.x, y:p2.y-p1.y};
+  const d2 = {x:p4.x-p3.x, y:p4.y-p3.y};
+  const cross = d1.x*d2.y - d1.y*d2.x;
+  if (Math.abs(cross) < 0.0001) return null;
+  const dx = p3.x-p1.x, dy = p3.y-p1.y;
+  const t = (dx*d2.y - dy*d2.x) / cross;
+  const u = (dx*d1.y - dy*d1.x) / cross;
+  if (t >= -0.001 && t <= 1.001 && u >= -0.001 && u <= 1.001) {
+    return {x: p1.x + t*d1.x, y: p1.y + t*d1.y};
+  }
+  return null;
+}
+
+function ptInRect(pt, bb) {
+  return pt.x >= bb.minX - 0.5 && pt.x <= bb.maxX + 0.5 &&
+         pt.y >= bb.minY - 0.5 && pt.y <= bb.maxY + 0.5;
+}
+
+/** Convex hull (Graham scan) — fallback for irregular merged shapes */
+function convexHullOfPoints(pts) {
+  if (pts.length < 3) return pts;
+  // Subsample
+  const sample = pts.length > 200 ? pts.filter((_,i) => i % Math.ceil(pts.length/200) === 0) : pts;
+  let pivot = sample[0];
+  for (const p of sample) if (p.y > pivot.y || (p.y===pivot.y && p.x<pivot.x)) pivot=p;
+  const sorted = sample.filter(p=>p!==pivot)
+    .sort((a,b) => Math.atan2(a.y-pivot.y,a.x-pivot.x)-Math.atan2(b.y-pivot.y,b.x-pivot.x));
+  const hull = [pivot];
+  for (const p of sorted) {
+    while (hull.length>=2) {
+      const a=hull[hull.length-2],b=hull[hull.length-1];
+      if ((b.x-a.x)*(p.y-a.y)-(b.y-a.y)*(p.x-a.x)<=0) hull.pop(); else break;
+    }
+    hull.push(p);
+  }
+  return hull;
+}
+
+/* Multi-select for manual merge */
+function selectShape(id) {
+  if (id === null) { multiSelected.clear(); selectedShape = null; }
+  else if (multiSelected.has(id)) { multiSelected.delete(id); selectedShape = null; }
+  else { multiSelected.add(id); selectedShape = id; }
+  document.getElementById('multi-select-bar').style.display = multiSelected.size >= 2 ? 'flex' : 'none';
+  renderShapeList();
+  renderStage(currentStage);
+}
+
+function clearSelection() { multiSelected.clear(); selectedShape = null; renderShapeList(); renderStage(currentStage); document.getElementById('multi-select-bar').style.display='none'; }
+
+function mergeSelected() {
+  const ids = [...multiSelected];
+  if (ids.length < 2) return;
+  // Merge all selected shapes one pair at a time
+  mergeShapeIds(ids[0], ids[1]);
+  // After merge the IDs change — just merge all remaining selected with new shape
+  clearSelection();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGM — Stone Catalog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#faf8f3;--warm:#f5f2ea;--ink:#0c0f14;--panel:#141922;--panel2:#10151d;--line:rgba(255,255,255,.09);--muted:#8190a8;--gold:#9e7c3a;--gold-l:#c4a05a;--blue:#172338;--danger:#ef4444;--ok:#22c55e}
+*{box-sizing:border-box}body{margin:0;background:var(--ink);color:#f8fafc;font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh}
+.ogm-nav-bar{height:44px;background:#0a0e13;border-bottom:1px solid rgba(158,124,58,.28);display:flex;align-items:center;justify-content:space-between;padding:0 40px}
+.ogm-nav-left{display:flex;align-items:center;gap:18px;min-width:0}.ogm-nav-logo{font-family:'Cormorant Garamond',serif;font-size:24px;letter-spacing:.18em;color:#fff;white-space:nowrap}.ogm-nav-links{display:flex;gap:2px;min-width:0;overflow:auto}.ogm-nav-link{color:rgba(255,255,255,.52);text-decoration:none;text-transform:uppercase;letter-spacing:.16em;font-size:11px;padding:8px 12px;border:1px solid transparent;border-radius:3px;white-space:nowrap}.ogm-nav-link:hover{color:#fff;background:rgba(255,255,255,.05)}.ogm-nav-link.active{color:var(--gold-l);border-color:rgba(196,160,90,.35);background:rgba(196,160,90,.08)}.ogm-nav-badge{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#43536d;white-space:nowrap}
+.hero{background:#1a1714;border-bottom:1px solid rgba(255,255,255,.08);padding:42px 52px 36px;display:flex;justify-content:space-between;gap:28px;align-items:flex-end}.title h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:58px;line-height:.96;margin:0 0 12px;letter-spacing:.04em}.headline-line{display:block}.headline-nowrap{white-space:nowrap}.subtitle{font-size:13px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-l)}.hero-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.btn{appearance:none;border:1px solid rgba(196,160,90,.38);background:rgba(196,160,90,.12);color:#f6d28b;min-height:40px;padding:0 16px;border-radius:3px;font:600 12px/1 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}.btn:hover{background:rgba(196,160,90,.18)}.btn.secondary{background:transparent;color:#cbd5e1;border-color:rgba(148,163,184,.28)}.btn.danger{color:#fecaca;border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.12)}
+.wrap{padding:28px 40px 44px}.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:16px 18px}.stat-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}.stat-value{font-family:'DM Mono',monospace;font-size:24px;color:var(--gold-l)}
+.toolbar{display:grid;grid-template-columns:minmax(220px,1fr) 160px 160px auto;gap:10px;align-items:center;margin-bottom:14px}.input,.select{width:100%;height:42px;border:1px solid rgba(148,163,184,.24);background:#172338;color:#f8fafc;border-radius:3px;padding:0 12px;font:400 14px 'DM Sans',sans-serif}.input::placeholder{color:#64748b}
+.panel{background:var(--panel2);border:1px solid var(--line);border-radius:5px;overflow:hidden}.table-wrap{overflow:auto;max-height:58vh}table{width:100%;border-collapse:collapse;min-width:1080px}th,td{border-bottom:1px solid rgba(255,255,255,.07);padding:10px 8px;text-align:left;vertical-align:middle}th{position:sticky;top:0;background:#121a28;color:#9aa8bd;font-size:10px;letter-spacing:.18em;text-transform:uppercase;z-index:1}td{font-size:13px;color:#e5e7eb}td.actions{white-space:nowrap;text-align:right}.cell-input{width:100%;min-width:70px;height:34px;border:1px solid rgba(148,163,184,.2);background:#111827;color:#fff;border-radius:3px;padding:0 9px;font:400 13px 'DM Sans',sans-serif}.cell-input.name{min-width:210px}.muted{color:#748198}.empty{padding:48px;text-align:center;color:#748198;font-style:italic}.footer{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:14px 16px;border-top:1px solid rgba(255,255,255,.07);background:#121a28}.status{font-size:12px;color:#94a3b8}.status.ok{color:#86efac}.status.err{color:#fecaca}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.64);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}.modal.visible{display:flex}.modal-card{width:min(820px,100%);background:#111827;border:1px solid rgba(196,160,90,.35);border-radius:5px;box-shadow:0 24px 80px rgba(0,0,0,.5);padding:22px}.modal-title{font-family:'Cormorant Garamond',serif;font-size:34px;margin-bottom:12px}.hint{font-size:12px;line-height:1.6;color:#94a3b8;margin-bottom:12px}.textarea{width:100%;min-height:220px;background:#0b111b;border:1px solid rgba(148,163,184,.24);color:#f8fafc;border-radius:3px;padding:12px;font:400 13px/1.5 'DM Mono',monospace}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+@media(max-width:900px){.ogm-nav-bar{padding:0 16px}.ogm-nav-badge{display:none}.hero{padding:32px 22px;display:block}.title h1{font-size:46px}.hero-actions{justify-content:flex-start;margin-top:18px}.wrap{padding:20px}.summary{grid-template-columns:1fr 1fr}.toolbar{grid-template-columns:1fr}.table-wrap{max-height:none}}
+</style>
+<script>try{if(localStorage.getItem('ogm-theme')==='dark')document.documentElement.setAttribute('data-ogm-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="ogm-theme-toggle.css?v=20260516p">
+<script src="ogm-theme-toggle.js?v=20260516o" defer></script>
+<link rel="stylesheet" href="ogm-accessibility.css?v=20260516c">
+<script src="ogm-accessibility.js?v=20260516o" defer></script>
+</head>
+<body>
+<div class="ogm-nav-bar">
+  <div class="ogm-nav-left">
+    <span class="ogm-nav-logo">OGM</span>
+    <nav class="ogm-nav-links">
+      <a class="ogm-nav-link" href="hub.php">⌂ Hub</a>
+      <a class="ogm-nav-link" href="index.php">✦ Stone</a>
+      <a class="ogm-nav-link active" href="stone-catalog.php">◇ Catalog</a>
+      <a class="ogm-nav-link" href="glass-quoter.php">◈ Glass</a>
+      <a class="ogm-nav-link" href="customer-db.php">◎ Customers</a>
+      <a class="ogm-nav-link" href="job-tracking.php">◈ Jobs</a>
+      <a class="ogm-nav-link" href="sales-reports.php">◑ Reports</a>
+    </nav>
+  </div>
+  <span class="ogm-nav-badge">Stone source of truth</span>
+</div>
+
+<section class="hero">
+  <div class="title">
+    <h1 class="display">
+      <span class="headline-line">Stone Catalog</span>
+      <span class="headline-line headline-nowrap">Source of Truth</span>
+    </h1>
+    <div class="subtitle">Names · pricing · material cost · slab sizes</div>
+  </div>
+  <div class="hero-actions">
+    <button class="btn secondary" type="button" onclick="reloadCatalog()">Reload</button>
+    <button class="btn secondary" type="button" onclick="openImportModal()">Import CSV</button>
+    <button class="btn" type="button" onclick="addStoneRow()">+ Add Stone</button>
+    <button class="btn" type="button" onclick="saveCatalog()">Save Catalog</button>
+  </div>
+</section>
+
+<main class="wrap">
+  <section class="summary">
+    <div class="stat"><div class="stat-label">Total stones</div><div class="stat-value" id="stat-count">0</div></div>
+    <div class="stat"><div class="stat-label">Quartz</div><div class="stat-value" id="stat-quartz">0</div></div>
+    <div class="stat"><div class="stat-label">Granite</div><div class="stat-value" id="stat-granite">0</div></div>
+    <div class="stat"><div class="stat-label">Unsaved edits</div><div class="stat-value" id="stat-dirty">No</div></div>
+  </section>
+
+  <section class="toolbar">
+    <input class="input" id="search" type="search" placeholder="Search stone name, supplier, material..." oninput="renderTable()">
+    <select class="select" id="filter-material" onchange="renderTable()"><option value="">All materials</option></select>
+    <select class="select" id="filter-tier" onchange="renderTable()"><option value="">All levels</option></select>
+    <button class="btn danger" type="button" onclick="deleteChecked()">Delete Selected</button>
+  </section>
+
+  <section class="panel">
+    <div class="table-wrap" id="table-host"></div>
+    <div class="footer">
+      <div class="status" id="status">Loading catalog...</div>
+      <button class="btn" type="button" onclick="saveCatalog()">Save Catalog</button>
+    </div>
+  </section>
+</main>
+
+<div class="modal" id="import-modal" role="dialog" aria-modal="true" aria-labelledby="import-title">
+  <div class="modal-card">
+    <div class="modal-title" id="import-title">Import CSV</div>
+    <div class="hint">Paste rows from Excel or Google Sheets. Use headers like Name, Material, Brand, Thickness, Tier, Material Cost, Price, Slab Length, Slab Width. This adds rows to the catalog; review before saving.</div>
+    <textarea class="textarea" id="csv-text" placeholder="Name,Material,Brand,Thickness,Tier,Material Cost,Price,Slab Length,Slab Width"></textarea>
+    <div class="modal-actions">
+      <button class="btn secondary" type="button" onclick="closeImportModal()">Cancel</button>
+      <button class="btn" type="button" onclick="importCsvText()">Import Rows</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'stone-catalog-api.php';
+let stones = [];
+let dirty = false;
+
+function esc(s){return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function num(v, fallback){const n = parseFloat(String(v == null ? '' : v).replace(/[$,]/g,'')); return Number.isFinite(n) ? n : fallback;}
+function setStatus(text, cls){const el=document.getElementById('status'); if(!el)return; el.textContent=text; el.className='status '+(cls||'');}
+function markDirty(on){dirty=!!on; document.getElementById('stat-dirty').textContent=dirty?'Yes':'No';}
+function normalizeStone(s){
+  const price = num((s.r&&s.r[2]) || s.price || 0, 0);
+  return {
+    n:String(s.n||'').trim(),
+    lv:String(s.lv||'1').trim()||'1',
+    t:String(s.t||'Quartz').trim()||'Quartz',
+    d:String(s.d||'').trim(),
+    f:String(s.f||'Polished').trim()||'Polished',
+    tk:String(s.tk||'3cm').trim()||'3cm',
+    sl:num(s.sl,127),
+    sw:num(s.sw,63),
+    csf:num(s.csf,price),
+    r:[num(s.r&&s.r[0],price),num(s.r&&s.r[1],price),num(s.r&&s.r[2],price)]
+  };
+}
+function blankStone(){return normalizeStone({n:'New stone',t:'Quartz',d:'',lv:'1',tk:'3cm',sl:127,sw:63,csf:0,r:[0,0,0]});}
+
+async function reloadCatalog(){
+  setStatus('Loading catalog...');
+  const res = await fetch(API, {cache:'no-store'});
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error || 'Catalog failed to load');
+  stones = (data.stones || []).map(normalizeStone);
+  markDirty(false);
+  updateFilters();
+  renderTable();
+  setStatus(`Loaded ${stones.length} stones from ${data.source || 'server'}.`, 'ok');
+}
+
+async function saveCatalog(){
+  const clean = stones.map(readRowFromDomIfPresent).filter(s => s.n).map(normalizeStone);
+  if(!clean.length){alert('Catalog must have at least one valid stone.');return;}
+  setStatus('Saving catalog...');
+  const res = await fetch(API, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({stones:clean})
+  });
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error || 'Catalog save failed');
+  stones = clean;
+  markDirty(false);
+  updateFilters();
+  renderTable();
+  setStatus(`Saved ${stones.length} stones. Stone Quoter will use this catalog.`, 'ok');
+}
+
+function readRowFromDomIfPresent(stone, idx){
+  if(typeof idx !== 'number') idx = stones.indexOf(stone);
+  const row = document.querySelector(`tr[data-idx="${idx}"]`);
+  if(!row) return stone;
+  const get = key => row.querySelector(`[data-field="${key}"]`)?.value || '';
+  const price = num(get('price'),0);
+  return normalizeStone({
+    n:get('n'), t:get('t'), d:get('d'), tk:get('tk'), lv:get('lv'),
+    csf:num(get('csf'),price), sl:num(get('sl'),127), sw:num(get('sw'),63), r:[price,price,price]
+  });
+}
+
+function updateStone(idx, field, value){
+  const s = stones[idx]; if(!s)return;
+  if(field === 'price'){const p=num(value,0); s.r=[p,p,p];}
+  else if(field === 'csf' || field === 'sl' || field === 'sw') s[field]=num(value, field==='sl'?127:field==='sw'?63:0);
+  else s[field]=String(value||'');
+  markDirty(true);
+  updateStats();
+}
+
+function updateFilters(){
+  const mats=[...new Set(stones.map(s=>s.t).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  const tiers=[...new Set(stones.map(s=>s.lv).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true}));
+  const matSel=document.getElementById('filter-material');
+  const tierSel=document.getElementById('filter-tier');
+  const prevMat=matSel.value, prevTier=tierSel.value;
+  matSel.innerHTML='<option value="">All materials</option>'+mats.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+  tierSel.innerHTML='<option value="">All levels</option>'+tiers.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+  matSel.value=prevMat; tierSel.value=prevTier;
+}
+
+function filteredStones(){
+  const q=(document.getElementById('search').value||'').trim().toLowerCase();
+  const mat=document.getElementById('filter-material').value;
+  const tier=document.getElementById('filter-tier').value;
+  return stones.map((s,idx)=>({s,idx})).filter(({s})=>{
+    if(mat && s.t!==mat)return false;
+    if(tier && s.lv!==tier)return false;
+    if(!q)return true;
+    return [s.n,s.t,s.d,s.tk,s.lv].some(v=>String(v||'').toLowerCase().includes(q));
+  });
+}
+
+function renderTable(){
+  updateStats();
+  const rows=filteredStones();
+  const host=document.getElementById('table-host');
+  if(!rows.length){host.innerHTML='<div class="empty">No stones match this search.</div>';return;}
+  host.innerHTML=`<table><thead><tr>
+    <th><input type="checkbox" onchange="toggleAllVisible(this.checked)"></th><th>Name</th><th>Material</th><th>Supplier</th><th>Level</th><th>Thickness</th><th>Material $/SF</th><th>Customer $/SF</th><th>Slab L</th><th>Slab W</th><th></th>
+  </tr></thead><tbody>${rows.map(({s,idx})=>rowHtml(s,idx)).join('')}</tbody></table>`;
+}
+function rowHtml(s,idx){
+  const price=(s.r&&s.r[2])||0;
+  return `<tr data-idx="${idx}">
+    <td><input type="checkbox" class="row-check" data-idx="${idx}"></td>
+    <td><input class="cell-input name" data-field="n" value="${esc(s.n)}" oninput="updateStone(${idx},'n',this.value)"></td>
+    <td><input class="cell-input" data-field="t" value="${esc(s.t)}" oninput="updateStone(${idx},'t',this.value)"></td>
+    <td><input class="cell-input" data-field="d" value="${esc(s.d)}" oninput="updateStone(${idx},'d',this.value)"></td>
+    <td><input class="cell-input" data-field="lv" value="${esc(s.lv)}" oninput="updateStone(${idx},'lv',this.value)"></td>
+    <td><input class="cell-input" data-field="tk" value="${esc(s.tk)}" oninput="updateStone(${idx},'tk',this.value)"></td>
+    <td><input class="cell-input" data-field="csf" type="number" step="0.01" value="${esc(s.csf)}" oninput="updateStone(${idx},'csf',this.value)"></td>
+    <td><input class="cell-input" data-field="price" type="number" step="0.01" value="${esc(price)}" oninput="updateStone(${idx},'price',this.value)"></td>
+    <td><input class="cell-input" data-field="sl" type="number" step="0.1" value="${esc(s.sl)}" oninput="updateStone(${idx},'sl',this.value)"></td>
+    <td><input class="cell-input" data-field="sw" type="number" step="0.1" value="${esc(s.sw)}" oninput="updateStone(${idx},'sw',this.value)"></td>
+    <td class="actions"><button class="btn danger" type="button" onclick="deleteStone(${idx})">Delete</button></td>
+  </tr>`;
+}
+function updateStats(){
+  document.getElementById('stat-count').textContent=stones.length;
+  document.getElementById('stat-quartz').textContent=stones.filter(s=>/quartz/i.test(s.t)).length;
+  document.getElementById('stat-granite').textContent=stones.filter(s=>/granite/i.test(s.t)).length;
+  document.getElementById('stat-dirty').textContent=dirty?'Yes':'No';
+}
+function addStoneRow(){stones.unshift(blankStone());markDirty(true);updateFilters();renderTable();setStatus('New stone added. Fill it in, then save.');}
+function deleteStone(idx){if(!stones[idx])return;if(!confirm(`Delete ${stones[idx].n}?`))return;stones.splice(idx,1);markDirty(true);updateFilters();renderTable();}
+function toggleAllVisible(on){document.querySelectorAll('.row-check').forEach(cb=>cb.checked=on);}
+function deleteChecked(){
+  const ids=[...document.querySelectorAll('.row-check:checked')].map(cb=>parseInt(cb.dataset.idx,10)).filter(Number.isFinite);
+  if(!ids.length)return;
+  if(!confirm(`Delete ${ids.length} selected stone${ids.length===1?'':'s'}?`))return;
+  const set=new Set(ids);
+  stones=stones.filter((_,idx)=>!set.has(idx));
+  markDirty(true);updateFilters();renderTable();
+}
+function openImportModal(){document.getElementById('import-modal').classList.add('visible');document.getElementById('csv-text').focus();}
+function closeImportModal(){document.getElementById('import-modal').classList.remove('visible');}
+function parseCsv(text){
+  const rows=[];let row=[],field='',q=false;const s=String(text||'').replace(/^\uFEFF/,'');
+  for(let i=0;i<s.length;i++){const c=s[i];if(q){if(c==='"'){if(s[i+1]==='"'){field+='"';i++;}else q=false;}else field+=c;continue;}if(c==='"'){q=true;continue;}if(c===','){row.push(field);field='';continue;}if(c==='\r')continue;if(c==='\n'){row.push(field);if(row.some(x=>String(x).trim()))rows.push(row);row=[];field='';continue;}field+=c;}
+  row.push(field);if(row.some(x=>String(x).trim()))rows.push(row);return rows;
+}
+function pick(headers,names){for(const name of names){const i=headers.findIndex(h=>h===name||h.includes(name));if(i>=0)return i;}return -1;}
+function importCsvText(){
+  const rows=parseCsv(document.getElementById('csv-text').value);
+  if(rows.length<2){alert('Paste a header row and at least one stone row.');return;}
+  const h=rows[0].map(x=>String(x).trim().toLowerCase());
+  const c={name:pick(h,['stone name','product name','name','description']),mat:pick(h,['material','type']),brand:pick(h,['brand','supplier','vendor']),tk:pick(h,['thickness','thick']),lv:pick(h,['tier','level','lv']),csf:pick(h,['material cost','mat cost','cogs']),price:pick(h,['price per sf','$/sf','price','rate']),sl:pick(h,['slab length','length','sl']),sw:pick(h,['slab width','width','sw'])};
+  if(c.name<0 || c.price<0){alert('CSV needs at least Name and Price columns.');return;}
+  let added=0;
+  rows.slice(1).forEach(r=>{const name=String(r[c.name]||'').trim();if(!name)return;const price=num(r[c.price],NaN);if(!Number.isFinite(price))return;stones.push(normalizeStone({n:name,t:r[c.mat]||'Quartz',d:r[c.brand]||'',tk:r[c.tk]||'3cm',lv:r[c.lv]||'1',csf:c.csf>=0?r[c.csf]:price,r:[price,price,price],sl:c.sl>=0?r[c.sl]:127,sw:c.sw>=0?r[c.sw]:63}));added++;});
+  closeImportModal();document.getElementById('csv-text').value='';markDirty(true);updateFilters();renderTable();setStatus(`Imported ${added} rows. Review and save.`);
+}
+window.addEventListener('beforeunload', e=>{if(dirty){e.preventDefault();e.returnValue='';}});
+reloadCatalog().catch(err=>{console.error(err);setStatus(err.message || 'Could not load catalog.', 'err');});
+</script>
+</body>
+</html>

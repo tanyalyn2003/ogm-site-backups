@@ -1,0 +1,42 @@
+# Olive Glass & Marble
+
+> Olive Glass & Marble is a Fayetteville, North Carolina company that fabricates and installs custom stone countertops, shower glass, mirrors, backsplashes, and commercial surface projects.
+
+Use this file as a concise guide to the main public pages on the site. Prefer the service pages for current offerings, materials, process details, and contact information.
+
+Primary service area: Fayetteville, NC and surrounding communities in the region.
+
+## Core Pages
+
+- [Home](https://oliveglassandmarble.com/): Main company overview, featured services, and primary calls to action.
+- [Countertops](https://oliveglassandmarble.com/countertops.html): Custom countertop fabrication and installation overview.
+- [Glass](https://oliveglassandmarble.com/glass.html): Shower glass, mirrors, and custom glass services.
+- [Commercial](https://oliveglassandmarble.com/commercial.html): Commercial fabrication and installation capabilities.
+- [Contact](https://oliveglassandmarble.com/contact.html): Contact details and lead form.
+
+## Materials
+
+- [Granite Countertops](https://oliveglassandmarble.com/granite-countertops.html): Granite countertop options, fabrication, and installation.
+- [Quartz Countertops](https://oliveglassandmarble.com/quartz-countertops.html): Quartz countertop options, fabrication, and installation.
+- [Quartzite Countertops](https://oliveglassandmarble.com/quartzite-countertops.html): Quartzite countertop options, fabrication, and installation.
+- [Marble Countertops](https://oliveglassandmarble.com/marble-countertops.html): Marble countertop options, fabrication, and installation.
+- [Cultured Marble Countertops](https://oliveglassandmarble.com/cultured-marble-countertops.html): Cultured marble options and project fit.
+- [Sintered Stone Countertops](https://oliveglassandmarble.com/sintered-stone-countertops.html): Sintered stone surface options and project fit.
+
+## Process
+
+- [Our Countertop Process](https://oliveglassandmarble.com/our-process-countertops.html): Countertop consultation, templating, fabrication, and installation steps.
+- [Our Glass Process](https://oliveglassandmarble.com/our-process-glass.html): Glass consultation, measurement, fabrication, and installation steps.
+
+## Supporting Pages
+
+- [Products](https://oliveglassandmarble.com/products.html): Material and product overview.
+- [Edge Profiles](https://oliveglassandmarble.com/edge-profiles.html): Countertop edge profile options.
+- [Backsplash](https://oliveglassandmarble.com/backsplash.html): Backsplash options and related design information.
+- [Gallery](https://oliveglassandmarble.com/gallery.html): Completed project examples and visual portfolio.
+- [Resources](https://oliveglassandmarble.com/resources.html): Planning resources and supporting information.
+- [About](https://oliveglassandmarble.com/about.html): Company background and local business context.
+
+## Optional
+
+- [Sitemap](https://oliveglassandmarble.com/sitemap.xml): XML sitemap for the public site.

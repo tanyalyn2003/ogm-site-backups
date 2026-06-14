@@ -1,0 +1,100 @@
+{
+    "_type": "ogm-quote-summary",
+    "productLine": "stone",
+    "quoteNumber": "1778946325368",
+    "invoiceNumber": "84555",
+    "invoiceDate": "2026-05-16",
+    "convertedAt": "2026-05-16T15:45:25.368Z",
+    "depositReceiptNumber": "",
+    "depositRecordedAt": "",
+    "depositAmount": null,
+    "jobCode": "T1.Inv.Instal",
+    "jobType": "Installed",
+    "installDate": "2026-05-05",
+    "hrsEst": 8,
+    "hrsAct": 4,
+    "jtNotes": "",
+    "cosTotal": 1399.1,
+    "cosTax": 0,
+    "cosLabor": 0,
+    "name": "Rose Construction",
+    "phone": "910-818-5296",
+    "email": "wendybledsoe07@gmail.com",
+    "addr": "2520 McFayden Road",
+    "city": "Fayetteville, NC  28306",
+    "installAddr": "",
+    "installCity": "",
+    "job": "307 Blakefield - Morro",
+    "salesperson": "Sed",
+    "stone": "",
+    "sqft": 66.15,
+    "totalSF": 66.15,
+    "date": "May 16, 2026",
+    "total": 0,
+    "grand": 0,
+    "workflowPhase": "Invoiced",
+    "status": "invoiced",
+    "savedAt": "2026-05-16T15:45:25.368Z",
+    "linkedCustomerId": "C19E2C15784471E",
+    "rep": "Sed",
+    "invoiceTotal": 4427.48,
+    "updatedAt": "2026-05-16T18:42:10+00:00",
+    "_changeLog": [
+        {
+            "at": "2026-05-16T18:11:45+00:00",
+            "by": "Sed",
+            "changes": [
+                {
+                    "field": "Customer name",
+                    "from": "Dreamworks Construction(Bledsoe)",
+                    "to": "Rose Construction"
+                },
+                {
+                    "field": "Job description",
+                    "from": "",
+                    "to": "307 Blakefield - Morro"
+                },
+                {
+                    "field": "Salesperson",
+                    "from": "Tanya Wadkins (TW)",
+                    "to": "Sed"
+                },
+                {
+                    "field": "Invoice #",
+                    "from": "INV-20260516-001",
+                    "to": "84555"
+                },
+                {
+                    "field": "Invoice amount",
+                    "from": "",
+                    "to": "4427.48"
+                },
+                {
+                    "field": "Install date",
+                    "from": "",
+                    "to": "2026-05-05"
+                },
+                {
+                    "field": "Actual hours / time on site",
+                    "from": "0",
+                    "to": "4"
+                },
+                {
+                    "field": "Material/COS",
+                    "from": "0",
+                    "to": "1399.1"
+                },
+                {
+                    "field": "Square feet",
+                    "from": "0",
+                    "to": "66.15"
+                },
+                {
+                    "field": "Square feet",
+                    "from": "0",
+                    "to": "66.15"
+                }
+            ]
+        }
+    ]
+}

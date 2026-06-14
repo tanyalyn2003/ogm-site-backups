@@ -1,0 +1,55 @@
+OGM local backups migration to github-backups
+Date: 2026-06-14
+Source: /Users/tanyawhite/OGM/backups/ (46 folders) + site-backups/
+
+Folders/files copied:
+1.0M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-27-170042-design-layout-room-wiring
+1.0M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-27-202548-designer-layout-wiring-pass2
+ 44K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-27-210059-hub-website-sop-restore
+ 24K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-27-211429-hub-catalog-team-logins
+824K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-27-214226-quote-list-status
+  0B	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-27-220842-print-button-fix
+1.0M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-27-224047-design-layout-wiring
+432K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-27-233711-jobs-clock-calibration-opacity
+120K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-28-0629-glass-quote-search
+1.0M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-28-0653-design-stone-assignment
+1.0M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-28-0814-design-stone-edge-pricing
+1.0M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-28-0957-stone-catalog-refresh-design
+852K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-28-1356-before-print-override
+852K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-29-1012-room-tabs-sinks
+ 76K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-05-30-215724-employee-hub-integration
+1.2M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-09-1035-design-controls
+1.2M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-09-1056-design-sink-shapes
+972K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-09-1135-distance-pricing
+  0B	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-09-1325-deposit-qb
+1.3M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-09-1457-project-proposals
+1.1M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-09-2310-project-proposal-complete-local-edits
+140K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-09-products-sink-header
+  0B	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-10-104015-timesheet-hours-source
+1.5M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-10-121140-multipage-pdf-doc-save
+560K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-10-200829-kitchenplanner-upload
+272K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-10-2249-timesheet-rounding
+328K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-10-2358-room-proposal-viewer
+ 72K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-10-3d-grid-toggle
+1.3M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-10-sink-cutout-qty
+1.3M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-10-sink-rotation-persistence
+1.1M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-11-0718-viewer-assembly-theme
+2.5M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-11-0821-design-labels-info
+  0B	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-11-085100-address-upload
+1.3M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-11-091134-shape-sync
+1.1M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-11-1036-proposal-linking-local
+1.2M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-12-1010-email-invoice-upload
+1.3M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-12-1909-dxf-layout-local
+1.2M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-12-1935-backsplash-assembly-local
+300K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-12-2008-clear-dxf-local
+ 80K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-12-2148-email-center-local
+124K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-12-email-proposal-room-fix-local
+192K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/2026-06-12-remove-3d-slab-plane
+1.3M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/20260609-125432-distance-viewer
+8.0K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/MANIFEST.txt
+1.2M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/oliveglassandmarble-site-no-images-quotes-customers-2026-05-21-1027.zip
+208M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/pre-godaddy-refresh-2026-05-23-1306
+636K	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/quoter-tool-working-2026-05-21-0958.zip
+ 18M	/Users/tanyawhite/OGM/github-backups/migrated-local-backups-20260614/site-backups-oliveglassandmarble-no-media-2026-05-21-1027
+
+Note: 27 newer workflow folders in backups/ were already mirrored at github-backups root; not duplicated here.

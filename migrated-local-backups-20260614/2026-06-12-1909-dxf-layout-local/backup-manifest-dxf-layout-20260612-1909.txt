@@ -1,0 +1,9 @@
+DXF layout import fix — 2026-06-12 19:09
+Fresh GoDaddy pull: /Users/tanyawhite/OGM/fresh-godaddy-pulls/2026-06-12-1909-dxf-layout/
+Local backups: /Users/tanyawhite/OGM/backups/2026-06-12-1909-dxf-layout-local/
+Files touched:
+- OGM_KitchenPlanner.html: direct DXF import now requests layout-preserved geometry and falls back if stacked.
+- ogm-quoter-internal.html: DXF parser now returns optional layoutPoly while preserving existing poly behavior.
+Checks:
+- php -l passed for both HTML files.
+- inline JavaScript node --check passed for both HTML files.

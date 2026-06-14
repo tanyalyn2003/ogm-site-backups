@@ -1,0 +1,19 @@
+{
+    "_type": "ogm-quote-summary",
+    "quoteNumber": "1778854634236",
+    "invoiceNumber": "",
+    "name": "ttt",
+    "phone": "(910) 484-5277",
+    "email": "OGM.Tanya@gmail.com",
+    "addr": "714 Robeson Street",
+    "city": "Fayetteville",
+    "installAddr": "",
+    "installCity": "",
+    "job": "",
+    "salesperson": "Tanya Wadkins (TW)",
+    "date": "May 15, 2026",
+    "total": 0,
+    "status": "draft",
+    "savedAt": "2026-05-15T14:17:14.235Z",
+    "linkedCustomerId": "CMP6ZWNPO04B"
+}

@@ -1,0 +1,70 @@
+{
+    "_type": "ogm-quote-summary",
+    "productLine": "stone",
+    "quoteNumber": "1778944040346",
+    "invoiceNumber": "Warranty",
+    "invoiceDate": "2026-05-16",
+    "convertedAt": "2026-05-16T20:20:00.760Z",
+    "depositReceiptNumber": "",
+    "depositRecordedAt": "",
+    "depositAmount": null,
+    "jobCode": "T1.Warranty",
+    "jobType": "Installed",
+    "installDate": "2026-05-05",
+    "hrsEst": 8,
+    "hrsAct": 3,
+    "jtNotes": "",
+    "cosTotal": 0,
+    "cosTax": 0,
+    "cosLabor": 0,
+    "taxMode": "backout",
+    "taxBackoutAmount": 0,
+    "taxBase": 0,
+    "taxExemptReason": "",
+    "useNcRpSplit": false,
+    "name": "Dreamworks",
+    "phone": "",
+    "email": "",
+    "addr": "",
+    "city": "",
+    "installAddr": "",
+    "installCity": "",
+    "job": "Sampson Co - Seam Repair - Macombo Gray - Macombo Gray",
+    "salesperson": "Austen",
+    "stone": "Macombo Gray",
+    "sqft": 0,
+    "totalSF": 0,
+    "date": "May 16, 2026",
+    "total": 478.125,
+    "grand": 478.125,
+    "invoiceTotal": 0,
+    "workflowPhase": "Invoiced",
+    "status": "invoiced",
+    "savedAt": "2026-05-16T20:20:00.759Z",
+    "linkedCustomerId": "CMP8SIQGA915",
+    "rep": "Austen",
+    "updatedAt": "2026-05-16T20:25:47+00:00",
+    "_changeLog": [
+        {
+            "at": "2026-05-16T20:25:47+00:00",
+            "by": "Sed",
+            "changes": [
+                {
+                    "field": "Job description",
+                    "from": "Sampson Co - Seam Repair - Macombo Gray",
+                    "to": "Sampson Co - Seam Repair - Macombo Gray - Macombo Gray"
+                },
+                {
+                    "field": "Square feet",
+                    "from": "10.625",
+                    "to": "0"
+                },
+                {
+                    "field": "Square feet",
+                    "from": "10.625",
+                    "to": "0"
+                }
+            ]
+        }
+    ]
+}

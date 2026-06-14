@@ -1,0 +1,1 @@
+{"savedAt":"2026-04-22T01:36:28+00:00","snapshot":{"version":1,"units":"in","createdAt":"2026-04-22T01:36:28.293Z","stones":[{"key":"0","name":"Stone","sl":126,"sw":63,"tk":"3cm"}],"parts":[{"id":"1","roomId":1,"label":"Kitchen","stoneKey":"0","geom":{"kind":"rect","w":111,"h":11},"placement":{"x":2,"y":0,"rot":180,"slabIndex":0},"cutouts":[],"seams":[],"splashRuns":[]}]}}

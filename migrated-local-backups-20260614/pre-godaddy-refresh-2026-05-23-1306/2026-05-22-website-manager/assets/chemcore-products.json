@@ -1,0 +1,225 @@
+[
+  {
+    "title": "Blanco Ikon 33\" Double Bowl (1.75)",
+    "slug": "blanco-iron",
+    "category": "Kitchen Sink",
+    "sinkType": "undermount",
+    "image": "assets/chemcore/kitchen-sinks/blanco-iron/images/401777_IKON_30_GL_TR_WI.jpg",
+    "spec": null,
+    "colors": [
+      "Black",
+      "Anthracite",
+      "Cinder",
+      "Metallic Gray",
+      "White",
+      "Truffle",
+      "Caf\u00e9",
+      "Volcano Gray",
+      "Soft White"
+    ],
+    "source": "https://www.chemcore.com/products/blanco-iron",
+    "tags": [
+      "blanco",
+      "blancosilgranit",
+      "doublebowl",
+      "SILGRANIT",
+      "sinks"
+    ]
+  },
+  {
+    "title": "Blanco Profina 36\" Single Bowl",
+    "slug": "blanco-profina",
+    "category": "Kitchen Sink",
+    "sinkType": "farmhouse",
+    "image": "assets/chemcore/kitchen-sinks/blanco-profina/images/401808-profina-crwh-442504-empressa-bridge-ch-401989-cuttingboard-401807-dishrack-bs-image-960w-540h-1.jpg",
+    "spec": null,
+    "colors": [],
+    "source": "https://www.chemcore.com/products/blanco-profina",
+    "tags": [
+      "apron",
+      "blanco",
+      "blancofireclay",
+      "fireclay",
+      "singlebowl",
+      "sinks"
+    ]
+  },
+  {
+    "title": "Metroplace 70/30",
+    "slug": "metroplace-double-bowl-sink-70-30",
+    "category": "Kitchen Sink",
+    "sinkType": "undermount",
+    "image": "assets/chemcore/kitchen-sinks/metroplace-double-bowl-sink-70-30/images/401900_IKON_33_GL_MG_WI.jpg",
+    "spec": "assets/chemcore/kitchen-sinks/metroplace-double-bowl-sink-70-30/specs/chemcore_sink_specification_sheet-metroplace_mp7030.pdf",
+    "colors": [],
+    "source": "https://www.chemcore.com/products/metroplace-double-bowl-sink-70-30",
+    "tags": [
+      "18gauge",
+      "70/30",
+      "doublebowl",
+      "metroplace",
+      "sinks",
+      "stainlesssteel",
+      "undermounttype"
+    ]
+  },
+  {
+    "title": "Nova Europa 33\" 50/50 Reversible Apron",
+    "slug": "nova-europa-50-50-with-center-drains",
+    "category": "Kitchen Sink",
+    "sinkType": "farmhouse",
+    "image": "assets/chemcore/kitchen-sinks/nova-europa-50-50-with-center-drains/images/401900_IKON_33_GL_MG_WI.jpg",
+    "spec": "assets/chemcore/kitchen-sinks/nova-europa-50-50-with-center-drains/specs/chemcore_sink_specification_sheet_nova-europa_ne-7393.pdf",
+    "colors": [
+      "White"
+    ],
+    "source": "https://www.chemcore.com/products/nova-europa-50-50-with-center-drains",
+    "tags": [
+      "50/50",
+      "apron",
+      "doublebowl",
+      "fireclay",
+      "novaeuropa",
+      "sinks"
+    ]
+  },
+  {
+    "title": "Leonet Bravo",
+    "slug": "leonet-bravo",
+    "category": "Kitchen Sink",
+    "sinkType": "undermount",
+    "image": "assets/chemcore/kitchen-sinks/leonet-bravo/images/401900_IKON_33_GL_MG_WI.jpg",
+    "spec": "assets/chemcore/kitchen-sinks/leonet-bravo/specs/chemcore_sink_specification_sheet-leonet_le-r14(bravo).pdf",
+    "colors": [],
+    "source": "https://www.chemcore.com/products/leonet-bravo",
+    "tags": [
+      "18gauge",
+      "closeout",
+      "leonet",
+      "singlebowl",
+      "sinks",
+      "stainlesssteel"
+    ]
+  },
+  {
+    "title": "Blanco Quatrus R0 32\" Equal Double Bowl",
+    "slug": "blanco-quatrus-r0",
+    "category": "Kitchen Sink",
+    "sinkType": "undermount",
+    "image": "assets/chemcore/kitchen-sinks/blanco-quatrus-r0/images/101247QUSBS-01.jpg",
+    "spec": null,
+    "colors": [],
+    "source": "https://www.chemcore.com/products/blanco-quatrus-r0",
+    "tags": [
+      "18gauge",
+      "blanco",
+      "blancostainless",
+      "doublebowl",
+      "sinks",
+      "stainlesssteel"
+    ]
+  },
+  {
+    "title": "Continental Ceramic - Vessel Style (Mixer)",
+    "slug": "continental-cermaic-vessel-style",
+    "category": "Bathroom Vanity Sink",
+    "sinkType": "vessel",
+    "image": "assets/chemcore/bathroom-vanity-sinks/continental-cermaic-vessel-style/images/401900_IKON_33_GL_MG_WI.jpg",
+    "spec": "assets/chemcore/bathroom-vanity-sinks/continental-cermaic-vessel-style/specs/chemcore_sink_specification_sheet-continental_mixer.pdf",
+    "colors": [
+      "White",
+      "Bisque",
+      "Black"
+    ],
+    "source": "https://www.chemcore.com/products/continental-cermaic-vessel-style",
+    "tags": [
+      "ceramic",
+      "continental",
+      "singlebowl",
+      "vanity",
+      "vessel"
+    ]
+  },
+  {
+    "title": "Continental Ceramic - Oval Undermount (Lotus)",
+    "slug": "continental-cermaic-oval-undermount",
+    "category": "Bathroom Vanity Sink",
+    "sinkType": "undermount",
+    "image": "assets/chemcore/bathroom-vanity-sinks/continental-cermaic-oval-undermount/images/401900_IKON_33_GL_MG_WI.jpg",
+    "spec": "assets/chemcore/bathroom-vanity-sinks/continental-cermaic-oval-undermount/specs/chemcore_sink_specification_sheet-continental_lotus.pdf",
+    "colors": [
+      "White",
+      "Bisque"
+    ],
+    "source": "https://www.chemcore.com/products/continental-cermaic-oval-undermount",
+    "tags": [
+      "ceramic",
+      "continental",
+      "singlebowl",
+      "undermounttype",
+      "vanity"
+    ]
+  },
+  {
+    "title": "Continental Ceramic - Rectangular Undermount (Trough)",
+    "slug": "continental-cermaic-rectangular-undermount",
+    "category": "Bathroom Vanity Sink",
+    "sinkType": "undermount",
+    "image": "assets/chemcore/bathroom-vanity-sinks/continental-cermaic-rectangular-undermount/images/401900_IKON_33_GL_MG_WI.jpg",
+    "spec": "assets/chemcore/bathroom-vanity-sinks/continental-cermaic-rectangular-undermount/specs/chemcore_sink_specification_sheet-continental_trough.pdf",
+    "colors": [
+      "White",
+      "Bisque",
+      "Black"
+    ],
+    "source": "https://www.chemcore.com/products/continental-cermaic-rectangular-undermount",
+    "tags": [
+      "ceramic",
+      "continental",
+      "singlebowl",
+      "undermounttype",
+      "vanity"
+    ]
+  },
+  {
+    "title": "Continental Ceramic - Farmhouse Vanity (Mojo)",
+    "slug": "continental-cermaic-farmhouse-bathroom-vanity",
+    "category": "Bathroom Vanity Sink",
+    "sinkType": "farmhouse",
+    "image": "assets/chemcore/bathroom-vanity-sinks/continental-cermaic-farmhouse-bathroom-vanity/images/401900_IKON_33_GL_MG_WI.jpg",
+    "spec": "assets/chemcore/bathroom-vanity-sinks/continental-cermaic-farmhouse-bathroom-vanity/specs/chemcore_sink_specification_sheet-continental_mojo.pdf",
+    "colors": [
+      "White"
+    ],
+    "source": "https://www.chemcore.com/products/continental-cermaic-farmhouse-bathroom-vanity",
+    "tags": [
+      "bathroomsinks",
+      "ceramic",
+      "continental",
+      "farmhouse",
+      "undermounttype",
+      "vanity"
+    ]
+  },
+  {
+    "title": "Continental Ceramic - Drop-In (Ledge)",
+    "slug": "continental-cermaic-drop-in-style",
+    "category": "Bathroom Vanity Sink",
+    "sinkType": "drop-in",
+    "image": "assets/chemcore/bathroom-vanity-sinks/continental-cermaic-drop-in-style/images/401900_IKON_33_GL_MG_WI.jpg",
+    "spec": "assets/chemcore/bathroom-vanity-sinks/continental-cermaic-drop-in-style/specs/chemcore_sink_specification_sheet-continental_ledge.pdf",
+    "colors": [
+      "White",
+      "Bisque"
+    ],
+    "source": "https://www.chemcore.com/products/continental-cermaic-drop-in-style",
+    "tags": [
+      "ceramic",
+      "continental",
+      "dropin",
+      "dropintype",
+      "singlebowl",
+      "vanity"
+    ]
+  }
+]

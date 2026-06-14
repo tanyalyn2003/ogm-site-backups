@@ -1,0 +1,131 @@
+{
+    "_type": "ogm-quote-summary",
+    "productLine": "glass",
+    "quoteNumber": "GLS-2026-00008",
+    "name": "Andy Brotzman",
+    "phone": "(910) 988-3925",
+    "email": "",
+    "job": "",
+    "addr": "",
+    "city": "",
+    "total": 168.3538,
+    "grand": 168.3538,
+    "date": "May 20, 2026",
+    "salesperson": "Tanya Wadkins (TW)",
+    "savedAt": "2026-05-21T20:26:29.736Z",
+    "status": "invoiced",
+    "linkedCustomerId": "CMPEDEJHO165",
+    "workflowPhase": "Invoiced",
+    "glassSnapshot": {
+        "invNum": "GLS-2026-00008",
+        "date": "May 20, 2026",
+        "salesperson": "Tanya Wadkins (TW)",
+        "custName": "Andy Brotzman",
+        "custPhone": "(910) 988-3925",
+        "custEmail": "",
+        "jobName": "",
+        "svcAddr": "",
+        "svcCity": "",
+        "notes": "",
+        "lineItems": [
+            {
+                "id": 1,
+                "description": "\ud83d\udd32 Float Glass",
+                "glassType": "Float Glass",
+                "thickness": "1/4\"",
+                "finish": "Polished Edge",
+                "widthIn": "29",
+                "heightIn": "29",
+                "qty": "2",
+                "notes": "",
+                "amount": "132.34",
+                "priceHint": "$11.33/sf \u00d7 5.84 sf \u00d7 qty 2"
+            },
+            {
+                "id": 3,
+                "description": "For the Shape",
+                "glassType": "",
+                "thickness": "",
+                "finish": "",
+                "widthIn": "",
+                "heightIn": "",
+                "qty": "2",
+                "notes": "",
+                "amount": "25",
+                "priceHint": ""
+            }
+        ],
+        "subtotal": 157.34,
+        "ccOn": false,
+        "ccAmt": 0,
+        "taxAmt": 11.013800000000002,
+        "total": 168.3538,
+        "depositPct": 60,
+        "depositAmt": 101.01228,
+        "balanceAmt": 67.34152,
+        "savedAt": "2026-05-21T20:26:29.736Z"
+    },
+    "depositReceiptNumber": "REC-20260521-001",
+    "depositAmount": 168.35,
+    "depositRecordedAt": "2026-05-21T19:43:04.476Z",
+    "invoiceNumber": "INV-20260521-GLS",
+    "invoiceDate": "",
+    "invoiceTotal": 168.35,
+    "convertedAt": "2026-05-21T20:26:29.736Z",
+    "cosTotal": 157.34,
+    "taxMode": "backout",
+    "taxBackoutAmount": 11.01,
+    "jobCode": "T1.Inv.Instal",
+    "installDate": "",
+    "hrsEst": 0,
+    "hrsAct": 0,
+    "glassWorkHours": 0,
+    "_changeLog": [
+        {
+            "at": "2026-05-21T20:26:30+00:00",
+            "by": "Sed",
+            "changes": [
+                {
+                    "field": "Invoice #",
+                    "from": "",
+                    "to": "INV-20260521-GLS"
+                },
+                {
+                    "field": "Invoice amount",
+                    "from": "",
+                    "to": "168.35"
+                },
+                {
+                    "field": "Estimated hours",
+                    "from": "",
+                    "to": "0"
+                },
+                {
+                    "field": "Actual hours / time on site",
+                    "from": "",
+                    "to": "0"
+                },
+                {
+                    "field": "Job code",
+                    "from": "",
+                    "to": "T1.Inv.Instal"
+                },
+                {
+                    "field": "Material/COS",
+                    "from": "",
+                    "to": "157.34"
+                },
+                {
+                    "field": "Tax mode",
+                    "from": "",
+                    "to": "backout"
+                },
+                {
+                    "field": "Backed-out tax",
+                    "from": "",
+                    "to": "11.01"
+                }
+            ]
+        }
+    ]
+}

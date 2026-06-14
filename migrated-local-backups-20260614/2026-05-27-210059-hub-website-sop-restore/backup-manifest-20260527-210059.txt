@@ -1,0 +1,14 @@
+Hub Website Manager + SOP Library restore
+Timestamp: 2026-05-27 21:00:59
+
+Original working file:
+/Users/tanyawhite/OGM/quoter-tool-working/OGM_Hub.html
+
+Working backup:
+/Users/tanyawhite/OGM/backups/2026-05-27-210059-hub-website-sop-restore/OGM_Hub.working-backup-before-website-sop-restore-20260527-210059.html
+
+Live pull backup:
+/Users/tanyawhite/OGM/backups/2026-05-27-210059-hub-website-sop-restore/OGM_Hub.live-backup-before-website-sop-restore-20260527-210059.html
+
+Reason:
+Restore missing hub-only Website Manager and SOP Library cards while preserving current Team Marketplace card.

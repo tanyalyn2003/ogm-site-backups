@@ -1,0 +1,11 @@
+original file: /Users/tanyawhite/OGM/quoter-tool-working/OGM_KitchenPlanner.html
+backup file: /Users/tanyawhite/OGM/backups/2026-05-28-0653-design-stone-assignment/OGM_KitchenPlanner.remote-before-design-stone-assignment-20260528-0653.html
+reason touched: add stone selector to Design room assignment and export stone fields
+timestamp: 2026-05-28 06:53
+
+original file: /Users/tanyawhite/OGM/quoter-tool-working/ogm-quoter-internal.html
+backup file: /Users/tanyawhite/OGM/backups/2026-05-28-0653-design-stone-assignment/ogm-quoter-internal.remote-before-design-stone-assignment-20260528-0653.html
+reason touched: pass stone catalog to planner and import assigned stones into room pricing
+timestamp: 2026-05-28 06:53
+
+remote backup folder: public_html/quoter-tool/backups/20260528-0653-design-stone-assignment/

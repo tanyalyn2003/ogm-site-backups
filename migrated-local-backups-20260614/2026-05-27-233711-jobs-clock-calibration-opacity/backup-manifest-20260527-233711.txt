@@ -1,0 +1,9 @@
+Backup manifest: jobs-clock-calibration-opacity 20260527-233711
+
+OGM_KitchenPlanner.html -> OGM_KitchenPlanner.backup-before-calibration-20260527-233711.html : restore calibrated image/PDF measurement mapping
+ogm-accessibility.css -> ogm-accessibility.backup-before-mic-opacity-20260527-233711.css : match microphone opacity to dark mode button
+OGM_ProductionBoard.html -> OGM_ProductionBoard.backup-before-timeclock-20260527-233711.html : time clock reliability patch from fresh live copy
+OGM_JobTracking.html -> OGM_JobTracking.backup-before-customer-link-check-20260527-233711.html : customer link marker backup/check
+Remote backup folder: public_html/quoter-tool/backups/20260527-233711-jobs-clock-calibration-opacity
+Uploaded files: OGM_KitchenPlanner.html, ogm-accessibility.css, OGM_ProductionBoard.html, OGM_JobTracking.html
+Uploaded verification folder: /private/tmp/ogm-upload-verify-20260527-233711

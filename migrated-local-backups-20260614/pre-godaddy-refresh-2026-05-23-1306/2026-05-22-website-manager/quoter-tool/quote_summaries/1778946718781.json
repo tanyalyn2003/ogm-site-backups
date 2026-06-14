@@ -1,0 +1,148 @@
+{
+    "_type": "ogm-quote-summary",
+    "productLine": "stone",
+    "quoteNumber": "1778946718781",
+    "invoiceNumber": "84554",
+    "invoiceDate": "2026-05-16",
+    "convertedAt": "2026-05-16T15:51:58.781Z",
+    "depositReceiptNumber": "",
+    "depositRecordedAt": "",
+    "depositAmount": null,
+    "jobCode": "T1.Inv.Instal",
+    "jobType": "Installed",
+    "installDate": "2026-05-06",
+    "hrsEst": 8,
+    "hrsAct": 3,
+    "jtNotes": "",
+    "cosTotal": 1102.04,
+    "cosTax": 0,
+    "cosLabor": 0,
+    "name": "Pendergraft",
+    "phone": "910-987-2594",
+    "email": "SusanLRose50@gmail.com",
+    "addr": "406 Brightwood Dr.",
+    "city": "Fayetteville, NC  28303",
+    "installAddr": "",
+    "installCity": "",
+    "job": "8021 Blaze - Lunar Pearl",
+    "salesperson": "Sed",
+    "stone": "",
+    "sqft": 70.21,
+    "totalSF": 70.21,
+    "date": "May 16, 2026",
+    "total": 0,
+    "grand": 0,
+    "workflowPhase": "Invoiced",
+    "status": "invoiced",
+    "savedAt": "2026-05-16T15:51:58.780Z",
+    "linkedCustomerId": "C19E2C16B974S1S",
+    "rep": "Sed",
+    "invoiceTotal": 4020.5,
+    "updatedAt": "2026-05-16T18:42:35+00:00",
+    "_changeLog": [
+        {
+            "at": "2026-05-16T17:15:13+00:00",
+            "by": "Sed",
+            "changes": [
+                {
+                    "field": "Job description",
+                    "from": "",
+                    "to": "Stone job"
+                },
+                {
+                    "field": "Invoice amount",
+                    "from": "",
+                    "to": "0"
+                },
+                {
+                    "field": "Install date",
+                    "from": "",
+                    "to": "2026-05-16"
+                },
+                {
+                    "field": "Actual hours / time on site",
+                    "from": "0",
+                    "to": "8"
+                }
+            ]
+        },
+        {
+            "at": "2026-05-16T18:32:09+00:00",
+            "by": "Sed",
+            "changes": [
+                {
+                    "field": "Install date",
+                    "from": "2026-05-16",
+                    "to": "2026-05-08"
+                }
+            ]
+        },
+        {
+            "at": "2026-05-16T18:32:37+00:00",
+            "by": "Sed",
+            "changes": [
+                {
+                    "field": "Salesperson",
+                    "from": "Tanya Wadkins (TW)",
+                    "to": "Tsed"
+                }
+            ]
+        },
+        {
+            "at": "2026-05-16T18:42:35+00:00",
+            "by": "Sed",
+            "changes": [
+                {
+                    "field": "Customer name",
+                    "from": "Rose, Rose, Susan & James(Hobgood Construction)",
+                    "to": "Pendergraft"
+                },
+                {
+                    "field": "Job description",
+                    "from": "Stone job",
+                    "to": "8021 Blaze - Lunar Pearl"
+                },
+                {
+                    "field": "Salesperson",
+                    "from": "Tsed",
+                    "to": "Sed"
+                },
+                {
+                    "field": "Invoice #",
+                    "from": "INV-20260516-001",
+                    "to": "84554"
+                },
+                {
+                    "field": "Invoice amount",
+                    "from": "0",
+                    "to": "4020.5"
+                },
+                {
+                    "field": "Install date",
+                    "from": "2026-05-08",
+                    "to": "2026-05-06"
+                },
+                {
+                    "field": "Actual hours / time on site",
+                    "from": "8",
+                    "to": "3"
+                },
+                {
+                    "field": "Material/COS",
+                    "from": "0",
+                    "to": "1102.04"
+                },
+                {
+                    "field": "Square feet",
+                    "from": "0",
+                    "to": "70.21"
+                },
+                {
+                    "field": "Square feet",
+                    "from": "0",
+                    "to": "70.21"
+                }
+            ]
+        }
+    ]
+}

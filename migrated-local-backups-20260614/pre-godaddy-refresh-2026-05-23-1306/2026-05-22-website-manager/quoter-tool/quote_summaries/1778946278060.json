@@ -1,0 +1,111 @@
+{
+    "_type": "ogm-quote-summary",
+    "productLine": "stone",
+    "quoteNumber": "1778946278060",
+    "invoiceNumber": "84549",
+    "invoiceDate": "2026-05-16",
+    "convertedAt": "2026-05-16T15:44:38.060Z",
+    "depositReceiptNumber": "",
+    "depositRecordedAt": "",
+    "depositAmount": null,
+    "jobCode": "T1.Inv.Instal",
+    "jobType": "Installed",
+    "installDate": "2026-05-05",
+    "hrsEst": 8,
+    "hrsAct": 1,
+    "jtNotes": "",
+    "cosTotal": 379.37,
+    "cosTax": 0,
+    "cosLabor": 0,
+    "name": "Starling, Betty",
+    "phone": "910-476-1905",
+    "email": "",
+    "addr": "5417 Sunnybright Ln",
+    "city": "Hope Mills, NC  28348",
+    "installAddr": "",
+    "installCity": "",
+    "job": "Vanity - White Ice",
+    "salesperson": "Sed",
+    "stone": "",
+    "sqft": 34.63,
+    "totalSF": 34.63,
+    "date": "May 16, 2026",
+    "total": 0,
+    "grand": 0,
+    "workflowPhase": "Invoiced",
+    "status": "invoiced",
+    "savedAt": "2026-05-16T15:44:38.059Z",
+    "linkedCustomerId": "C19E2C161B6DFID",
+    "rep": "Sed",
+    "invoiceTotal": 1518.75,
+    "updatedAt": "2026-05-16T18:41:42+00:00",
+    "_changeLog": [
+        {
+            "at": "2026-05-16T18:11:47+00:00",
+            "by": "Sed",
+            "changes": [
+                {
+                    "field": "Customer name",
+                    "from": "McCammitt, Kris and William",
+                    "to": "McStarling, BettyCammitt, Kris and William"
+                },
+                {
+                    "field": "Job description",
+                    "from": "",
+                    "to": "Vanity - White Ice"
+                },
+                {
+                    "field": "Salesperson",
+                    "from": "Tanya Wadkins (TW)",
+                    "to": "Sed"
+                },
+                {
+                    "field": "Invoice #",
+                    "from": "INV-20260516-001",
+                    "to": "84549"
+                },
+                {
+                    "field": "Invoice amount",
+                    "from": "",
+                    "to": "1518.75"
+                },
+                {
+                    "field": "Install date",
+                    "from": "",
+                    "to": "2026-05-05"
+                },
+                {
+                    "field": "Actual hours / time on site",
+                    "from": "0",
+                    "to": "1"
+                },
+                {
+                    "field": "Material/COS",
+                    "from": "0",
+                    "to": "379.37"
+                },
+                {
+                    "field": "Square feet",
+                    "from": "0",
+                    "to": "34.63"
+                },
+                {
+                    "field": "Square feet",
+                    "from": "0",
+                    "to": "34.63"
+                }
+            ]
+        },
+        {
+            "at": "2026-05-16T18:41:42+00:00",
+            "by": "Sed",
+            "changes": [
+                {
+                    "field": "Customer name",
+                    "from": "McStarling, BettyCammitt, Kris and William",
+                    "to": "Starling, Betty"
+                }
+            ]
+        }
+    ]
+}

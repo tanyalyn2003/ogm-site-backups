@@ -1,0 +1,508 @@
+{
+  "name": "Tanya Wadkins",
+  "phone": "931-802-0308",
+  "email": "Tanyalyn2003@gmail.com",
+  "addr": "Tanya Wadkins",
+  "city": "Fayetteville",
+  "installAddr": "",
+  "installCity": "",
+  "job": "—",
+  "date": "May 17, 2026",
+  "sp": "Tanya Wadkins (TW)",
+  "customFieldLines": [],
+  "rooms": [
+    {
+      "roomType": "Room 1",
+      "stone": "Iced Grey",
+      "stoneType": "Quartz",
+      "thickness": "3cm",
+      "counterSF": 38.04166666666667,
+      "backsplashSF": 0,
+      "totalSF": 38.04166666666667,
+      "pricingMethod": "Showroom Rate",
+      "stonePrice": 1711.8750000000002,
+      "addons": [],
+      "roomTotal": 1711.8750000000002
+    },
+    {
+      "roomType": "Room 2",
+      "stone": "Macombo Gray",
+      "stoneType": "Quartz",
+      "thickness": "3cm",
+      "counterSF": 41.083333333333336,
+      "backsplashSF": 0,
+      "totalSF": 41.083333333333336,
+      "pricingMethod": "Showroom Rate",
+      "stonePrice": 1848.75,
+      "addons": [],
+      "roomTotal": 1848.75
+    }
+  ],
+  "proposalGroups": [
+    {
+      "roomType": "Room 1",
+      "lines": [
+        [
+          "Room 1 — Iced Grey (Quartz · 3cm) · Countertop (38.04 sf @ $45.00/sf)",
+          "$1711.88"
+        ]
+      ],
+      "total": 1711.8750000000002
+    },
+    {
+      "roomType": "Room 2",
+      "lines": [
+        [
+          "Room 2 — Macombo Gray (Quartz · 3cm) · Countertop (41.08 sf @ $45.00/sf)",
+          "$1848.75"
+        ]
+      ],
+      "total": 1848.75
+    }
+  ],
+  "lines": [
+    [
+      "Room 1 — Iced Grey (Quartz · 3cm) · Countertop (38.04 sf @ $45.00/sf)",
+      "$1711.88"
+    ],
+    [
+      "Room 2 — Macombo Gray (Quartz · 3cm) · Countertop (41.08 sf @ $45.00/sf)",
+      "$1848.75"
+    ]
+  ],
+  "grand": 3560.625,
+  "deposit": 2136.375,
+  "balance": 1424.25,
+  "notes": "",
+  "_fileVersion": 2,
+  "_savedAt": "2026-05-18T02:20:11.983Z",
+  "state": {
+    "activeRoomId": 2,
+    "activeMainView": "rooms",
+    "customer": {
+      "name": "Tanya Wadkins",
+      "phone": "931-802-0308",
+      "email": "Tanyalyn2003@gmail.com",
+      "addr": "Tanya Wadkins",
+      "city": "Fayetteville",
+      "installAddr": "",
+      "installCity": "",
+      "installAddressEnabled": false,
+      "job": "",
+      "salesperson": "Tanya Wadkins (TW)",
+      "date": "May 17, 2026",
+      "customFields": {}
+    },
+    "misc": {
+      "notes": "",
+      "ohHours": 8,
+      "ohRate": 410,
+      "ccFee": false
+    },
+    "rooms": [
+      {
+        "id": 1,
+        "order": 0,
+        "roomType": "Room 1",
+        "stoneIdx": 0,
+        "methodKey": "showroom",
+        "customPrice": 0,
+        "counterRuns": [
+          [
+            34,
+            87
+          ]
+        ],
+        "splashRuns": [
+          [
+            0,
+            0
+          ]
+        ],
+        "splashRevealCm": 3
+      },
+      {
+        "id": 2,
+        "order": 1,
+        "roomType": "Room 2",
+        "stoneIdx": 1,
+        "methodKey": "showroom",
+        "customPrice": 0,
+        "counterRuns": [
+          [
+            0,
+            0
+          ]
+        ],
+        "splashRuns": [],
+        "splashRevealCm": 3
+      }
+    ],
+    "roomAddonStates": {
+      "1": {
+        "sink-main": {
+          "value": "0",
+          "label": "No sink hole",
+          "selectedIndex": 0
+        },
+        "sink-main-qty": {
+          "value": "1",
+          "label": "1",
+          "selectedIndex": 0
+        },
+        "sink-prep": {
+          "value": "0",
+          "label": "No sink hole",
+          "selectedIndex": 0
+        },
+        "sink-prep-qty": {
+          "value": "1",
+          "label": "1",
+          "selectedIndex": 0
+        },
+        "sink-selection": {
+          "value": "0",
+          "label": "No Sink Bowl",
+          "selectedIndex": 0
+        },
+        "sink-selection-qty": {
+          "value": "1",
+          "label": "1",
+          "selectedIndex": 0
+        },
+        "sink-selection-2": {
+          "value": "0",
+          "label": "No Sink Bowl",
+          "selectedIndex": 0
+        },
+        "sink-selection-2-qty": {
+          "value": "1",
+          "label": "1",
+          "selectedIndex": 0
+        },
+        "edge": {
+          "value": "0",
+          "label": "Eased edge",
+          "selectedIndex": 0
+        },
+        "edge-lf": {
+          "value": "0",
+          "label": "",
+          "selectedIndex": -1
+        },
+        "range": {
+          "value": "0",
+          "label": "No cooktop",
+          "selectedIndex": 0
+        },
+        "support": {
+          "value": "0",
+          "label": "No support bar",
+          "selectedIndex": 0
+        },
+        "support-qty": {
+          "value": "1",
+          "label": "",
+          "selectedIndex": -1
+        },
+        "island": {
+          "value": "0",
+          "label": "No island",
+          "selectedIndex": 0
+        },
+        "removal": {
+          "value": "0",
+          "label": "No removal (new cabinetry)",
+          "selectedIndex": 0
+        },
+        "distance": {
+          "value": "0",
+          "label": "Cumberland County",
+          "selectedIndex": 0
+        },
+        "addl-labor": {
+          "value": "0",
+          "label": "",
+          "selectedIndex": -1
+        }
+      },
+      "2": {
+        "sink-main": {
+          "value": "0",
+          "label": "No sink hole",
+          "selectedIndex": 0
+        },
+        "sink-main-qty": {
+          "value": "1",
+          "label": "1",
+          "selectedIndex": 0
+        },
+        "sink-prep": {
+          "value": "0",
+          "label": "No sink hole",
+          "selectedIndex": 0
+        },
+        "sink-prep-qty": {
+          "value": "1",
+          "label": "1",
+          "selectedIndex": 0
+        },
+        "sink-selection": {
+          "value": "0",
+          "label": "No Sink Bowl",
+          "selectedIndex": 0
+        },
+        "sink-selection-qty": {
+          "value": "1",
+          "label": "1",
+          "selectedIndex": 0
+        },
+        "sink-selection-2": {
+          "value": "0",
+          "label": "No Sink Bowl",
+          "selectedIndex": 0
+        },
+        "sink-selection-2-qty": {
+          "value": "1",
+          "label": "1",
+          "selectedIndex": 0
+        },
+        "edge": {
+          "value": "0",
+          "label": "Eased edge",
+          "selectedIndex": 0
+        },
+        "edge-lf": {
+          "value": "0",
+          "label": "",
+          "selectedIndex": -1
+        },
+        "range": {
+          "value": "0",
+          "label": "No cooktop",
+          "selectedIndex": 0
+        },
+        "support": {
+          "value": "0",
+          "label": "No support bar",
+          "selectedIndex": 0
+        },
+        "support-qty": {
+          "value": "1",
+          "label": "",
+          "selectedIndex": -1
+        },
+        "island": {
+          "value": "0",
+          "label": "No island",
+          "selectedIndex": 0
+        },
+        "removal": {
+          "value": "0",
+          "label": "No removal (new cabinetry)",
+          "selectedIndex": 0
+        },
+        "distance": {
+          "value": "0",
+          "label": "Cumberland County",
+          "selectedIndex": 0
+        },
+        "addl-labor": {
+          "value": "0",
+          "label": "",
+          "selectedIndex": -1
+        }
+      }
+    },
+    "roomShapes": {
+      "1": [
+        {
+          "shape": "rectangle",
+          "dims": {
+            "a": 56,
+            "b": 45
+          },
+          "partId": "1"
+        }
+      ],
+      "2": [
+        {
+          "shape": "rectangle",
+          "dims": {
+            "a": 87,
+            "b": 68
+          },
+          "partId": "2"
+        }
+      ]
+    },
+    "slabLayoutState": {
+      "parts": {
+        "1": {
+          "stoneKey": "0",
+          "slabIndex": 2,
+          "x": 4.705215100158711,
+          "y": 0,
+          "rot": 90
+        },
+        "room-1-counter-1": {
+          "stoneKey": "0",
+          "slabIndex": 3,
+          "x": 0,
+          "y": 0,
+          "rot": 90
+        }
+      },
+      "cutouts": [],
+      "seams": [],
+      "ui": {
+        "tool": "select",
+        "seamDraft": null,
+        "seamSnap": true,
+        "selectedCutoutPartId": null,
+        "selectedCutoutId": null,
+        "polySnapEnabled": true
+      },
+      "extraSlabsByStone": [
+        2
+      ],
+      "activePartId": "room-1-counter-1"
+    },
+    "assemblyState": {
+      "parts": {
+        "1": {
+          "roomId": 1,
+          "x": 30,
+          "y": 22.499999999999996,
+          "rot": 0
+        },
+        "room-1-counter-1": {
+          "roomId": 1,
+          "x": 59.248014504477794,
+          "y": 109.04022955756906,
+          "rot": 0
+        }
+      },
+      "splashes": [],
+      "matches": [],
+      "lockedPairs": [],
+      "edgeLabels": [],
+      "locks": [],
+      "ui": {
+        "activePartId": null,
+        "activeSplashId": null,
+        "mode": "move",
+        "hoveredPartId": null,
+        "hoveredEdge": null,
+        "pendingEdge": null,
+        "activePairId": null,
+        "roomView": [],
+        "snapMode": "center",
+        "seamGap": 0.125,
+        "freezeArrange": false,
+        "assemblyStack": [],
+        "pendingSeamLetter": null
+      }
+    },
+    "kitchenPlannerState": {
+      "objects": [
+        {
+          "id": 1,
+          "type": "counter",
+          "points": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": 87,
+              "y": 0
+            },
+            {
+              "x": 87,
+              "y": 68
+            },
+            {
+              "x": 0,
+              "y": 68
+            }
+          ],
+          "depth": 25.5,
+          "closed": true,
+          "vtxMods": [
+            {
+              "radius": 0,
+              "clip": 0
+            },
+            {
+              "radius": 0,
+              "clip": 0
+            },
+            {
+              "radius": 0,
+              "clip": 0
+            },
+            {
+              "radius": 0,
+              "clip": 0
+            }
+          ],
+          "edgeMods": [
+            {
+              "bow": 0,
+              "profile": "none",
+              "overhang": 0,
+              "splash": false,
+              "splashH": 4,
+              "waterfall": false,
+              "miter": false
+            },
+            {
+              "bow": 0,
+              "profile": "none",
+              "overhang": 0,
+              "splash": false,
+              "splashH": 4,
+              "waterfall": false,
+              "miter": false
+            },
+            {
+              "bow": 0,
+              "profile": "none",
+              "overhang": 0,
+              "splash": false,
+              "splashH": 4,
+              "waterfall": false,
+              "miter": false
+            },
+            {
+              "bow": 0,
+              "profile": "none",
+              "overhang": 0,
+              "splash": false,
+              "splashH": 4,
+              "waterfall": false,
+              "miter": false
+            }
+          ]
+        }
+      ],
+      "seams": [],
+      "cutouts": [],
+      "template": "straight",
+      "notes": "",
+      "view": {
+        "scale": 1,
+        "panX": 0,
+        "panY": 0,
+        "showGrid": false,
+        "showDims": true,
+        "gridSnapIn": 1
+      },
+      "objIdCtr": 1,
+      "kitchenTemplateObjIds": []
+    }
+  },
+  "salesperson": "Tanya Wadkins (TW)",
+  "quoteNumber": "1779069492379"
+}

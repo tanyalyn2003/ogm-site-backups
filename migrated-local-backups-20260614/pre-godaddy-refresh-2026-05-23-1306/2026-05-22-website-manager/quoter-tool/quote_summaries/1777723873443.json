@@ -1,0 +1,19 @@
+{
+    "_type": "ogm-quote-summary",
+    "quoteNumber": "1777723873443",
+    "invoiceNumber": "",
+    "name": "RGS Construction",
+    "phone": "",
+    "email": "",
+    "addr": "",
+    "city": "",
+    "installAddr": "",
+    "installCity": "",
+    "job": "Walker - 85 Bel Air Drive, Pinehurst, NC",
+    "salesperson": "G Sedberry Olive (SO)",
+    "date": "May 2, 2026",
+    "total": 0,
+    "status": "draft",
+    "savedAt": "2026-05-04T13:23:17.709Z",
+    "linkedCustomerId": null
+}
