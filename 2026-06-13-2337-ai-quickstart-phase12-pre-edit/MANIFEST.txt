@@ -1,6 +1,0 @@
-phase: pre-edit
-task: ai-quickstart-phase12
-file: ai-quickstart-config.php
-remote_path: public_html/quoter-tool/ai-quickstart-config.php
-source: /Users/tanyawhite/OGM/quoter-tool-working/ai-quickstart-config.php
-timestamp: 20260613-233735

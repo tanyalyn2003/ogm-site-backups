@@ -1,6 +1,0 @@
-phase: post-edit
-task: workflow-setup-test
-file: hub.php
-remote_path: public_html/quoter-tool/hub.php
-source: /Users/tanyawhite/OGM/quoter-tool-working/hub.php
-timestamp: 20260613-224230

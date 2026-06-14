@@ -1,5 +1,0 @@
-Backup manifest - quote list status restore - 20260527-214226
-original: /Users/tanyawhite/OGM/quoter-tool-working/ogm-quoter-internal.html
-backup: /Users/tanyawhite/OGM/quoter-tool-working/ogm-quoter-internal.backup-before-quote-list-status-20260527-214226.html
-live pull backup: /Users/tanyawhite/OGM/backups/2026-05-27-214226-quote-list-status/ogm-quoter-internal.live-before-quote-list-status-20260527-214226.html
-reason: restore saved quote list full labels and workflow status highlighting

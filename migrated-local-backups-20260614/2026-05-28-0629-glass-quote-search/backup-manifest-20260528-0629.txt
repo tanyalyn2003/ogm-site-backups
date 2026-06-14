@@ -1,6 +1,0 @@
-Task: Apply stone-style quote search/status cards to glass quoter
-Original fresh pull: /Users/tanyawhite/OGM/fresh-godaddy-pulls/2026-05-28-0629/quoter-tool/OGM_GlassQuoter.html
-Local backup: /Users/tanyawhite/OGM/backups/2026-05-28-0629-glass-quote-search/OGM_GlassQuoter.remote-before-quote-search-20260528-0629.html
-Working file: /Users/tanyawhite/OGM/quoter-tool-working/OGM_GlassQuoter.html
-Remote backup folder: public_html/quoter-tool/backups/20260528-0629-glass-quote-search
-Changed files: OGM_GlassQuoter.html

@@ -1,8 +1,0 @@
-{
-  "name": "quoter-tool",
-  "private": true,
-  "scripts": {
-    "build:slabs": "node slabs/build-inventory.mjs slabs/slabs_export.csv",
-    "build:slabs:example": "node slabs/build-inventory.mjs slabs/slabs_export.example.csv"
-  }
-}
