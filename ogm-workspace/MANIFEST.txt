@@ -16,6 +16,9 @@ Included:
   docs/OGM-CHANGELOG.md
   .gitignore (template)
   OGM.code-workspace
+  scripts/ogm-github-setup.sh
+  brand/logos/ (OGM logo raster/WebP assets)
+  brand/background.ogm.psd
   MANIFEST.txt (this file)
 
 Excluded by design:

@@ -6,6 +6,11 @@ Dated notes for quoter-tool and workflow changes. Add a new entry at the top whe
 
 ## 2026-06-14
 
+### Brand & scripts backup (audit cleanup)
+
+- Added `ogm-workspace/brand/logos/` and `brand/background.ogm.psd` from local design assets.
+- Added `ogm-workspace/scripts/ogm-github-setup.sh` (mirror of dev-tools script).
+
 ### Snapshot removal & workflow policy
 
 - **Removed all dated website file snapshots** from `ogm-site-backups` GitHub repo (`2026-*` workflow folders and `migrated-local-backups-20260614/`).
