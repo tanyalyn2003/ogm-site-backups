@@ -1,6 +1,6 @@
 phase: pre-edit
 task: nav-customers-order
-file: ogm-quoter-internal.html
-remote_path: public_html/quoter-tool/ogm-quoter-internal.html
-source: /Users/tanyawhite/OGM/quoter-tool-working/ogm-quoter-internal.html
-timestamp: 20260614-120835
+file: OGM_GlassQuoter.html
+remote_path: public_html/quoter-tool/OGM_GlassQuoter.html
+source: /Users/tanyawhite/OGM/quoter-tool-working/OGM_GlassQuoter.html
+timestamp: 20260614-120841
