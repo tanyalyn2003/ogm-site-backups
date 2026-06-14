@@ -1,5 +1,5 @@
 ---
-description: OGM GoDaddy edit workflow — MUST fresh-pull before edit; GitHub pre/post backup; explicit upload approval only (two-computer safe)
+description: OGM GoDaddy edit workflow — MUST fresh-pull before edit; finish before upload; explicit upload approval only (two-computer safe)
 alwaysApply: true
 ---
 
@@ -13,15 +13,16 @@ Tanya edits on **two computers**. Local `quoter-tool-working/` copies are often 
 2. **`start` first — mandatory, no exceptions** — Run `ogm-workflow.sh start <remote-file> [task-slug]` **before** changing the file. If you have not run `start` for this file in **this session**, **stop and run it now** — do not edit first.
    - Fresh FTPS pull → `fresh-godaddy-pulls/`
    - Copy into `quoter-tool-working/`
-   - **Pre-edit backup** → commit + push to `github-backups/` (`ogm-site-backups` repo)
-3. **Never** edit from memory, old chat context, `backups/`, `fresh-godaddy-pulls/` (unless just pulled via `start`), or `github-backups/` post-edit folders as if they were live.
+3. **Never** edit from memory, old chat context, `backups/`, `fresh-godaddy-pulls/` (unless just pulled via `start`), or stale copies as if they were live.
 4. **Never** run `finish` or `upload` on a file unless `start` ran for that file **in this session** (or user explicitly confirms a same-day manual GoDaddy pull for that exact file).
 
 ## After editing
 
-5. **`finish` — mandatory after every edit** — Post-edit backup → GitHub (immediate push). Never skip `finish` because edits were small or "already backed up."
+5. **`finish` — mandatory after every edit** — Marks edits ready for upload. Never skip `finish` because edits were small.
 6. **Ask** — "Do you want me to upload this to GoDaddy?" **Wait for explicit upload approval** (see below). Never upload on ambiguous replies.
 7. **`upload`** — Only after explicit approval, with `OGM_CONFIRM_UPLOAD=yes` (GoDaddy remote backup happens automatically).
+
+Optional: set `OGM_GITHUB_BACKUP=yes` to also commit dated file snapshots to GitHub (off by default).
 
 ## Upload approval
 
@@ -54,8 +55,8 @@ OGM_CONFIRM_UPLOAD=yes /Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh u
 
 - **Never** edit a live site file without running `start` for that file in this session first.
 - **Never** skip `start` because "we edited this file earlier in the chat," "we already pulled once," or "the local copy looks fine."
-- **Never** treat `quoter-tool-working/`, `backups/`, or GitHub backup folders as live — only GoDaddy via fresh `start` pull.
-- **Never** upload without `finish` (post-edit GitHub backup) **and** explicit upload approval.
+- **Never** treat `quoter-tool-working/`, `backups/`, or backup folders as live — only GoDaddy via fresh `start` pull.
+- **Never** upload without `finish` **and** explicit upload approval.
 - **Never** upload on ambiguous "yes" — require upload-specific language.
 - FTP password only in `/Users/tanyawhite/OGM/.env.local` — never commit.
 

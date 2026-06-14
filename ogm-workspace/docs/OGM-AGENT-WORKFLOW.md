@@ -12,14 +12,13 @@ Tanya edits on **two computers**. Local copies are often stale. **GoDaddy is the
 |--------|------------------|
 | GoDaddy via `ogm-workflow.sh start` → `quoter-tool-working/` | **Yes** (after fresh pull in this session) |
 | `quoter-tool-working/` without same-session `start` | **No** |
-| `github-backups/YYYY-MM-DD-*-pre-edit` / `*-post-edit` | **No** — history only |
-| `github-backups/migrated-local-backups-*` | **No** |
-| `backups/` on Mac | **No** — legacy |
+| Mac `backups/`, Archive, Trash | **No** — legacy |
 | `fresh-godaddy-pulls/` (except just-created pull from `start`) | **No** |
 | Memory, old chat, Desktop/Downloads | **No** |
 | `github-backups/ogm-workspace/docs/` | **Yes** — documentation only |
+| GoDaddy server `backups/` folder | **No** — history only |
 
-`github-backups/` is **HISTORY**, not live.
+**GitHub `ogm-site-backups` repo** = workspace docs + scripts only. It is **not** the live site or edit history.
 
 ---
 
@@ -42,6 +41,8 @@ OGM_CONFIRM_UPLOAD=yes /Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh u
 
 Upload approval must be **upload-specific** (“Yes, upload”, “Push it live”) — not generic “yes” or “go ahead”.
 
+Optional: set `OGM_GITHUB_BACKUP=yes` to also commit dated file snapshots to GitHub (off by default since 2026-06-14).
+
 ---
 
 ## Hard blocks (refuse to proceed)
@@ -51,7 +52,7 @@ Upload approval must be **upload-specific** (“Yes, upload”, “Push it live�
 - Upload without `finish` + explicit upload approval
 - Upload on ambiguous approval
 - Commit `.env.local` or FTPS passwords
-- Commit parent `/Users/tanyawhite/OGM` git repo (no remote — use `github-backups` for backups)
+- Commit parent `/Users/tanyawhite/OGM` git repo (no remote — use `github-backups` for docs/scripts)
 - Use backup folders as edit source
 
 ---
@@ -61,9 +62,9 @@ Upload approval must be **upload-specific** (“Yes, upload”, “Push it live�
 Monthly (or when disk is tight):
 
 ```sh
-/Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh prune --dry-run
 /Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh prune-local --dry-run
-# Then with confirmation env vars if output looks correct
+# Then with confirmation env var if output looks correct
+OGM_CONFIRM_PRUNE_LOCAL=yes /Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh prune-local
 ```
 
 See `OGM-LOCAL-DISK-PLAN.md` and `dev-tools/OGM-WORKFLOW.md`.

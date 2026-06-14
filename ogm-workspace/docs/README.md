@@ -2,6 +2,8 @@
 
 Canonical knowledge base for **Olive Glass & Marble** quoter-tool (`oliveglassandmarble.com/quoter-tool`). These files live in the `ogm-site-backups` GitHub repo under `ogm-workspace/docs/` so both Macs and Cursor agents share one source of truth.
 
+**Repo policy (since 2026-06-14):** GitHub holds docs, scripts, and Cursor rules — **not** dated site file snapshots. Live site and upload history = GoDaddy + GoDaddy server `backups/`.
+
 ## Index
 
 | Document | Audience | Purpose |
@@ -26,6 +28,6 @@ When you ship a quoter-tool change:
 1. Add a dated entry to **OGM-CHANGELOG.md** (what changed, why, who cares).
 2. Update the relevant guide section (e.g. new hub tile → OGM-SITE-STRUCTURE + OGM-SOFTWARE-GUIDE).
 3. If workflow or retention rules change, update **OGM-AGENT-WORKFLOW.md**, **OGM-LOCAL-DISK-PLAN.md**, and `dev-tools/OGM-WORKFLOW.md`.
-4. Commit and push `github-backups` (`ogm-site-backups` repo). Copy synced files into `ogm-workspace/` as needed.
+4. Commit and push `github-backups` (`ogm-site-backups` repo). Sync updated scripts into `ogm-workspace/dev-tools/`.
 
 Agents: read **OGM-AGENT-WORKFLOW.md** and **OGM-SITE-STRUCTURE.md** before any live-file task.

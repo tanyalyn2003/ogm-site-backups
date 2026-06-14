@@ -7,17 +7,17 @@ alwaysApply: true
 
 Before **any** Olive Glass & Marble quoter-tool task (edits, uploads, debugging live files):
 
-1. Read `ogm-workspace/docs/OGM-AGENT-WORKFLOW.md` (in this repo)
-2. Read `ogm-workspace/docs/OGM-SITE-STRUCTURE.md`
-3. Follow `ogm-workspace/.cursor/rules/ogm-edit-workflow.mdc`
+1. Read `/Users/tanyawhite/OGM/github-backups/ogm-workspace/docs/OGM-AGENT-WORKFLOW.md`
+2. Read `/Users/tanyawhite/OGM/github-backups/ogm-workspace/docs/OGM-SITE-STRUCTURE.md`
+3. Follow `.cursor/rules/ogm-edit-workflow.mdc` (fresh `start`, `finish`, explicit upload approval)
 
 ## Never use as edit source
 
-- Dated `YYYY-MM-DD-*-pre-edit` / `*-post-edit` folders at repo root
-- `migrated-local-backups-*`
 - Mac `backups/`, Archive folders, Trash
 - Stale `quoter-tool-working/` without same-session `ogm-workflow.sh start`
 - `fresh-godaddy-pulls/` except the pull just created by `start`
+- GoDaddy server `backups/` folder (history only)
+- GitHub repo (docs/scripts only — not live site files)
 
 ## Valid edit path
 
@@ -25,8 +25,10 @@ Before **any** Olive Glass & Marble quoter-tool task (edits, uploads, debugging 
 
 ## More docs
 
-Index: `ogm-workspace/docs/README.md`
+Index: `github-backups/ogm-workspace/docs/README.md`
 
-Changelog: `ogm-workspace/docs/OGM-CHANGELOG.md`
+Changelog: `github-backups/ogm-workspace/docs/OGM-CHANGELOG.md`
 
-Disk / prune: `ogm-workspace/docs/OGM-LOCAL-DISK-PLAN.md`
+Disk / prune: `github-backups/ogm-workspace/docs/OGM-LOCAL-DISK-PLAN.md`
+
+Skill: `ogm-godaddy-workflow`

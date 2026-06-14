@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# OGM edit workflow: fresh pull → GitHub backup → edit → GitHub backup → ask before GoDaddy upload
+# OGM edit workflow: fresh pull → edit → finish → ask before GoDaddy upload
 set -euo pipefail
 
 OGM_ROOT="${OGM_ROOT:-/Users/tanyawhite/OGM}"
@@ -7,6 +7,7 @@ WORKING="${OGM_WORKING:-$OGM_ROOT/quoter-tool-working}"
 FRESH_PULLS="${OGM_FRESH_PULLS:-$OGM_ROOT/fresh-godaddy-pulls}"
 LOCAL_BACKUPS="${OGM_LOCAL_BACKUPS-}"
 GITHUB_BACKUPS="${OGM_GITHUB_BACKUPS:-$OGM_ROOT/github-backups}"
+WORKFLOW_STATE="${OGM_WORKFLOW_STATE:-$WORKING/.ogm-workflow}"
 FTPS_SCRIPT="${OGM_FTPS_SCRIPT:-$OGM_ROOT/dev-tools/godaddy-ftps/godaddy-ftps.sh}"
 ENV_FILE="${OGM_ENV_FILE:-$OGM_ROOT/.env.local}"
 
@@ -18,15 +19,25 @@ fi
 stamp() { date +%Y-%m-%d-%H%M; }
 stamp_full() { date +%Y%m%d-%H%M%S; }
 
+github_backups_enabled() {
+  [[ "${OGM_GITHUB_BACKUP:-}" == "yes" ]]
+}
+
+finish_marker() {
+  local task="$1"
+  local filename="$2"
+  printf '%s/%s-%s.ready' "$WORKFLOW_STATE" "$task" "$filename"
+}
+
 usage() {
   cat <<EOF
 OGM website edit workflow
 
 Usage:
-  $0 start <remote-file> [task-slug]     Pull fresh from GoDaddy, copy to working dir, pre-edit GitHub backup
-  $0 finish <filename> [task-slug]       Post-edit GitHub backup (after you edit in quoter-tool-working)
+  $0 start <remote-file> [task-slug]     Pull fresh from GoDaddy, copy to working dir
+  $0 finish <filename> [task-slug]       Mark edits ready for upload (after you edit in quoter-tool-working)
   $0 upload <filename> [task-slug]       Upload to GoDaddy ONLY when OGM_CONFIRM_UPLOAD=yes is set
-  $0 prune [--dry-run]                   Prune old dated workflow folders in github-backups/
+  $0 prune [--dry-run]                   Prune legacy dated workflow folders in github-backups/ (obsolete for new edits)
   $0 prune-local [--dry-run]             Prune old fresh-godaddy-pulls/ (keep latest 3; >7 days)
   $0 snapshot                            Full GoDaddy snapshot (planned — not implemented)
 
@@ -36,21 +47,20 @@ Examples:
   $0 finish email-center.php email-ai-draft
   OGM_CONFIRM_UPLOAD=yes $0 upload email-center.php email-ai-draft
 
-  $0 prune --dry-run
-  OGM_CONFIRM_PRUNE=yes $0 prune
   $0 prune-local --dry-run
   OGM_CONFIRM_PRUNE_LOCAL=yes $0 prune-local
 
 Rules enforced:
   - Always fresh-pull before editing
-  - Pre-edit and post-edit backups pushed to $GITHUB_BACKUPS
-  - Never uploads to GoDaddy without OGM_CONFIRM_UPLOAD=yes AND a GitHub post-edit backup
+  - GitHub file snapshots are OFF by default (set OGM_GITHUB_BACKUP=yes to opt in)
+  - Never uploads to GoDaddy without OGM_CONFIRM_UPLOAD=yes AND finish for this task
   - GoDaddy upload creates a remote backup before overwrite (via godaddy-ftps.sh)
   - Prune defaults to dry-run; set OGM_CONFIRM_PRUNE=yes (or OGM_CONFIRM_PRUNE_LOCAL=yes) to delete
 
 Environment:
   OGM_FTPS_PASS          GoDaddy FTPS password (or set in $ENV_FILE)
   OGM_CONFIRM_UPLOAD     Must be "yes" to run upload
+  OGM_GITHUB_BACKUP      Set to "yes" to create dated pre/post-edit snapshots in github-backups/
   OGM_CONFIRM_PRUNE      Must be "yes" to execute github-backups prune (not dry-run)
   OGM_CONFIRM_PRUNE_LOCAL Must be "yes" to execute fresh-godaddy-pulls prune (or use OGM_CONFIRM_PRUNE=yes)
   OGM_GITHUB_REMOTE      Git remote name (default: origin)
@@ -60,7 +70,7 @@ EOF
 ensure_github_repo() {
   if [[ ! -d "$GITHUB_BACKUPS/.git" ]]; then
     git -C "$GITHUB_BACKUPS" init -b main
-    printf '# OGM site file backups\n\nTimestamped pre/post-edit copies from GoDaddy workflow.\n' > "$GITHUB_BACKUPS/README.md"
+    printf '# OGM workspace\n\nDocs, scripts, and Cursor rules for the OGM quoter-tool workflow.\n' > "$GITHUB_BACKUPS/README.md"
     git -C "$GITHUB_BACKUPS" add README.md
     git -C "$GITHUB_BACKUPS" commit -m "Initialize ogm-site-backups repository"
   fi
@@ -106,6 +116,20 @@ MANIFEST
   fi
 }
 
+maybe_github_push_backup() {
+  local phase="$1"
+  local task="$2"
+  local file="$3"
+  local src="$4"
+
+  if github_backups_enabled; then
+    printf '=== GitHub %s backup (OGM_GITHUB_BACKUP=yes) ===\n' "$phase"
+    github_push_backup "$phase" "$task" "$file" "$src"
+  else
+    printf '=== Skipping GitHub %s backup (default; set OGM_GITHUB_BACKUP=yes to opt in) ===\n' "$phase"
+  fi
+}
+
 cmd_start() {
   local remote_file="${1:?remote file required}"
   local task="${2:-edit-$(basename "$remote_file" | tr '.' '-')}"
@@ -130,11 +154,10 @@ cmd_start() {
     cp "$working_file" "$local_backup_dir/$(basename "$remote_file")"
     cp "$working_file" "$working_file.bak-$(stamp_full)"
   else
-    printf '=== Step 3: Skipping local backup (GitHub-only; set OGM_LOCAL_BACKUPS to re-enable) ===\n'
+    printf '=== Step 3: Skipping local backup (set OGM_LOCAL_BACKUPS to re-enable) ===\n'
   fi
 
-  printf '=== Step 4: GitHub pre-edit backup (immediate push) ===\n'
-  github_push_backup "pre-edit" "$task" "$remote_file" "$working_file"
+  maybe_github_push_backup "pre-edit" "$task" "$remote_file" "$working_file"
 
   cat <<DONE
 
@@ -163,20 +186,22 @@ cmd_finish() {
     mkdir -p "$local_backup_dir"
     cp "$working_file" "$local_backup_dir/$filename"
   else
-    printf '=== Skipping post-edit local backup (GitHub-only) ===\n'
+    printf '=== Skipping post-edit local backup ===\n'
   fi
 
-  printf '=== GitHub post-edit backup (immediate push) ===\n'
-  github_push_backup "post-edit" "$task" "$filename" "$working_file"
+  maybe_github_push_backup "post-edit" "$task" "$filename" "$working_file"
+
+  mkdir -p "$WORKFLOW_STATE"
+  date -Iseconds > "$(finish_marker "$task" "$filename")"
 
   cat <<DONE
 
-=== Edits saved and backed up to GitHub ===
+=== Edits saved ===
 Working file: $working_file
 
 Do you want to upload this file to GoDaddy?
   - I will NOT upload without your explicit approval.
-  - Upload requires a GitHub post-edit backup (done above) and a GoDaddy remote backup.
+  - Upload requires finish (done above) and a GoDaddy remote backup on upload.
 
 To approve upload, run:
   OGM_CONFIRM_UPLOAD=yes $0 upload $filename $task
@@ -188,6 +213,8 @@ cmd_upload() {
   local filename="${1:?filename required}"
   local task="${2:-edit-$(basename "$filename" | tr '.' '-')}"
   local working_file="$WORKING/$filename"
+  local marker
+  marker="$(finish_marker "$task" "$filename")"
 
   if [[ "${OGM_CONFIRM_UPLOAD:-}" != "yes" ]]; then
     printf 'BLOCKED: GoDaddy upload requires OGM_CONFIRM_UPLOAD=yes and your explicit approval.\n' >&2
@@ -197,14 +224,21 @@ cmd_upload() {
 
   [[ -f "$working_file" ]] || { printf 'ERROR: working file not found: %s\n' "$working_file" >&2; exit 1; }
 
-  # Require a post-edit GitHub backup for this task today
-  if ! find "$GITHUB_BACKUPS" -type d -name "*-${task}-post-edit" 2>/dev/null | grep -q .; then
-    printf 'ERROR: No post-edit GitHub backup found for task "%s". Run finish first.\n' "$task" >&2
-    exit 1
+  if [[ ! -f "$marker" ]]; then
+    if github_backups_enabled; then
+      if ! find "$GITHUB_BACKUPS" -type d -name "*-${task}-post-edit" 2>/dev/null | grep -q .; then
+        printf 'ERROR: No finish marker and no post-edit GitHub backup for task "%s". Run finish first.\n' "$task" >&2
+        exit 1
+      fi
+    else
+      printf 'ERROR: Run finish first for task "%s".\n' "$task" >&2
+      exit 1
+    fi
   fi
 
   printf '=== GoDaddy upload (remote backup happens automatically) ===\n'
   "$FTPS_SCRIPT" upload "$task" "$working_file" "$filename"
+  rm -f "$marker"
   printf 'Upload complete: %s\n' "$filename"
 }
 
@@ -233,6 +267,7 @@ cmd_prune() {
   cutoff_30="$(date_days_ago 30)"
 
   printf '=== GitHub backup prune (%s) ===\n' "$([[ "$dry_run" -eq 1 ]] && echo 'dry-run' || echo 'EXECUTE')"
+  printf 'NOTE: New edits no longer create dated GitHub snapshots by default. This prunes legacy folders only.\n'
   printf 'Repo: %s\n' "$GITHUB_BACKUPS"
   printf 'Keep all folders since: %s | pre-edit drop when post exists since: %s\n' "$cutoff_90" "$cutoff_30"
 
@@ -311,7 +346,7 @@ PY
   local stats_line delete_count=0
   stats_line="$(printf '%s\n' "$result" | grep '^STATS:' | head -1)"
   if [[ -z "$stats_line" ]]; then
-    printf 'No workflow folders matched prune rules.\n'
+    printf 'No legacy workflow folders matched prune rules.\n'
     return 0
   fi
   IFS=':' read -r _ total keep_count delete_count <<< "$stats_line"
@@ -456,7 +491,7 @@ cmd_snapshot() {
 OGM full GoDaddy snapshot — not implemented yet.
 
 Planned: pull entire public_html/quoter-tool tree into github-backups/godaddy-full-snapshot-YYYYMMDD/
-Use ogm-workflow.sh start/finish for per-file backups today.
+Routine edits use start/finish with GoDaddy as live source and server backups/ on upload.
 See dev-tools/OGM-WORKFLOW.md and ogm-workspace/docs/OGM-LOCAL-DISK-PLAN.md.
 EOF
 }
