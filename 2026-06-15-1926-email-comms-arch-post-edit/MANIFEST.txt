@@ -1,0 +1,7 @@
+phase: post-edit
+task: email-comms-arch
+files: customers-api.php, email-api.php, OGM_CustomerDB.html
+remote_path: public_html/quoter-tool/
+source: /Users/tanyawhite/OGM/quoter-tool-working/
+timestamp: 2026-06-15T23:26:37Z
+notes: Email communications — sidecar archive, Customer Center UI, save-customer hardening
