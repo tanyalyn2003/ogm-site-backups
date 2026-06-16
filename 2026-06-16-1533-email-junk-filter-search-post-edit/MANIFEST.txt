@@ -1,6 +1,6 @@
 phase: post-edit
 task: email-junk-filter-search
-file: email-center.php
-remote_path: public_html/quoter-tool/email-center.php
-source: /Users/tanyawhite/OGM/quoter-tool-working/email-center.php
-timestamp: 20260616-153320
+file: email-ai-config.php
+remote_path: public_html/quoter-tool/email-ai-config.php
+source: /Users/tanyawhite/OGM/quoter-tool-working/email-ai-config.php
+timestamp: 20260616-153321
