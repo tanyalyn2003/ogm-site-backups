@@ -1,0 +1,3 @@
+# Hub cards and capability injection — upload both
+hub.php
+OGM_Hub.html

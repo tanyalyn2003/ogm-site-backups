@@ -11,7 +11,7 @@ ensure_github_repo() {
   if [[ ! -d "$GITHUB_BACKUPS/.git" ]]; then
     git -C "$GITHUB_BACKUPS" init -b main 2>/dev/null || git -C "$GITHUB_BACKUPS" init
     git -C "$GITHUB_BACKUPS" checkout -B main 2>/dev/null || true
-    printf '# OGM site file backups\n\nTimestamped pre/post-edit copies from GoDaddy workflow.\n' > "$GITHUB_BACKUPS/README.md"
+    printf '# OGM workspace\n\nCanonical docs, workflow scripts, Cursor rules, brand assets, and optional opt-in file snapshots for the OGM quoter-tool workflow.\n\nRoutine live-site file copies are not stored here by default.\n' > "$GITHUB_BACKUPS/README.md"
     git -C "$GITHUB_BACKUPS" add README.md
     git -C "$GITHUB_BACKUPS" commit -m "Initialize ogm-site-backups repository" || true
   fi
@@ -35,10 +35,11 @@ Next steps (one time):
 1. Create the GitHub repo (private recommended):
    https://github.com/new?name=${REPO_NAME}
 
-2. Push the backup repo:
+2. Push the workspace repo:
    cd "$GITHUB_BACKUPS"
    git push -u origin main
 
-After that, ogm-workflow.sh will push backups automatically on start and finish.
+After that, commit docs/rules/scripts from github-backups/ogm-workspace/.
+Routine site-file snapshots are only pushed when OGM_GITHUB_BACKUP=yes is set.
 
 INSTRUCTIONS

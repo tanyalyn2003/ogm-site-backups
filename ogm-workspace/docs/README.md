@@ -11,6 +11,7 @@ Canonical knowledge base for **Olive Glass & Marble** quoter-tool (`oliveglassan
 | Document | Audience | Purpose |
 |----------|----------|---------|
 | [OGM-SITE-STRUCTURE.md](./OGM-SITE-STRUCTURE.md) | Developers, agents | Map of site files, PHP APIs, where things live |
+| [dxf-cad-export-sop.md](./dxf-cad-export-sop.md) | Reps, CAD/template makers, developers | DXF color/layer convention for zones, stone, and cutouts |
 | [OGM-SOFTWARE-GUIDE.md](./OGM-SOFTWARE-GUIDE.md) | Sales reps, managers | How to use the internal tools (training) |
 | [OGM-AGENT-WORKFLOW.md](./OGM-AGENT-WORKFLOW.md) | Cursor AI agents | Mandatory edit workflow before touching live files |
 | [OGM-LOCAL-DISK-PLAN.md](./OGM-LOCAL-DISK-PLAN.md) | Tanya, IT | Keep Mac disk clean; prune schedule |

@@ -11,11 +11,11 @@ Remote path on GoDaddy: `public_html/quoter-tool/`
 | **GoDaddy** (`public_html/quoter-tool/`) | **Live production** — source of truth at task start |
 | **Mac** `quoter-tool-working/` | Edit copy only after `ogm-workflow.sh start` fresh pull |
 | **Mac** `fresh-godaddy-pulls/` | Short-term FTPS cache (prune after 7 days; keep newest 3) |
-| **GitHub** `ogm-site-backups` (`github-backups/`) | Timestamped pre/post-edit **history** — not live |
-| **GitHub** `ogm-workspace/` | Dev tools, docs, Cursor rules (synced essentials) |
+| **GitHub** `ogm-site-backups` (`github-backups/`) | Canonical docs, workflow scripts, Cursor rules, and brand assets — not live site files |
+| **GitHub** `ogm-workspace/` | Synced workspace docs, dev tools, and Cursor rules inside `github-backups/` |
 | **Mac** `backups/` | Legacy — do not use; migrated to `migrated-local-backups-*` |
 
-Never edit from dated `github-backups/YYYY-MM-DD-*` folders, `backups/`, Trash, or stale `quoter-tool-working/` without a fresh `start`.
+Never edit from GitHub snapshots (if opt-in snapshots exist), `backups/`, Trash, or stale `quoter-tool-working/` without a fresh `start`.
 
 ---
 

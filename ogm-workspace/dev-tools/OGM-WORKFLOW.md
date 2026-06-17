@@ -20,7 +20,14 @@ To commit docs/rules/script changes: sync into `github-backups/ogm-workspace/`, 
 GoDaddy (fresh pull) → edit locally → finish → ask → optional GoDaddy upload
 ```
 
-GitHub file snapshots are **off by default**. Set `OGM_GITHUB_BACKUP=yes` only if you want dated pre/post-edit copies in `github-backups/`.
+GitHub file snapshots are **off by default**. Set `OGM_GITHUB_BACKUP=yes` in `.env.local` if you want dated pre/post-edit copies in `github-backups/`.
+
+## Nested paths and safety
+
+- **Nested paths:** `start user-admin/index.php` copies to `quoter-tool-working/user-admin/index.php` (not flat `index.php`). A warning prints if Stone login `quoter-tool-working/index.php` also exists.
+- **Dirty working copy:** If you `start` again while local edits differ from GoDaddy, the script saves `*.bak-before-restart-<timestamp>` and warns. Set `OGM_FORCE_START=yes` to suppress the warning (backup still created).
+- **Rollback snapshots:** Before risky workflow changes, copies live under `dev-tools/snapshots/<date>-pre-<task>/` with `RESTORE.md` instructions.
+- **Task bundles:** `dev-tools/task-bundles/*.txt` list files that must ship together. Use `bundle-start`, `bundle-finish`, `bundle-upload`.
 
 ## Quick start
 
@@ -42,6 +49,16 @@ cp /Users/tanyawhite/OGM/.env.local.example /Users/tanyawhite/OGM/.env.local
 
 # Upload only when you approve:
 OGM_CONFIRM_UPLOAD=yes /Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh upload email-center.php my-task
+
+# Nested paths (preserves folders under quoter-tool-working/):
+/Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh start user-admin/index.php team-logins
+/Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh finish user-admin/index.php team-logins
+
+# Multi-file features (see dev-tools/task-bundles/*.txt):
+/Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh bundle-start api-access api-access
+# ... edit all listed files ...
+/Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh bundle-finish api-access api-access
+OGM_CONFIRM_UPLOAD=yes /Users/tanyawhite/OGM/dev-tools/scripts/ogm-workflow.sh bundle-upload api-access api-access
 ```
 
 ## GoDaddy FTPS
@@ -85,6 +102,19 @@ Set `OGM_GITHUB_BACKUP=yes` when running `start` / `finish` to restore the old b
 ### Optional duplicate local copies
 
 Set `OGM_LOCAL_BACKUPS=/Users/tanyawhite/OGM/backups` when running `ogm-workflow.sh` if you want local pre/post-edit folders (also creates `.bak-*` sidecars in `quoter-tool-working/` on `start`).
+
+### Optional external SSD backups
+
+Set `OGM_SSD_BACKUPS` in `.env.local` to mirror pre/post-edit copies to an external drive for immediate rollback (no GoDaddy upload involved).
+
+```sh
+# Example — Crucial X10 (writable under Users/tanyawhite/, not volume root)
+export OGM_SSD_BACKUPS="/Volumes/Crucial X10/Users/tanyawhite/OGM-backups"
+```
+
+When set, `start` and `finish` copy dated folders like `YYYY-MM-DD-HHMM-<task>-pre-edit/` and `-post-edit/` under that path, preserving nested paths (e.g. `user-admin/index.php`). See `RESTORE.md` on the SSD for rollback steps.
+
+Initial archive (2026-06-17): snapshots, newest FTPS pulls, key quoter-tool-working files, and workflow scripts were copied manually to the SSD before workflow-audit script changes.
 
 ## Local disk policy
 

@@ -4,6 +4,17 @@ Dated notes for quoter-tool and workflow changes. Add a new entry at the top whe
 
 ---
 
+## 2026-06-16
+
+### DXF import workflow audit
+
+- Standardized the documented DXF convention: red zones, green cutouts, default stone outlines.
+- Fixed AI Quick Start parser behavior so only green/color-3 or cutout-layer circles become DXF cutouts.
+- Added canonical DXF export SOP to living docs.
+- Cleaned stale GitHub repo wording around docs/scripts-only default behavior.
+
+---
+
 ## 2026-06-14
 
 ### Single-repo policy (agents)

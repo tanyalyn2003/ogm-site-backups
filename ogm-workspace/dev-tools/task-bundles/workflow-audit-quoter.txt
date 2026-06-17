@@ -1,0 +1,4 @@
+# Workflow audit quoter wiring fixes — upload together
+OGM_BlueprintScanner.html
+customer-ai-api.php
+OGM_KitchenPlanner.html

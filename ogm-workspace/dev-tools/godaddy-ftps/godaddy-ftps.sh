@@ -91,6 +91,7 @@ lftp_run() {
 set ftp:ssl-force true
 set ftp:ssl-protect-data true
 set ssl:verify-certificate no
+set xfer:clobber on
 $1
 bye
 "
