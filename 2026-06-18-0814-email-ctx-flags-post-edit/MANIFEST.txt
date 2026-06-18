@@ -1,0 +1,6 @@
+phase: post-edit
+task: email-ctx-flags
+file: email-api.php
+remote_path: public_html/quoter-tool/email-api.php
+source: /Users/tanyawhite/OGM/quoter-tool-working/email-api.php
+timestamp: 20260618-081413
