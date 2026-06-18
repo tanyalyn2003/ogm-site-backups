@@ -1,0 +1,7 @@
+phase: post-edit
+task: shape-builder-fix
+file: OGM_KitchenPlanner.html
+remote_path: public_html/quoter-tool/OGM_KitchenPlanner.html
+source: /Users/tanyawhite/OGM/quoter-tool-working/OGM_KitchenPlanner.html
+timestamp: 2026-06-18T09:47:13-04:00
+uploaded: yes

@@ -1,0 +1,7 @@
+phase: post-edit
+task: full-backsplash
+file: ogm-quoter-internal.html
+remote_path: public_html/quoter-tool/ogm-quoter-internal.html
+source: /Users/tanyawhite/OGM/quoter-tool-working/ogm-quoter-internal.html
+timestamp: 2026-06-18T09:47:13-04:00
+uploaded: yes
