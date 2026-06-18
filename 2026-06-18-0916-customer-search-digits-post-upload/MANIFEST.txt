@@ -1,0 +1,6 @@
+phase: post-upload
+task: customer-search-digits
+files: ogm-customer-search-lib.js, customer-search-lib.php, customers-api.php, OGM_CustomerDB.html
+remote_path: public_html/quoter-tool/
+timestamp: 20260618-091626
+uploaded: yes
