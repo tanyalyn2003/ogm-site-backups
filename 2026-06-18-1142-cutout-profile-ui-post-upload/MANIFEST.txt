@@ -1,0 +1,7 @@
+phase: post-upload
+task: cutout-profile-ui
+file: OGM_KitchenPlanner.html
+remote_path: public_html/quoter-tool/OGM_KitchenPlanner.html
+source: /Users/tanyawhite/OGM/quoter-tool-working/OGM_KitchenPlanner.html
+timestamp: 20260618-114209
+uploaded: yes
